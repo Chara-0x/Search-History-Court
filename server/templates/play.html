@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>The Jury Room</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .card-hover:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .selected-card {
+      border: 3px solid #22c55e !important;
+      transform: scale(1.02);
+      background-color: #f0fdf4;
+    }
+    .wrong-card {
+      border: 3px solid #ef4444 !important;
+      opacity: 0.6;
+    }
+    .correct-reveal {
+      border: 3px solid #22c55e !important;
+      background-color: #dcfce7;
+    }
+    .fade-in { animation: fadeIn 0.5s ease-in; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4">
+  <main class="w-full max-w-4xl">
+    <div class="text-center mb-8">
+      <p class="text-xs uppercase tracking-[0.28em] text-indigo-500 font-semibold">Jury Mode</p>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Spot the <span class="text-indigo-600">Lie</span></h1>
+      <p id="round-indicator" class="text-slate-400 font-medium uppercase text-sm tracking-widest mt-2">Round 1/10</p>
+    </div>
+
+    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+
+    <div id="action-area" class="text-center mt-10 h-20">
+      <p id="verdict-text" class="text-lg font-bold mb-3"></p>
+      <button id="next-btn" class="hidden px-8 py-3 bg-slate-900 text-white rounded-full font-bold shadow-lg hover:bg-slate-800 transition-colors">
+        Next Round &rarr;
+      </button>
+    </div>
+  </main>
+
+  <script>
+    const caseId = "{{case_id}}";
+    let currentRound = 0;
+    let totalRounds = 0;
+    let isLocked = false;
+    let score = 0;
+
+    async function loadRound() {
+      const container = document.getElementById("cards-container");
+      const nextBtn = document.getElementById("next-btn");
+      const verdictText = document.getElementById("verdict-text");
+
+      container.innerHTML = '<div class="col-span-3 text-center text-slate-400">Summoning evidence...</div>';
+      nextBtn.classList.add("hidden");
+      verdictText.innerText = "";
+      isLocked = false;
+
+      const res = await fetch(`/api/case/${caseId}/round/${currentRound}`);
+      const data = await res.json();
+
+      if (!data.ok || !data.cards) {
+        container.innerHTML = `
+          <div class="col-span-3 text-center py-10">
+            <h2 class="text-2xl font-bold mb-2">Game Over</h2>
+            <p class="text-xl text-indigo-600 font-bold">Score: ${score} / ${currentRound}</p>
+            <button onclick="location.reload()" class="mt-4 text-slate-500 underline">Play Again</button>
+          </div>`;
+        document.getElementById("round-indicator").innerText = "Final Verdict";
+        return;
+      }
+
+      totalRounds = data.total;
+      document.getElementById("round-indicator").innerText = `Round ${currentRound + 1} / ${totalRounds}`;
+
+      container.innerHTML = "";
+      data.cards.forEach((card, index) => {
+        const el = document.createElement("div");
+        el.className = "bg-white rounded-xl p-6 shadow-sm border border-slate-200 cursor-pointer transition-all duration-300 card-hover flex flex-col items-center text-center h-64 justify-between fade-in";
+        el.onclick = () => handleGuess(index, el);
+        const favUrl = `https://www.google.com/s2/favicons?domain=${card.host}&sz=64`;
+        el.innerHTML = `
+          <div class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mb-4 overflow-hidden">
+            <img src="${favUrl}" alt="icon" class="w-8 h-8 opacity-80">
+          </div>
+          <h3 class="font-bold text-slate-800 text-lg leading-snug mb-2 line-clamp-3">"${card.title}"</h3>
+          <div class="text-xs font-mono text-slate-400 bg-slate-100 px-2 py-1 rounded mt-auto">
+            ${card.host}
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    async function handleGuess(selectedIndex, cardElement) {
+      if (isLocked) return;
+      isLocked = true;
+
+      cardElement.classList.add("selected-card");
+
+      const res = await fetch(`/api/case/${caseId}/guess`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ round: currentRound, selection: selectedIndex })
+      });
+      const result = await res.json();
+
+      const verdictText = document.getElementById("verdict-text");
+      const cards = document.getElementById("cards-container").children;
+
+      if (result.correct) {
+        score++;
+        verdictText.innerHTML = '<span class="text-green-600">Correct!</span> That was a dirty lie.';
+      } else {
+        verdictText.innerHTML = '<span class="text-red-500">Objection!</span> That was actually in their history.';
+        cardElement.classList.remove("selected-card");
+        cardElement.classList.add("wrong-card");
+        if(cards[result.lie_index]) {
+          cards[result.lie_index].classList.add("correct-reveal");
+        }
+      }
+
+      currentRound++;
+      document.getElementById("next-btn").classList.remove("hidden");
+      document.getElementById("next-btn").onclick = loadRound;
+    }
+
+    loadRound();
+  </script>
+</body>
+</html>

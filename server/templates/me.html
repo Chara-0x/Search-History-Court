@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Curate Your Case | Search History Liar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <main class="max-w-6xl mx-auto px-6 py-10 space-y-10">
+    <header class="space-y-3">
+      <p class="text-xs uppercase tracking-[0.28em] text-indigo-500 font-semibold">Case Builder</p>
+      <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Curate your evidence</h1>
+      <p class="text-slate-600 max-w-3xl">We scanned your upload and grouped pages into website-type tags. Pick the perspectives you want, then preview and edit the rounds before sharing.</p>
+      <div class="inline-flex items-center gap-2 text-xs text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-full shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        Session <span class="font-mono text-slate-700">{{ session_id }}</span>
+      </div>
+    </header>
+
+    <section class="bg-white border border-slate-200 rounded-2xl shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 px-6 py-4 gap-3">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">Website type tags</p>
+          <p class="text-xs text-slate-500">Select the perspectives to feed the AI (aim for at least {{ min_tag_count }} items per tag).</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="readyOnly" class="text-sm px-3 py-2 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200">Ready-only</button>
+          <button id="selectAll" class="text-sm px-3 py-2 rounded-lg border border-slate-200 bg-indigo-600 text-white hover:bg-indigo-700">Select all</button>
+        </div>
+      </div>
+      <div id="tagGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6"></div>
+      <div id="tagStatus" class="px-6 pb-5 text-sm text-slate-500"></div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+      <div class="md:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="text-sm font-semibold text-slate-800">Rounds</label>
+          <input id="roundInput" type="number" min="3" max="15" value="8" class="w-20 text-center rounded-lg border border-slate-200 px-2 py-2 font-semibold text-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+          <span class="text-xs text-slate-500">More rounds = more spice.</span>
+        </div>
+        <button id="generateBtn" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-3 rounded-xl shadow-md">
+          <span>Generate rounds</span>
+          <span id="loadingDot" class="hidden w-2 h-2 rounded-full bg-white animate-pulse"></span>
+        </button>
+        <div id="genStatus" class="text-sm text-slate-500"></div>
+      </div>
+
+      <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 text-indigo-800 shadow-sm">
+        <h3 class="font-semibold mb-2">Tips for better chaos</h3>
+        <ul class="text-sm space-y-2">
+          <li>- Keep at least {{ min_tag_count }} items per tag so each perspective feels full.</li>
+          <li>- Mix serious (school/work/news) with weird (social/entertainment/shopping) for fun lies.</li>
+          <li>- Use the preview tools to delete or swap any boring round.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="previewSection" class="hidden bg-white border border-slate-200 rounded-2xl shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 border-b border-slate-100 gap-3">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">Preview & edit</p>
+          <p class="text-xs text-slate-500">Swap or delete rounds until you're happy. Changes save instantly.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="addRoundBtn" class="text-sm px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100">Add round</button>
+          <button id="refreshBtn" class="text-sm px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100">Refresh preview</button>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 border-b border-slate-100">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div class="flex-1">
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500 font-semibold">Shareable link</p>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono text-sm text-indigo-700 break-all" id="playUrlBox">Awaiting generation...</div>
+          </div>
+          <button id="copyLinkBtn" class="text-sm px-3 py-2 rounded-lg border border-indigo-200 text-indigo-700 hover:bg-indigo-50">Copy</button>
+        </div>
+      </div>
+
+      <div id="roundList" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      <div id="previewStatus" class="px-6 pb-5 text-sm text-slate-500"></div>
+    </section>
+  </main>
+
+  <script>
+    const sessionId = "{{ session_id }}";
+    const minPerTag = {{ min_tag_count }};
+    let tags = [];
+    let selectedTags = new Set();
+    let caseState = { id: null, playUrl: null, rounds: [] };
+
+    const tagGrid = document.getElementById("tagGrid");
+    const tagStatus = document.getElementById("tagStatus");
+    const genStatus = document.getElementById("genStatus");
+    const loadingDot = document.getElementById("loadingDot");
+    const previewSection = document.getElementById("previewSection");
+    const roundList = document.getElementById("roundList");
+    const playUrlBox = document.getElementById("playUrlBox");
+    const previewStatus = document.getElementById("previewStatus");
+
+    function escapeHtml(str = "") {
+      return str.replace(/[&<>'\"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", "\"": "&quot;" }[c]));
+    }
+
+    function setGenStatus(msg, tone = "muted") {
+      const colors = { muted: "text-slate-500", good: "text-emerald-600", bad: "text-rose-600" };
+      genStatus.className = "text-sm " + (colors[tone] || colors.muted);
+      genStatus.textContent = msg || "";
+    }
+
+    function setPreviewStatus(msg, tone = "muted") {
+      const colors = { muted: "text-slate-500", good: "text-emerald-600", bad: "text-rose-600" };
+      previewStatus.className = "px-6 pb-5 text-sm " + (colors[tone] || colors.muted);
+      previewStatus.textContent = msg || "";
+    }
+
+    function renderTags() {
+      tagGrid.innerHTML = "";
+      if (!tags.length) {
+        tagGrid.innerHTML = '<div class="text-sm text-slate-500">No history items yet. Upload from the extension and reload.</div>';
+        tagStatus.textContent = "0 selected";
+        return;
+      }
+      const readyTags = [];
+      tags.forEach((tag) => {
+        const isReady = tag.count >= minPerTag;
+        if (isReady) readyTags.push(tag.id);
+        const card = document.createElement("button");
+        const active = selectedTags.has(tag.id);
+        card.className = [
+          "text-left rounded-xl border p-4 transition shadow-sm",
+          active ? "border-indigo-300 bg-indigo-50" : "border-slate-200 bg-white hover:border-slate-300"
+        ].join(" ");
+        card.onclick = () => {
+          if (selectedTags.has(tag.id)) selectedTags.delete(tag.id);
+          else selectedTags.add(tag.id);
+          renderTags();
+        };
+        const samples = (tag.items || []).slice(0, 3).map((it) => escapeHtml(it.host));
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="text-xs uppercase tracking-[0.18em] text-slate-500 font-semibold">${escapeHtml(tag.id)}</p>
+              <p class="text-lg font-bold text-slate-900">${escapeHtml(tag.label)}</p>
+            </div>
+            <span class="text-xs px-2 py-1 rounded-full ${isReady ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}">
+              ${isReady ? "Ready" : `Needs ${Math.max(0, minPerTag - tag.count)}`}
+            </span>
+          </div>
+          <p class="mt-2 text-sm ${active ? "text-slate-700" : "text-slate-500"}">${tag.count} items</p>
+          <p class="mt-1 text-xs text-slate-500">eg. ${samples.join(", ") || "..."}</p>
+        `;
+        tagGrid.appendChild(card);
+      });
+
+      const readyCount = tags.filter((t) => t.count >= minPerTag).length;
+      tagStatus.textContent = `${selectedTags.size} selected - ${readyCount} tags meet the ${minPerTag}+ goal`;
+    }
+
+    async function fetchTags() {
+      tagGrid.innerHTML = '<div class="text-sm text-slate-500">Loading tags...</div>';
+      const res = await fetch(`/api/session/${sessionId}/tags`);
+      const data = await res.json().catch(() => ({}));
+      if (!data.ok) {
+        tagGrid.innerHTML = '<div class="text-sm text-rose-600">Failed to load tags.</div>';
+        return;
+      }
+      tags = data.tags || [];
+      const ready = tags.filter((t) => t.count >= minPerTag).map((t) => t.id);
+      selectedTags = new Set(ready.length ? ready : tags.map((t) => t.id));
+      renderTags();
+    }
+
+    async function generateCase() {
+      loadingDot.classList.remove("hidden");
+      setGenStatus("Generating rounds...");
+      const rounds = parseInt(document.getElementById("roundInput").value || "8", 10);
+      const body = {
+        session_id: sessionId,
+        rounds,
+        tags: Array.from(selectedTags),
+      };
+      const res = await fetch("/api/create-case", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json().catch(() => ({}));
+      loadingDot.classList.add("hidden");
+      if (!json.ok) {
+        setGenStatus(json.error || "Failed to generate.", "bad");
+        return;
+      }
+      caseState = { id: json.case_id, playUrl: json.play_url, rounds: json.rounds || [] };
+      playUrlBox.textContent = json.play_url;
+      previewSection.classList.remove("hidden");
+      setGenStatus("New rounds ready. Share after you finish edits.", "good");
+      renderRounds();
+    }
+
+    async function editCase(action, roundIndex = null) {
+      if (!caseState.id) return;
+      setPreviewStatus("Updating...");
+      const body = { action, tags: Array.from(selectedTags) };
+      if (roundIndex !== null) body.round = roundIndex;
+      if (action === "append_round") body.count = 1;
+
+      const res = await fetch(`/api/case/${caseState.id}/edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!json.ok) {
+        setPreviewStatus(json.error || "Edit failed.", "bad");
+        return;
+      }
+      caseState.rounds = json.rounds || [];
+      setPreviewStatus("Updated.", "good");
+      renderRounds();
+    }
+
+    async function refreshPreview() {
+      if (!caseState.id) return;
+      setPreviewStatus("Refreshing...");
+      const res = await fetch(`/api/case/${caseState.id}/rounds`);
+      const json = await res.json().catch(() => ({}));
+      if (!json.ok) {
+        setPreviewStatus(json.error || "Failed to refresh.", "bad");
+        return;
+      }
+      caseState.rounds = json.rounds || [];
+      setPreviewStatus("Preview synced.", "good");
+      renderRounds();
+    }
+
+    function renderRounds() {
+      roundList.innerHTML = "";
+      if (!caseState.rounds || !caseState.rounds.length) {
+        roundList.innerHTML = '<div class="text-sm text-slate-500">No rounds yet. Generate or add one.</div>';
+        return;
+      }
+      caseState.rounds.forEach((round, idx) => {
+        const card = document.createElement("div");
+        card.className = "border border-slate-200 rounded-xl p-4 bg-slate-50";
+        const topic = escapeHtml(round.topic || `Round ${idx + 1}`);
+        let cardsMarkup = "";
+        (round.cards || []).forEach((c, ci) => {
+          const isLie = ci === round.lie_index || c.is_lie;
+          cardsMarkup += `
+            <div class="flex items-start gap-3 rounded-lg px-3 py-2 ${isLie ? 'bg-rose-50 border border-rose-100' : 'bg-white border border-slate-200'}">
+              <div class="text-xs font-mono text-slate-500">${ci + 1}</div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-slate-800">${escapeHtml(c.title || "?")}</p>
+                <p class="text-xs text-slate-500">${escapeHtml(c.host || "?")}</p>
+              </div>
+              <span class="text-[11px] px-2 py-1 rounded-full ${isLie ? 'bg-rose-200 text-rose-800' : 'bg-emerald-100 text-emerald-700'}">${isLie ? 'Lie' : 'Truth'}</span>
+            </div>
+          `;
+        });
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <p class="text-xs uppercase tracking-[0.18em] text-slate-500 font-semibold">Round ${idx + 1}</p>
+              <p class="text-lg font-bold text-slate-900">${topic}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button data-act="swap" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100">Swap</button>
+              <button data-act="delete" class="text-xs px-3 py-1.5 rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50">Delete</button>
+            </div>
+          </div>
+          <div class="space-y-2">${cardsMarkup}</div>
+        `;
+        card.querySelector('[data-act="delete"]').onclick = () => editCase("delete_round", idx);
+        card.querySelector('[data-act="swap"]').onclick = () => editCase("regenerate_round", idx);
+        roundList.appendChild(card);
+      });
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", generateCase);
+    document.getElementById("selectAll").addEventListener("click", () => {
+      selectedTags = new Set(tags.map((t) => t.id));
+      renderTags();
+    });
+    document.getElementById("readyOnly").addEventListener("click", () => {
+      const ready = tags.filter((t) => t.count >= minPerTag).map((t) => t.id);
+      selectedTags = new Set(ready.length ? ready : tags.map((t) => t.id));
+      renderTags();
+    });
+    document.getElementById("addRoundBtn").addEventListener("click", () => editCase("append_round"));
+    document.getElementById("refreshBtn").addEventListener("click", refreshPreview);
+    document.getElementById("copyLinkBtn").addEventListener("click", async () => {
+      if (!caseState.playUrl) return;
+      await navigator.clipboard.writeText(caseState.playUrl);
+      setPreviewStatus("Link copied.", "good");
+    });
+
+    fetchTags();
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "Search History Court",
+  "description": "Turn your browsing history into a silly True/False court game.",
+  "version": "1.2.1",
+  "manifest_version": 3,
+  "permissions": ["history", "storage"],
+  "host_permissions": [
+    "https://historycourt.lol/*",
+    "http://127.0.0.1:5000/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_icon": "a.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://historycourt.lol/*", "http://127.0.0.1:5000/*"],
+      "js": ["contentScript.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
