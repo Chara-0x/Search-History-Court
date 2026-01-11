@@ -24,6 +24,13 @@
     try {
       localStorage.setItem(SESSION_KEY, id);
     } catch {}
+    try {
+      document.cookie = `${SESSION_KEY}=${encodeURIComponent(id)}; path=/; max-age=${60 * 60 * 24 * 30}`;
+    } catch {}
+    // Tell background to persist and set cooldown so the banner hides.
+    try {
+      chrome.runtime.sendMessage({ type: "hc-set-session", sessionId: id });
+    } catch {}
   }
 
   function injectShell() {
@@ -143,7 +150,19 @@
           }
           if (resp.session_id) setSessionId(resp.session_id);
           setStatus("Snapshot cached. Opening review…", "good");
-          window.location.href = "/review";
+          // Hide banner right after successful fetch so it doesn't linger.
+          if (shell) {
+            shell.remove();
+            document.body.style.paddingTop = "";
+          }
+          const goReview = () => {
+            if (window.location.pathname === "/review") {
+              window.location.reload();
+            } else {
+              window.location.href = "/review";
+            }
+          };
+          setTimeout(goReview, 50);
         }
       );
     };
@@ -177,8 +196,9 @@
     injectShell();
     attachHandlers();
   } else {
-    chrome.runtime.sendMessage({ type: "hc-should-prompt" }, (r) => {
-      const hasSession = (() => {
+    chrome.runtime.sendMessage({ type: "hc-session-state" }, (state) => {
+      if (!state?.ok) return;
+      const hasSessionLocal = (() => {
         try {
           return Boolean(localStorage.getItem(SESSION_KEY));
         } catch {
@@ -192,11 +212,21 @@
           return false;
         }
       })();
-      const allowLocalReset = !hasSession && !hasCache; // e.g. after portal deletion
-      if (!r?.ok) return;
-      if (!r.shouldPrompt && !allowLocalReset) return;
-      injectShell();
-      attachHandlers();
+      const hasSession = hasSessionLocal || Boolean(state.sessionId);
+      const now = Date.now();
+      const sessionFresh = hasSession && state.nextPromptAt && now < state.nextPromptAt;
+
+      // If we already have a session, hide the banner entirely (user uploaded before).
+      if (hasSession) return;
+
+      // Otherwise fall back to prompt gating (allows post-delete re-prompt).
+      chrome.runtime.sendMessage({ type: "hc-should-prompt" }, (r) => {
+        const allowLocalReset = !hasSession && !hasCache; // e.g. after portal deletion
+        if (!r?.ok) return;
+        if (!r.shouldPrompt && !allowLocalReset) return;
+        injectShell();
+        attachHandlers();
+      });
     });
   }
 })();

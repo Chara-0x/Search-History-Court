@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { createCase, editCase, fetchSessionTags } from "../api/client";
 import PageFrame from "../components/PageFrame";
 
+const SESSION_KEY = "hc_session_id";
 const statusColor = {
   muted: "text-slate-500",
   good: "text-emerald-600",
@@ -29,6 +30,21 @@ export default function CaseBuilderPage() {
 
   useEffect(() => {
     loadTags();
+  }, [sessionId]);
+
+  // Persist session id so Portal can pick it up later.
+  useEffect(() => {
+    if (!sessionId) return;
+    try {
+      localStorage.setItem(SESSION_KEY, sessionId);
+    } catch {
+      /* ignore */
+    }
+    try {
+      document.cookie = `${SESSION_KEY}=${encodeURIComponent(sessionId)}; path=/; max-age=${60 * 60 * 24 * 30}`;
+    } catch {
+      /* ignore */
+    }
   }, [sessionId]);
 
   useEffect(() => {

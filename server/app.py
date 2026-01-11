@@ -97,6 +97,28 @@ def init_db():
     conn.commit()
     conn.close()
 
+# ============================================================
+# Helpers
+# ============================================================
+def set_session_cookie(resp, session_id):
+    """
+    Attach the session cookie so the client/extension can pick it up
+    even if local storage is cleared.
+    """
+    try:
+        resp.set_cookie(
+            "hc_session_id",
+            session_id,
+            max_age=30 * 24 * 60 * 60,  # 30 days
+            secure=False,  # allow localhost/http; use env var later if needed
+            httponly=False,  # must be readable by frontend JS
+            samesite="Lax",
+            path="/",
+        )
+    except Exception:
+        pass
+    return resp
+
 
 def get_case_with_history(case_id):
     """
@@ -211,7 +233,8 @@ def upload_history():
         )
     conn.commit()
     conn.close()
-    return jsonify({"ok": True, "session_id": session_id, "total_in": len(history), "total_saved": len(cleaned)})
+    resp = jsonify({"ok": True, "session_id": session_id, "total_in": len(history), "total_saved": len(cleaned)})
+    return set_session_cookie(resp, session_id)
 
 
 def _get_roulette_game(game_id):
@@ -272,7 +295,12 @@ def delete_user():
     conn.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
     conn.commit()
     conn.close()
-    return jsonify({"ok": True})
+    resp = jsonify({"ok": True})
+    try:
+        resp.delete_cookie("hc_session_id", path="/")
+    except Exception:
+        pass
+    return resp
 
 
 # -----------------------------

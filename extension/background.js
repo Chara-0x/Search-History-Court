@@ -1,5 +1,5 @@
 chrome.action.onClicked.addListener(() => {
-  chrome.tabs.create({ url: "https://historycourt.lol" });
+  chrome.tabs.create({ url: "http://historycourt.lol" });
 });
 
 const COOLDOWN_MS = 60 * 60 * 1000; // 1 hour cooldown
@@ -112,6 +112,33 @@ async function setSessionId(id) {
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   (async () => {
+    if (message?.type === "hc-session-state") {
+      const st = await chrome.storage.local.get([SESSION_KEY, NEXT_PROMPT_AT_KEY, UPLOAD_LOCK_KEY]);
+      const nextAt = Number(st[NEXT_PROMPT_AT_KEY] || 0);
+      const inProgress = Boolean(st[UPLOAD_LOCK_KEY]);
+      const canPrompt = await shouldPromptNow();
+      sendResponse({
+        ok: true,
+        sessionId: st[SESSION_KEY] || "",
+        nextPromptAt: nextAt,
+        inProgress,
+        canPrompt,
+      });
+      return;
+    }
+
+    if (message?.type === "hc-set-session") {
+      const sess = (message.sessionId || "").trim();
+      if (!sess) {
+        sendResponse({ ok: false, error: "session_id_missing" });
+        return;
+      }
+      await setSessionId(sess);
+      await setCooldown(COOLDOWN_MS);
+      sendResponse({ ok: true, sessionId: sess });
+      return;
+    }
+
     if (message?.type === "hc-should-prompt") {
       sendResponse({ ok: true, shouldPrompt: await shouldPromptNow() });
       return;
@@ -142,7 +169,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           shuffled = shuffleInPlace(deduped);
         }
 
-        const apiBase = message.apiBase || "https://historycourt.lol";
+        const apiBase = message.apiBase || "http://historycourt.lol";
         url = `${apiBase.replace(/\/$/, "")}/api/roulette/room/${encodeURIComponent(roomId)}/join`;
 
         const res = await fetch(url, {
@@ -175,7 +202,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return;
       }
       try {
-        const apiBase = message.apiBase || "https://historycourt.lol";
+        const apiBase = message.apiBase || "http://historycourt.lol";
         const res = await fetch(`${apiBase.replace(/\/$/, "")}/api/delete-user`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -197,13 +224,16 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.type !== "upload-history") return;
 
     const reviewOnly = Boolean(message.reviewOnly);
-    // prevent spam if already uploading
-    const can = await shouldPromptNow();
-    if (!can) {
-      sendResponse({ ok: false, error: "cooldown_or_in_progress" });
-      return;
+    // review-only fetch should NOT be blocked by cooldown
+    if (!reviewOnly) {
+      const can = await shouldPromptNow();
+      if (!can) {
+        sendResponse({ ok: false, error: "cooldown_or_in_progress" });
+        return;
+      }
     }
 
+    // For review-only we still mark lock to avoid parallel spam, but we clear immediately after.
     await chrome.storage.local.set({ [UPLOAD_LOCK_KEY]: true });
 
     let url = null;
@@ -217,12 +247,12 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       const shuffled = shuffleInPlace(deduped);
 
       if (reviewOnly) {
-        await setCooldown(COOLDOWN_MS);
+        // Skip cooldown so the banner can re-open quickly after delete; just clear lock below.
         sendResponse({ ok: true, history: shuffled });
         return;
       }
 
-      const apiBase = message.apiBase || "https://historycourt.lol";
+      const apiBase = message.apiBase || "http://historycourt.lol";
       url = `${apiBase.replace(/\/$/, "")}/api/upload-history`;
 
       const res = await fetch(url, {

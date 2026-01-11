@@ -5,6 +5,7 @@ import { MAX_TAGS, classifyHistory, summarizeByTag } from "../lib/history";
 import PageFrame from "../components/PageFrame";
 
 const STORAGE_KEY = "hc_review_payload";
+const SESSION_KEY = "hc_session_id";
 
 export default function ReviewPage() {
   const navigate = useNavigate();
@@ -163,7 +164,23 @@ export default function ReviewPage() {
     try {
       const res = await uploadHistory(filteredItems);
       if (!res.ok) throw new Error(res.error || "Upload failed");
+      try {
+        if (res.session_id) {
+          localStorage.setItem(SESSION_KEY, res.session_id);
+          document.cookie = `${SESSION_KEY}=${encodeURIComponent(res.session_id)}; path=/; max-age=${60 * 60 * 24 * 30}`;
+        }
+      } catch (e) {
+        /* ignore */
+      }
       localStorage.removeItem(STORAGE_KEY);
+      // Inform the extension about the fresh session so the banner hides.
+      try {
+        if (window.chrome?.runtime?.sendMessage && res.session_id) {
+          window.chrome.runtime.sendMessage({ type: "hc-set-session", sessionId: res.session_id });
+        }
+      } catch (e) {
+        /* ignore extension messaging failures */
+      }
       setStatus({ msg: "Uploaded. Redirecting...", tone: "good" });
       navigate(`/me/${encodeURIComponent(res.session_id)}`);
     } catch (err) {

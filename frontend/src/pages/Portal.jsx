@@ -17,6 +17,38 @@ export default function PortalPage() {
     } catch (e) {
       /* ignore */
     }
+    if (!sessionId) {
+      try {
+        const cookieMatch = document.cookie.match(new RegExp(`(?:^|; )${SESSION_KEY}=([^;]+)`));
+        if (cookieMatch && cookieMatch[1]) {
+          setSessionId(decodeURIComponent(cookieMatch[1]));
+          try {
+            localStorage.setItem(SESSION_KEY, decodeURIComponent(cookieMatch[1]));
+          } catch {
+            /* ignore */
+          }
+        }
+      } catch (e) {
+        /* ignore */
+      }
+    }
+    // Ask extension (if installed) for session stored in chrome.storage.
+    try {
+      if (window.chrome?.runtime?.sendMessage) {
+        window.chrome.runtime.sendMessage({ type: "hc-session-state" }, (resp) => {
+          if (resp?.sessionId && !sessionId) {
+            setSessionId(resp.sessionId);
+            try {
+              localStorage.setItem(SESSION_KEY, resp.sessionId);
+            } catch {
+              /* ignore */
+            }
+          }
+        });
+      }
+    } catch (e) {
+      /* ignore */
+    }
   }, []);
 
   function goToPortal() {
