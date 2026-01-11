@@ -166,6 +166,11 @@ def roulette_room_join_page(room_id):
     return serve_react()
 
 
+@app.get("/portal")
+def user_portal():
+    return serve_react()
+
+
 @app.get("/play/<case_id>")
 def play(case_id):
     return serve_react()
@@ -175,6 +180,7 @@ def play(case_id):
 def upload_history():
     data = request.get_json(silent=True) or {}
     history = data.get("history") if isinstance(data, dict) else None
+    session_id = (data.get("session_id") or "").strip() if isinstance(data, dict) else ""
 
     if not history or not isinstance(history, list):
         return jsonify({"ok": False}), 400
@@ -184,12 +190,25 @@ def upload_history():
     if not cleaned:
         cleaned = []
 
-    session_id = gen_id(14)
     conn = db()
-    conn.execute(
-        "INSERT INTO sessions (id, created_at, history_json) VALUES (?, ?, ?)",
-        (session_id, utc_now_iso(), json.dumps(cleaned)),
-    )
+    if session_id:
+        row = conn.execute("SELECT id FROM sessions WHERE id = ?", (session_id,)).fetchone()
+        if row:
+            conn.execute(
+                "UPDATE sessions SET history_json = ?, created_at = ? WHERE id = ?",
+                (json.dumps(cleaned), utc_now_iso(), session_id),
+            )
+        else:
+            conn.execute(
+                "INSERT INTO sessions (id, created_at, history_json) VALUES (?, ?, ?)",
+                (session_id, utc_now_iso(), json.dumps(cleaned)),
+            )
+    else:
+        session_id = gen_id(14)
+        conn.execute(
+            "INSERT INTO sessions (id, created_at, history_json) VALUES (?, ?, ?)",
+            (session_id, utc_now_iso(), json.dumps(cleaned)),
+        )
     conn.commit()
     conn.close()
     return jsonify({"ok": True, "session_id": session_id, "total_in": len(history), "total_saved": len(cleaned)})
@@ -239,6 +258,21 @@ def review_summary():
         "tags": summary,
         "total": len(items),
     })
+
+
+@app.post("/api/delete-user")
+def delete_user():
+    data = request.get_json(silent=True) or {}
+    session_id = (data.get("session_id") or "").strip()
+    if not session_id:
+        return jsonify({"ok": False, "error": "session_id required"}), 400
+
+    conn = db()
+    conn.execute("DELETE FROM cases WHERE session_id = ?", (session_id,))
+    conn.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True})
 
 
 # -----------------------------
@@ -709,4 +743,4 @@ def guess(case_id):
 
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=80, debug=True)

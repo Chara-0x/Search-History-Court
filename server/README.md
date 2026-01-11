@@ -18,6 +18,7 @@ The server listens on `http://localhost:5000`.
 - `/roulette/<game_id>` guess which player owns the shown trio of tabs
 - `/roulette-room` create a joinable room; each browser uploads their own history, then host starts the roulette game
 - `/roulette-room/<room_id>` join a specific room and upload your history
+- `/portal` user portal to open your session or delete your data
 
 ## Key API routes
 - `POST /api/upload-history` body `{ history: [...] }` -> `{ ok, session_id }`

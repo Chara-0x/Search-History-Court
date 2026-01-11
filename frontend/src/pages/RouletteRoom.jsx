@@ -1,22 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import {
-  createRouletteRoom,
-  fetchRouletteRoom,
-  joinRouletteRoom,
-  startRouletteRoom,
-} from "../api/client";
-
-function parseHistory(text) {
-  if (!text || !text.trim()) return null;
-  try {
-    const data = JSON.parse(text);
-    if (!Array.isArray(data)) return null;
-    return data;
-  } catch (e) {
-    return null;
-  }
-}
+import { createRouletteRoom, fetchRouletteRoom, startRouletteRoom } from "../api/client";
 
 export default function RouletteRoomPage() {
   const { roomId: routeRoomId } = useParams();
@@ -28,12 +12,7 @@ export default function RouletteRoomPage() {
   const [picks, setPicks] = useState(3);
   const [status, setStatus] = useState({ msg: "", tone: "muted" });
 
-  const [name, setName] = useState("");
-  const [historyText, setHistoryText] = useState("");
-  const [fileName, setFileName] = useState("");
-  const [joining, setJoining] = useState(false);
   const [joinMsg, setJoinMsg] = useState({ msg: "", tone: "muted" });
-  const [joined, setJoined] = useState(false);
   const [startStatus, setStartStatus] = useState({ msg: "", tone: "muted" });
 
   // Sync route param changes
@@ -41,7 +20,6 @@ export default function RouletteRoomPage() {
     if (routeRoomId && routeRoomId !== roomId) {
       setRoomId(routeRoomId);
       setRoom(null);
-      setJoined(false);
       setJoinMsg({ msg: "", tone: "muted" });
     }
   }, [routeRoomId]);
@@ -68,16 +46,6 @@ export default function RouletteRoomPage() {
     };
   }, [roomId]);
 
-  function handleFile(file) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setHistoryText(e.target.result);
-      setFileName(file.name);
-    };
-    reader.readAsText(file);
-  }
-
   async function handleCreate() {
     setCreating(true);
     setStatus({ msg: "Creating room...", tone: "muted" });
@@ -90,25 +58,6 @@ export default function RouletteRoomPage() {
       setStatus({ msg: err.message, tone: "bad" });
     } finally {
       setCreating(false);
-    }
-  }
-
-  async function handleJoin() {
-    const parsed = parseHistory(historyText);
-    if (!parsed || !parsed.length) {
-      setJoinMsg({ msg: "Upload or paste a valid history JSON array.", tone: "bad" });
-      return;
-    }
-    setJoining(true);
-    setJoinMsg({ msg: "Uploading your history...", tone: "muted" });
-    try {
-      const res = await joinRouletteRoom(roomId, { name: name || "Player", history: parsed });
-      setJoinMsg({ msg: `Joined as ${res.name} with ${res.count} items.`, tone: "good" });
-      setJoined(true);
-    } catch (err) {
-      setJoinMsg({ msg: err.message, tone: "bad" });
-    } finally {
-      setJoining(false);
     }
   }
 
@@ -131,7 +80,6 @@ export default function RouletteRoomPage() {
     bad: "text-rose-600",
   };
 
-  const parsedCount = parseHistory(historyText)?.length || 0;
   const joinUrl = roomId ? `${window.location.origin}/roulette-room/${roomId}` : "";
 
   return (
@@ -251,41 +199,20 @@ export default function RouletteRoomPage() {
             <section className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
               <div>
                 <p className="text-sm font-semibold text-slate-900">Join this room</p>
-                <p className="text-xs text-slate-500">Upload your own history snapshot (JSON array of host/title).</p>
+                <p className="text-xs text-slate-500">
+                  Click the History Court extension. It will upload your browsing snapshot automatically and you'll appear in the list above.
+                </p>
               </div>
-              <div className="space-y-3">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your name"
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-                />
-                <div className="flex items-center gap-3 flex-wrap">
-                  <input
-                    type="file"
-                    accept="application/json"
-                    onChange={(e) => handleFile(e.target.files?.[0])}
-                    className="text-xs text-slate-500"
-                  />
-                  {fileName && <span className="text-xs text-slate-500">Loaded: {fileName}</span>}
-                  <span className="text-xs text-slate-400">{parsedCount ? `${parsedCount} items` : ""}</span>
-                </div>
-                <textarea
-                  value={historyText}
-                  onChange={(e) => setHistoryText(e.target.value)}
-                  className="w-full min-h-[140px] rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none"
-                  placeholder='Paste your history JSON array here if you did not choose a file.'
-                  disabled={room?.status === "started"}
-                />
-                <button
-                  onClick={handleJoin}
-                  disabled={joining || room?.status === "started"}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 disabled:opacity-50"
-                >
-                  {joining ? "Joining..." : joined ? "Join again (replace)" : "Join room"}
-                </button>
-                <div className={`text-sm ${statusColor[joinMsg.tone] || statusColor.muted}`}>{joinMsg.msg}</div>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-600">
+                <p className="font-semibold text-slate-800 mb-1">Steps</p>
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>Click the extension icon while on this page.</li>
+                  <li>Confirm upload when prompted.</li>
+                  <li>Wait a moment; your name will appear in the Players list.</li>
+                </ol>
+              </div>
+              <div className={`text-sm ${statusColor[joinMsg.tone] || statusColor.muted}`}>
+                {room?.status === "started" ? "Game already started." : joinMsg.msg || "Waiting for extension upload..."}
               </div>
             </section>
           </div>

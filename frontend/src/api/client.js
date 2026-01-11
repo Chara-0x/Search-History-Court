@@ -102,3 +102,10 @@ export function joinRouletteRoom(roomId, payload) {
 export function startRouletteRoom(roomId) {
   return request(`/api/roulette/room/${roomId}/start`, { method: "POST" });
 }
+
+export function deleteUser(sessionId) {
+  return request("/api/delete-user", {
+    method: "POST",
+    body: JSON.stringify({ session_id: sessionId }),
+  });
+}

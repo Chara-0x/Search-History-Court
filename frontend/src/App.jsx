@@ -7,6 +7,7 @@ import LoadingGamePage from "./pages/LoadingGame";
 import RouletteCreatePage from "./pages/RouletteCreate";
 import RoulettePlayPage from "./pages/RoulettePlay";
 import RouletteRoomPage from "./pages/RouletteRoom";
+import PortalPage from "./pages/Portal";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/roulette/:gameId" element={<RoulettePlayPage />} />
         <Route path="/roulette-room" element={<RouletteRoomPage />} />
         <Route path="/roulette-room/:roomId" element={<RouletteRoomPage />} />
+        <Route path="/portal" element={<PortalPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

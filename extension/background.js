@@ -1,10 +1,11 @@
 chrome.action.onClicked.addListener(() => {
-  chrome.tabs.create({ url: "https://historycourt.lol/roulette-room" });
+  chrome.tabs.create({ url: "https://historycourt.lol" });
 });
 
 const COOLDOWN_MS = 60 * 60 * 1000; // 1 hour cooldown
 const UPLOAD_LOCK_KEY = "hc_upload_in_progress";
 const NEXT_PROMPT_AT_KEY = "hc_next_prompt_at";
+const SESSION_KEY = "hc_session_id";
 
 function sanitizeHistoryItems(items) {
   const out = [];
@@ -98,6 +99,16 @@ async function setCooldown(ms = COOLDOWN_MS) {
   await chrome.storage.local.set({ [NEXT_PROMPT_AT_KEY]: Date.now() + ms });
 }
 
+async function getSessionId() {
+  const st = await chrome.storage.local.get([SESSION_KEY]);
+  return st[SESSION_KEY] || "";
+}
+
+async function setSessionId(id) {
+  if (!id) return;
+  await chrome.storage.local.set({ [SESSION_KEY]: id });
+}
+
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   (async () => {
     if (message?.type === "hc-should-prompt") {
@@ -105,30 +116,30 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       return;
     }
 
-    if (message?.type === "join-room") {
+    if (message?.type === "join-room" || message?.type === "join-room-with-history") {
       const roomId = (message.roomId || "").trim();
       const name = (message.name || "Player").trim() || "Player";
       if (!roomId) {
         sendResponse({ ok: false, error: "room_id_missing" });
         return;
       }
-
-      const can = await shouldPromptNow();
-      if (!can) {
-        sendResponse({ ok: false, error: "cooldown_or_in_progress" });
-        return;
-      }
+      // Skip cooldown for room joins to avoid blocking on previous uploads
       await chrome.storage.local.set({ [UPLOAD_LOCK_KEY]: true });
 
       let url = null;
       try {
-        const startTime = 0;
-        const batchSize = Math.max(200, Math.min(Number(message.maxResults) || 5000, 20000));
+        let shuffled = [];
+        if (message?.type === "join-room-with-history" && Array.isArray(message.history) && message.history.length) {
+          shuffled = dedupeSanitizedItems(message.history);
+        } else {
+          const startTime = 0;
+          const batchSize = Math.max(200, Math.min(Number(message.maxResults) || 5000, 20000));
 
-        const items = await fetchAllHistory({ startTime, batchSize });
-        const sanitized = sanitizeHistoryItems(items);
-        const deduped = dedupeSanitizedItems(sanitized);
-        const shuffled = shuffleInPlace(deduped);
+          const items = await fetchAllHistory({ startTime, batchSize });
+          const sanitized = sanitizeHistoryItems(items);
+          const deduped = dedupeSanitizedItems(sanitized);
+          shuffled = shuffleInPlace(deduped);
+        }
 
         const apiBase = message.apiBase || "https://historycourt.lol";
         url = `${apiBase.replace(/\/$/, "")}/api/roulette/room/${encodeURIComponent(roomId)}/join`;
@@ -136,21 +147,48 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, history: shuffled }),
+          body: JSON.stringify({
+            name,
+            history: shuffled,
+            session_id: (message.sessionId || "").trim(),
+          }),
         });
         const json = await res.json().catch(() => ({}));
         if (!res.ok) {
-          await setCooldown(10 * 60 * 1000);
           sendResponse({ ok: false, error: json.error || `HTTP ${res.status}`, url });
           return;
         }
-        await setCooldown(COOLDOWN_MS);
-        sendResponse({ ok: true, ...json, url });
+        sendResponse({ ok: true, ...json, url, history: shuffled });
       } catch (e) {
-        await setCooldown(10 * 60 * 1000);
         sendResponse({ ok: false, error: String(e), url });
       } finally {
         await chrome.storage.local.set({ [UPLOAD_LOCK_KEY]: false });
+      }
+      return;
+    }
+
+    if (message?.type === "delete-user") {
+      const sessionId = (message.sessionId || "").trim();
+      if (!sessionId) {
+        sendResponse({ ok: false, error: "session_id_missing" });
+        return;
+      }
+      try {
+        const apiBase = message.apiBase || "https://historycourt.lol";
+        const res = await fetch(`${apiBase.replace(/\/$/, "")}/api/delete-user`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId }),
+        });
+        const json = await res.json().catch(() => ({}));
+        await chrome.storage.local.remove([SESSION_KEY, NEXT_PROMPT_AT_KEY, UPLOAD_LOCK_KEY, "hc_review_payload"]);
+        if (!res.ok) {
+          sendResponse({ ok: false, error: json.error || `HTTP ${res.status}` });
+          return;
+        }
+        sendResponse({ ok: true });
+      } catch (e) {
+        sendResponse({ ok: false, error: String(e) });
       }
       return;
     }
@@ -189,7 +227,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ history: shuffled }),
+        body: JSON.stringify({
+          history: shuffled,
+          session_id: (message.sessionId || "").trim(),
+        }),
       });
 
       const json = await res.json().catch(() => ({}));
@@ -203,7 +244,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
       // success: long cooldown so it doesn't reprompt
       await setCooldown(COOLDOWN_MS);
-      sendResponse({ ok: true, ...json, url });
+      if (json.session_id) await setSessionId(json.session_id);
+      sendResponse({ ok: true, ...json, url, history: shuffled, session_id: json.session_id });
     } catch (e) {
       await setCooldown(10 * 60 * 1000);
       sendResponse({ ok: false, error: String(e), url });

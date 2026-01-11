@@ -25,6 +25,12 @@ export default function LandingPage() {
             >
               Create a room
             </Link>
+            <Link
+              to="/portal"
+              className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold px-5 py-3 rounded-xl shadow-sm"
+            >
+              My portal
+            </Link>
             <a
               href="https://github.com"
               className="text-sm px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100"

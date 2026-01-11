@@ -5,7 +5,7 @@
   "manifest_version": 3,
   "permissions": ["history", "storage"],
   "host_permissions": [
-    "https://historycourt.lol/*",
+    "http://historycourt.lol/*",
     "http://127.0.0.1:5000/*"
   ],
   "background": { "service_worker": "background.js" },
@@ -14,7 +14,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://historycourt.lol/*", "http://127.0.0.1:5000/*"],
+      "matches": ["http://historycourt.lol/*", "http://127.0.0.1:5000/*"],
       "js": ["contentScript.js"],
       "run_at": "document_idle"
     }
