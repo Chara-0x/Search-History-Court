@@ -1,22 +1,3507 @@
-[
-  { "tag": "social", "host": "reddit.com", "title": "AITA for training my neighbor's cat to only respond to 'Senator'?" },
-  { "tag": "social", "host": "twitter.com", "title": "How to tell if I've been shadowbanned or if my tweets are just bad" },
-  { "tag": "social", "host": "linkedin.com", "title": "Excited to announce I am starting a new position as Chief Vibes Officer" },
-  { "tag": "social", "host": "tiktok.com", "title": "trending cottagecore aesthetic tutorial for beginners" },
-  { "tag": "search", "host": "google.com", "title": "is it legal to own a flamethrower in South Dakota" },
-  { "tag": "search", "host": "wolframalpha.com", "title": "probability of being struck by lightning while holding a burrito" },
-  { "tag": "search", "host": "google.com", "title": "how to stop thinking about the Roman Empire every day" },
-  { "tag": "school_work", "host": "notion.so", "title": "Q4 Strategy - Project 'Golden Goose' - DRAFT" },
-  { "tag": "school_work", "host": "docs.google.com", "title": "Thesis Final FINAL v2 (USE THIS ONE).docx" },
-  { "tag": "school_work", "host": "slack.com", "title": "Direct Message from Boss: 'Do you have a minute to chat?'" },
-  { "tag": "entertainment", "host": "youtube.com", "title": "10 Hour Loop - Relaxing Lo-Fi Beats to Lie To" },
-  { "tag": "entertainment", "host": "netflix.com", "title": "Is 'The Great British Bake Off' actually a psychological thriller?" },
-  { "tag": "entertainment", "host": "letterboxd.com", "title": "Ranking every movie where a character eats a sandwich sadly" },
-  { "tag": "news", "host": "bbc.com", "title": "Scientists discover why the back of the fridge is actually a portal" },
-  { "tag": "news", "host": "theguardian.com", "title": "Opinion: Why we should all go back to using carrier pigeons" },
-  { "tag": "shopping_misc", "host": "amazon.com", "title": "Bulk purchase: 500 glow-in-the-dark rubber ducks" },
-  { "tag": "shopping_misc", "host": "ebay.com", "title": "Vintage 1990s empty Crystal Pepsi bottle - RARE" },
-  { "tag": "shopping_misc", "host": "etsy.com", "title": "Hand-knitted sweater for a bearded dragon" },
-  { "tag": "search", "host": "google.com", "title": "symptoms of being a main character" },
-  { "tag": "social", "host": "facebook.com", "title": "Town Community Group: Who left their trash can in the middle of the road??" }
-]
+{
+  "schema": "historycourt.fake_history.v1",
+  "generated_at": "2026-01-11T08:32:54.456400Z",
+  "total": 500,
+  "items": [
+    {
+      "host": "netflix.com",
+      "title": "\"I built a tiny OS in 48 hours\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 4,
+      "lastVisitTime": 1764501489699
+    },
+    {
+      "host": "reuters.com",
+      "title": "Live updates: a tech regulation update",
+      "tag": "news",
+      "visitCount": 12,
+      "lastVisitTime": 1765418245183
+    },
+    {
+      "host": "youtube.com",
+      "title": "\"I built a tiny OS in 48 hours\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 8,
+      "lastVisitTime": 1758313801652
+    },
+    {
+      "host": "amazon.com",
+      "title": "portable monitor review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 17,
+      "lastVisitTime": 1757755354204
+    },
+    {
+      "host": "threads.net",
+      "title": "Why did Instagram shadowban me?",
+      "tag": "social",
+      "visitCount": 5,
+      "lastVisitTime": 1757838897792
+    },
+    {
+      "host": "apnews.com",
+      "title": "Timeline: a large-scale protest from Jul to Feb",
+      "tag": "news",
+      "visitCount": 7,
+      "lastVisitTime": 1762395468004
+    },
+    {
+      "host": "nytimes.com",
+      "title": "Live updates: a major election result",
+      "tag": "news",
+      "visitCount": 14,
+      "lastVisitTime": 1758619124673
+    },
+    {
+      "host": "slack.com",
+      "title": "Overleaf – research summary (working draft)",
+      "tag": "school_work",
+      "visitCount": 13,
+      "lastVisitTime": 1760751598565
+    },
+    {
+      "host": "www.imdb.com",
+      "title": "Playlist: Main character energy",
+      "tag": "entertainment",
+      "visitCount": 6,
+      "lastVisitTime": 1760299288271
+    },
+    {
+      "host": "www.newegg.com",
+      "title": "used RTX GPU near me (no scams pls)",
+      "tag": "shopping_misc",
+      "visitCount": 13,
+      "lastVisitTime": 1765790029987
+    },
+    {
+      "host": "notion.so",
+      "title": "Final review sheet for CMPSC 24",
+      "tag": "school_work",
+      "visitCount": 14,
+      "lastVisitTime": 1765346834465
+    },
+    {
+      "host": "bestbuy.com",
+      "title": "shipping tracker: where is my midi controller",
+      "tag": "shopping_misc",
+      "visitCount": 3,
+      "lastVisitTime": 1763016934246
+    },
+    {
+      "host": "twitch.tv",
+      "title": "IMDb: The Batman (2012)",
+      "tag": "entertainment",
+      "visitCount": 1,
+      "lastVisitTime": 1764515610725
+    },
+    {
+      "host": "brave.com",
+      "title": "CORS preflight explained like I'm five",
+      "tag": "search",
+      "visitCount": 4,
+      "lastVisitTime": 1759109707891
+    },
+    {
+      "host": "www.nytimes.com",
+      "title": "Timeline: a tech regulation update from Aug to Jan",
+      "tag": "news",
+      "visitCount": 7,
+      "lastVisitTime": 1767397433314
+    },
+    {
+      "host": "canvas.ucsb.edu",
+      "title": "Figma – Smiley Agent UI mockups",
+      "tag": "school_work",
+      "visitCount": 16,
+      "lastVisitTime": 1760360790632
+    },
+    {
+      "host": "soundcloud.com",
+      "title": "\"I built a tiny OS in 48 hours\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 9,
+      "lastVisitTime": 1763912306289
+    },
+    {
+      "host": "facebook.com",
+      "title": "Why did X shadowban me?",
+      "tag": "social",
+      "visitCount": 5,
+      "lastVisitTime": 1764961868318
+    },
+    {
+      "host": "www.apnews.com",
+      "title": "Explainer: what a tech regulation update means for the EU",
+      "tag": "news",
+      "visitCount": 16,
+      "lastVisitTime": 1762423924902
+    },
+    {
+      "host": "walmart.com",
+      "title": "how to fix a resume bullet that keeps breaking",
+      "tag": "shopping_misc",
+      "visitCount": 1,
+      "lastVisitTime": 1767066508624
+    },
+    {
+      "host": "economist.com",
+      "title": "Fact check: the data was cherry-picked",
+      "tag": "news",
+      "visitCount": 16,
+      "lastVisitTime": 1766945920803
+    },
+    {
+      "host": "stackexchange.com",
+      "title": "what is the difference between RSA and ECC",
+      "tag": "search",
+      "visitCount": 12,
+      "lastVisitTime": 1758354179710
+    },
+    {
+      "host": "washingtonpost.com",
+      "title": "Live updates: a new AI model release",
+      "tag": "news",
+      "visitCount": 18,
+      "lastVisitTime": 1766759281672
+    },
+    {
+      "host": "linkedin.com",
+      "title": "Why did Pinterest shadowban me?",
+      "tag": "social",
+      "visitCount": 1,
+      "lastVisitTime": 1764519964942
+    },
+    {
+      "host": "coursera.org",
+      "title": "Office hours schedule • TA Kim",
+      "tag": "school_work",
+      "visitCount": 12,
+      "lastVisitTime": 1767773805935
+    },
+    {
+      "host": "ikea.com",
+      "title": "noise-canceling headphones review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 18,
+      "lastVisitTime": 1763797707680
+    },
+    {
+      "host": "brave.com",
+      "title": "SSTI explained like I'm five",
+      "tag": "search",
+      "visitCount": 8,
+      "lastVisitTime": 1760636345990
+    },
+    {
+      "host": "twitter.com",
+      "title": "Why did Discord shadowban me?",
+      "tag": "social",
+      "visitCount": 4,
+      "lastVisitTime": 1759047883396
+    },
+    {
+      "host": "netflix.com",
+      "title": "Radiohead — Get Lucky (lyrics)",
+      "tag": "entertainment",
+      "visitCount": 9,
+      "lastVisitTime": 1762477091015
+    },
+    {
+      "host": "github.com",
+      "title": "Overleaf – final report (working draft)",
+      "tag": "school_work",
+      "visitCount": 4,
+      "lastVisitTime": 1763876485656
+    },
+    {
+      "host": "mastodon.social",
+      "title": "How to turn off read receipts on Facebook",
+      "tag": "social",
+      "visitCount": 15,
+      "lastVisitTime": 1764486114983
+    },
+    {
+      "host": "aliexpress.com",
+      "title": "USB-C hub • Newegg",
+      "tag": "shopping_misc",
+      "visitCount": 4,
+      "lastVisitTime": 1761999620532
+    },
+    {
+      "host": "linkedin.com",
+      "title": "Best captions for a soft photo",
+      "tag": "social",
+      "visitCount": 6,
+      "lastVisitTime": 1763161523846
+    },
+    {
+      "host": "stackexchange.com",
+      "title": "how to speedrun a docker compose file",
+      "tag": "search",
+      "visitCount": 13,
+      "lastVisitTime": 1762496236937
+    },
+    {
+      "host": "netflix.com",
+      "title": "Twitch VOD: sykkuno • Minecraft",
+      "tag": "entertainment",
+      "visitCount": 15,
+      "lastVisitTime": 1767647415974
+    },
+    {
+      "host": "github.com",
+      "title": "why does a React component feel cursed",
+      "tag": "search",
+      "visitCount": 7,
+      "lastVisitTime": 1767935974862
+    },
+    {
+      "host": "sharepoint.com",
+      "title": "Project brief: Smiley Agent",
+      "tag": "school_work",
+      "visitCount": 11,
+      "lastVisitTime": 1764985573565
+    },
+    {
+      "host": "bhphotovideo.com",
+      "title": "used mini fridge near me (no scams pls)",
+      "tag": "shopping_misc",
+      "visitCount": 15,
+      "lastVisitTime": 1762731241911
+    },
+    {
+      "host": "www.hbomax.com",
+      "title": "Twitch VOD: tarik • League of Legends",
+      "tag": "entertainment",
+      "visitCount": 14,
+      "lastVisitTime": 1765218881992
+    },
+    {
+      "host": "www.threads.net",
+      "title": "How to turn off read receipts on Facebook",
+      "tag": "social",
+      "visitCount": 9,
+      "lastVisitTime": 1767595089187
+    },
+    {
+      "host": "google.com",
+      "title": "eigenvalues of a 2x2 matrix solved step by step",
+      "tag": "search",
+      "visitCount": 12,
+      "lastVisitTime": 1760241490325
+    },
+    {
+      "host": "music.apple.com",
+      "title": "Twitch VOD: pokimane • CS2",
+      "tag": "entertainment",
+      "visitCount": 5,
+      "lastVisitTime": 1759615670060
+    },
+    {
+      "host": "sharepoint.com",
+      "title": "CMPSC 24: Homework 6 – note taking",
+      "tag": "school_work",
+      "visitCount": 6,
+      "lastVisitTime": 1763162739552
+    },
+    {
+      "host": "www.wikipedia.org",
+      "title": "machine learning quick reference sheet",
+      "tag": "search",
+      "visitCount": 12,
+      "lastVisitTime": 1766686487129
+    },
+    {
+      "host": "linkedin.com",
+      "title": "How to turn off read receipts on Instagram",
+      "tag": "social",
+      "visitCount": 4,
+      "lastVisitTime": 1757948710619
+    },
+    {
+      "host": "letterboxd.com",
+      "title": "IMDb: Whiplash (1997)",
+      "tag": "entertainment",
+      "visitCount": 18,
+      "lastVisitTime": 1761229864916
+    },
+    {
+      "host": "imdb.com",
+      "title": "Best scenes in The Batman (no spoilers?)",
+      "tag": "entertainment",
+      "visitCount": 16,
+      "lastVisitTime": 1759142581964
+    },
+    {
+      "host": "wikipedia.org",
+      "title": "what is the difference between REST and GraphQL",
+      "tag": "search",
+      "visitCount": 3,
+      "lastVisitTime": 1767205757857
+    },
+    {
+      "host": "hulu.com",
+      "title": "Letterboxd list: Comfort comedies",
+      "tag": "entertainment",
+      "visitCount": 4,
+      "lastVisitTime": 1765934182117
+    },
+    {
+      "host": "economist.com",
+      "title": "Timeline: a large-scale protest from Sep to Dec",
+      "tag": "news",
+      "visitCount": 9,
+      "lastVisitTime": 1758911529153
+    },
+    {
+      "host": "snapchat.com",
+      "title": "Private account viewer? (please don't judge)",
+      "tag": "social",
+      "visitCount": 17,
+      "lastVisitTime": 1763421707783
+    },
+    {
+      "host": "mastodon.social",
+      "title": "How to turn off read receipts on Pinterest",
+      "tag": "social",
+      "visitCount": 17,
+      "lastVisitTime": 1757817481203
+    },
+    {
+      "host": "crunchyroll.com",
+      "title": "Best scenes in Parasite (no spoilers?)",
+      "tag": "entertainment",
+      "visitCount": 14,
+      "lastVisitTime": 1759509446673
+    },
+    {
+      "host": "www.target.com",
+      "title": "best routers under $75",
+      "tag": "shopping_misc",
+      "visitCount": 1,
+      "lastVisitTime": 1758720236615
+    },
+    {
+      "host": "linkedin.com",
+      "title": "Why did TikTok shadowban me?",
+      "tag": "social",
+      "visitCount": 6,
+      "lastVisitTime": 1765162651412
+    },
+    {
+      "host": "bbc.com",
+      "title": "Al Jazeera: Investigation opens after data leak allegations",
+      "tag": "news",
+      "visitCount": 4,
+      "lastVisitTime": 1759700875828
+    },
+    {
+      "host": "bsky.app",
+      "title": "the side-eye cat explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 13,
+      "lastVisitTime": 1757875439847
+    },
+    {
+      "host": "ebay.com",
+      "title": "shipping tracker: where is my keyboard",
+      "tag": "shopping_misc",
+      "visitCount": 11,
+      "lastVisitTime": 1758607431683
+    },
+    {
+      "host": "www.google.com",
+      "title": "are my neighbors listening (debunked?)",
+      "tag": "search",
+      "visitCount": 18,
+      "lastVisitTime": 1763226998840
+    },
+    {
+      "host": "notion.so",
+      "title": "MATH 4A: Homework 11 – complex numbers",
+      "tag": "school_work",
+      "visitCount": 3,
+      "lastVisitTime": 1762010288983
+    },
+    {
+      "host": "imdb.com",
+      "title": "Letterboxd list: Comfort sci-fi",
+      "tag": "entertainment",
+      "visitCount": 15,
+      "lastVisitTime": 1765247948071
+    },
+    {
+      "host": "music.apple.com",
+      "title": "\"I built a tiny OS in 48 hours\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 4,
+      "lastVisitTime": 1761744516573
+    },
+    {
+      "host": "www.reddit.com",
+      "title": "Why did Twitter shadowban me?",
+      "tag": "social",
+      "visitCount": 4,
+      "lastVisitTime": 1768079390766
+    },
+    {
+      "host": "music.apple.com",
+      "title": "Watch One Piece S6E6",
+      "tag": "entertainment",
+      "visitCount": 17,
+      "lastVisitTime": 1767189147683
+    },
+    {
+      "host": "twitter.com",
+      "title": "Private account viewer? (please don't judge)",
+      "tag": "social",
+      "visitCount": 6,
+      "lastVisitTime": 1767945053727
+    },
+    {
+      "host": "disneyplus.com",
+      "title": "Joji — Glimpse of Us (lyrics)",
+      "tag": "entertainment",
+      "visitCount": 8,
+      "lastVisitTime": 1761114028833
+    },
+    {
+      "host": "discord.com",
+      "title": "DM etiquette: is it weird to send 'u up'?",
+      "tag": "social",
+      "visitCount": 10,
+      "lastVisitTime": 1764003650073
+    },
+    {
+      "host": "www.slack.com",
+      "title": "Rubric: project proposal",
+      "tag": "school_work",
+      "visitCount": 8,
+      "lastVisitTime": 1759986431286
+    },
+    {
+      "host": "google.com",
+      "title": "buffer overflow explained like I'm five",
+      "tag": "search",
+      "visitCount": 5,
+      "lastVisitTime": 1768039061844
+    },
+    {
+      "host": "www.craigslist.org",
+      "title": "how to fix a React component that keeps breaking",
+      "tag": "shopping_misc",
+      "visitCount": 5,
+      "lastVisitTime": 1758243009587
+    },
+    {
+      "host": "crunchyroll.com",
+      "title": "Watch Black Mirror S1E8",
+      "tag": "entertainment",
+      "visitCount": 17,
+      "lastVisitTime": 1764131263826
+    },
+    {
+      "host": "theguardian.com",
+      "title": "Explainer: what a volcanic eruption means for Japan",
+      "tag": "news",
+      "visitCount": 16,
+      "lastVisitTime": 1763175672972
+    },
+    {
+      "host": "foxnews.com",
+      "title": "Bloomberg: Investigation opens after data leak allegations",
+      "tag": "news",
+      "visitCount": 15,
+      "lastVisitTime": 1759077037334
+    },
+    {
+      "host": "ikea.com",
+      "title": "coupon code for IKEA Jul 2012",
+      "tag": "shopping_misc",
+      "visitCount": 18,
+      "lastVisitTime": 1758081973888
+    },
+    {
+      "host": "www.craigslist.org",
+      "title": "used mini fridge near me (no scams pls)",
+      "tag": "shopping_misc",
+      "visitCount": 6,
+      "lastVisitTime": 1767526028929
+    },
+    {
+      "host": "www.newegg.com",
+      "title": "shipping tracker: where is my order",
+      "tag": "shopping_misc",
+      "visitCount": 11,
+      "lastVisitTime": 1758063473079
+    },
+    {
+      "host": "slack.com",
+      "title": "MATH 4B: Lecture 11 notes (draft)",
+      "tag": "school_work",
+      "visitCount": 10,
+      "lastVisitTime": 1767401731212
+    },
+    {
+      "host": "google.com",
+      "title": "how to memorize a React component",
+      "tag": "search",
+      "visitCount": 9,
+      "lastVisitTime": 1760563737750
+    },
+    {
+      "host": "aljazeera.com",
+      "title": "Timeline: a major election result from May to Sep",
+      "tag": "news",
+      "visitCount": 16,
+      "lastVisitTime": 1763606665187
+    },
+    {
+      "host": "linkedin.com",
+      "title": "goofy ahh explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 11,
+      "lastVisitTime": 1766832117159
+    },
+    {
+      "host": "wsj.com",
+      "title": "Explainer: what a new AI model release means for Japan",
+      "tag": "news",
+      "visitCount": 8,
+      "lastVisitTime": 1760249805433
+    },
+    {
+      "host": "www.bing.com",
+      "title": "why does a CTF exploit randomly fail on CI",
+      "tag": "search",
+      "visitCount": 18,
+      "lastVisitTime": 1758567361204
+    },
+    {
+      "host": "bing.com",
+      "title": "differential equations quick reference sheet",
+      "tag": "search",
+      "visitCount": 13,
+      "lastVisitTime": 1763665816988
+    },
+    {
+      "host": "crunchyroll.com",
+      "title": "Playlist: Gym PR attempts",
+      "tag": "entertainment",
+      "visitCount": 15,
+      "lastVisitTime": 1759761457207
+    },
+    {
+      "host": "twitch.tv",
+      "title": "IMDb: Dune (2017)",
+      "tag": "entertainment",
+      "visitCount": 6,
+      "lastVisitTime": 1766696173529
+    },
+    {
+      "host": "duckduckgo.com",
+      "title": "do pigeons have jobs (debunked?)",
+      "tag": "search",
+      "visitCount": 16,
+      "lastVisitTime": 1763793068018
+    },
+    {
+      "host": "newegg.com",
+      "title": "midi keyboard review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 4,
+      "lastVisitTime": 1759184031827
+    },
+    {
+      "host": "etsy.com",
+      "title": "noise-canceling headphones review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 6,
+      "lastVisitTime": 1761466578595
+    },
+    {
+      "host": "stackexchange.com",
+      "title": "buffer overflow explained like I'm five",
+      "tag": "search",
+      "visitCount": 12,
+      "lastVisitTime": 1765423049157
+    },
+    {
+      "host": "ebay.com",
+      "title": "coupon code for Target Dec 2004",
+      "tag": "shopping_misc",
+      "visitCount": 12,
+      "lastVisitTime": 1766808741981
+    },
+    {
+      "host": "google.com",
+      "title": "best way to learn Rust fast",
+      "tag": "search",
+      "visitCount": 4,
+      "lastVisitTime": 1761526803788
+    },
+    {
+      "host": "arxiv.org",
+      "title": "are my neighbors listening (debunked?)",
+      "tag": "search",
+      "visitCount": 5,
+      "lastVisitTime": 1764353176324
+    },
+    {
+      "host": "craigslist.org",
+      "title": "best routers under $25",
+      "tag": "shopping_misc",
+      "visitCount": 12,
+      "lastVisitTime": 1760788621410
+    },
+    {
+      "host": "asana.com",
+      "title": "Rubric: reflection write-up",
+      "tag": "school_work",
+      "visitCount": 17,
+      "lastVisitTime": 1761623157404
+    },
+    {
+      "host": "music.apple.com",
+      "title": "Twitch VOD: tarik • Valorant",
+      "tag": "entertainment",
+      "visitCount": 11,
+      "lastVisitTime": 1767455766659
+    },
+    {
+      "host": "arxiv.org",
+      "title": "∫ e^{x} dx solved step by step",
+      "tag": "search",
+      "visitCount": 18,
+      "lastVisitTime": 1761720178494
+    },
+    {
+      "host": "reddit.com",
+      "title": "coquette aesthetic explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 2,
+      "lastVisitTime": 1765557023207
+    },
+    {
+      "host": "drive.google.com",
+      "title": "CMPSC 24: Lecture 11 notes (draft)",
+      "tag": "school_work",
+      "visitCount": 17,
+      "lastVisitTime": 1766940535548
+    },
+    {
+      "host": "www.apnews.com",
+      "title": "Explainer: what a volcanic eruption means for Brazil",
+      "tag": "news",
+      "visitCount": 6,
+      "lastVisitTime": 1764634366296
+    },
+    {
+      "host": "www.youtube.com",
+      "title": "Best scenes in Interstellar (no spoilers?)",
+      "tag": "entertainment",
+      "visitCount": 9,
+      "lastVisitTime": 1761768253007
+    },
+    {
+      "host": "figma.com",
+      "title": "Overleaf – final report (working draft)",
+      "tag": "school_work",
+      "visitCount": 1,
+      "lastVisitTime": 1762341583714
+    },
+    {
+      "host": "ikea.com",
+      "title": "shipping tracker: where is my shipment",
+      "tag": "shopping_misc",
+      "visitCount": 4,
+      "lastVisitTime": 1763261029834
+    },
+    {
+      "host": "www.target.com",
+      "title": "gaming mouse review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 17,
+      "lastVisitTime": 1763508101205
+    },
+    {
+      "host": "instagram.com",
+      "title": "Best captions for a main character photo",
+      "tag": "social",
+      "visitCount": 8,
+      "lastVisitTime": 1761979852991
+    },
+    {
+      "host": "youtube.com",
+      "title": "Best scenes in The Batman (no spoilers?)",
+      "tag": "entertainment",
+      "visitCount": 2,
+      "lastVisitTime": 1758856874091
+    },
+    {
+      "host": "www.github.com",
+      "title": "what is the difference between BFS and DFS",
+      "tag": "search",
+      "visitCount": 4,
+      "lastVisitTime": 1760043093753
+    },
+    {
+      "host": "aliexpress.com",
+      "title": "how to fix a resume bullet that keeps breaking",
+      "tag": "shopping_misc",
+      "visitCount": 15,
+      "lastVisitTime": 1757940370294
+    },
+    {
+      "host": "wolframalpha.com",
+      "title": "best way to learn public speaking fast",
+      "tag": "search",
+      "visitCount": 15,
+      "lastVisitTime": 1759533245432
+    },
+    {
+      "host": "aljazeera.com",
+      "title": "Opinion: everyone is sleeping on RSS",
+      "tag": "news",
+      "visitCount": 2,
+      "lastVisitTime": 1760302133875
+    },
+    {
+      "host": "wikipedia.org",
+      "title": "best way to learn speed reading fast",
+      "tag": "search",
+      "visitCount": 4,
+      "lastVisitTime": 1763395012104
+    },
+    {
+      "host": "duckduckgo.com",
+      "title": "what is the difference between TCP and UDP",
+      "tag": "search",
+      "visitCount": 17,
+      "lastVisitTime": 1760033191857
+    },
+    {
+      "host": "reuters.com",
+      "title": "Timeline: a large-scale protest from Nov to Mar",
+      "tag": "news",
+      "visitCount": 12,
+      "lastVisitTime": 1764719146148
+    },
+    {
+      "host": "instagram.com",
+      "title": "Best captions for a sleep-deprived photo",
+      "tag": "social",
+      "visitCount": 7,
+      "lastVisitTime": 1762046497895
+    },
+    {
+      "host": "nytimes.com",
+      "title": "Al Jazeera: Leaders meet to discuss climate commitments",
+      "tag": "news",
+      "visitCount": 10,
+      "lastVisitTime": 1766403102704
+    },
+    {
+      "host": "craigslist.org",
+      "title": "used RTX GPU near me (no scams pls)",
+      "tag": "shopping_misc",
+      "visitCount": 7,
+      "lastVisitTime": 1758898991579
+    },
+    {
+      "host": "threads.net",
+      "title": "DM etiquette: is it weird to send 'hey lol'?",
+      "tag": "social",
+      "visitCount": 15,
+      "lastVisitTime": 1761064072037
+    },
+    {
+      "host": "pinterest.com",
+      "title": "Why did Facebook shadowban me?",
+      "tag": "social",
+      "visitCount": 9,
+      "lastVisitTime": 1761964303607
+    },
+    {
+      "host": "foxnews.com",
+      "title": "Opinion: passwords are a dead end",
+      "tag": "news",
+      "visitCount": 3,
+      "lastVisitTime": 1765222034566
+    },
+    {
+      "host": "asana.com",
+      "title": "CMPSC 40: Homework 5 – complex numbers",
+      "tag": "school_work",
+      "visitCount": 4,
+      "lastVisitTime": 1767279132658
+    },
+    {
+      "host": "hbomax.com",
+      "title": "Letterboxd list: Top sci-fi",
+      "tag": "entertainment",
+      "visitCount": 8,
+      "lastVisitTime": 1757827746392
+    },
+    {
+      "host": "facebook.com",
+      "title": "Is clean girl cringe or iconic?",
+      "tag": "social",
+      "visitCount": 14,
+      "lastVisitTime": 1762048153398
+    },
+    {
+      "host": "ebay.com",
+      "title": "USB-C hub review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 6,
+      "lastVisitTime": 1761042789623
+    },
+    {
+      "host": "bsky.app",
+      "title": "Avery's profile • Pinterest",
+      "tag": "social",
+      "visitCount": 17,
+      "lastVisitTime": 1765579112258
+    },
+    {
+      "host": "mastodon.social",
+      "title": "Private account viewer? (please don't judge)",
+      "tag": "social",
+      "visitCount": 10,
+      "lastVisitTime": 1758798303831
+    },
+    {
+      "host": "tiktok.com",
+      "title": "DM etiquette: is it weird to send 'sent by accident'?",
+      "tag": "social",
+      "visitCount": 2,
+      "lastVisitTime": 1758774815273
+    },
+    {
+      "host": "ikea.com",
+      "title": "midi keyboard • Best Buy",
+      "tag": "shopping_misc",
+      "visitCount": 9,
+      "lastVisitTime": 1758744991870
+    },
+    {
+      "host": "snapchat.com",
+      "title": "How to turn off read receipts on Twitter",
+      "tag": "social",
+      "visitCount": 10,
+      "lastVisitTime": 1759082003335
+    },
+    {
+      "host": "www.khanacademy.org",
+      "title": "Final review sheet for MATH 4A",
+      "tag": "school_work",
+      "visitCount": 1,
+      "lastVisitTime": 1764177072993
+    },
+    {
+      "host": "washingtonpost.com",
+      "title": "Live updates: a major election result",
+      "tag": "news",
+      "visitCount": 7,
+      "lastVisitTime": 1766550738736
+    },
+    {
+      "host": "mastodon.social",
+      "title": "Best captions for a soft photo",
+      "tag": "social",
+      "visitCount": 9,
+      "lastVisitTime": 1764513983519
+    },
+    {
+      "host": "wikipedia.org",
+      "title": "how to fix a React component",
+      "tag": "search",
+      "visitCount": 3,
+      "lastVisitTime": 1759218154587
+    },
+    {
+      "host": "wolframalpha.com",
+      "title": "CORS preflight explained like I'm five",
+      "tag": "search",
+      "visitCount": 8,
+      "lastVisitTime": 1765721706878
+    },
+    {
+      "host": "theguardian.com",
+      "title": "Opinion: everyone is sleeping on RSS",
+      "tag": "news",
+      "visitCount": 5,
+      "lastVisitTime": 1761535610063
+    },
+    {
+      "host": "cnn.com",
+      "title": "Bloomberg: New study challenges popular diet myth",
+      "tag": "news",
+      "visitCount": 3,
+      "lastVisitTime": 1767612833143
+    },
+    {
+      "host": "instagram.com",
+      "title": "Zoe's profile • Pinterest",
+      "tag": "social",
+      "visitCount": 1,
+      "lastVisitTime": 1764061748776
+    },
+    {
+      "host": "trello.com",
+      "title": "Office hours schedule • TA Rivera",
+      "tag": "school_work",
+      "visitCount": 12,
+      "lastVisitTime": 1763336237601
+    },
+    {
+      "host": "stackexchange.com",
+      "title": "SSTI explained like I'm five",
+      "tag": "search",
+      "visitCount": 13,
+      "lastVisitTime": 1757769700374
+    },
+    {
+      "host": "github.com",
+      "title": "why does a resume bullet feel cursed",
+      "tag": "search",
+      "visitCount": 13,
+      "lastVisitTime": 1768018520932
+    },
+    {
+      "host": "www.tiktok.com",
+      "title": "Why did LinkedIn shadowban me?",
+      "tag": "social",
+      "visitCount": 11,
+      "lastVisitTime": 1763251685204
+    },
+    {
+      "host": "hbomax.com",
+      "title": "Twitch VOD: sykkuno • Elden Ring",
+      "tag": "entertainment",
+      "visitCount": 12,
+      "lastVisitTime": 1767818194984
+    },
+    {
+      "host": "www.notion.so",
+      "title": "Rubric: problem set",
+      "tag": "school_work",
+      "visitCount": 18,
+      "lastVisitTime": 1757765888268
+    },
+    {
+      "host": "khanacademy.org",
+      "title": "Office hours schedule • TA Rivera",
+      "tag": "school_work",
+      "visitCount": 16,
+      "lastVisitTime": 1766542639512
+    },
+    {
+      "host": "hulu.com",
+      "title": "Letterboxd list: Underrated sci-fi",
+      "tag": "entertainment",
+      "visitCount": 13,
+      "lastVisitTime": 1764385343082
+    },
+    {
+      "host": "economist.com",
+      "title": "Timeline: a major election result from Aug to Sep",
+      "tag": "news",
+      "visitCount": 8,
+      "lastVisitTime": 1767709132359
+    },
+    {
+      "host": "disneyplus.com",
+      "title": "Watch Stranger Things S2E2",
+      "tag": "entertainment",
+      "visitCount": 13,
+      "lastVisitTime": 1765100951866
+    },
+    {
+      "host": "duckduckgo.com",
+      "title": "is my laptop mining crypto (debunked?)",
+      "tag": "search",
+      "visitCount": 12,
+      "lastVisitTime": 1759845750615
+    },
+    {
+      "host": "hbomax.com",
+      "title": "Watch Black Mirror S3E11",
+      "tag": "entertainment",
+      "visitCount": 7,
+      "lastVisitTime": 1761094824847
+    },
+    {
+      "host": "spotify.com",
+      "title": "Letterboxd list: Best anime",
+      "tag": "entertainment",
+      "visitCount": 4,
+      "lastVisitTime": 1764922572641
+    },
+    {
+      "host": "arxiv.org",
+      "title": "cryptography quick reference sheet",
+      "tag": "search",
+      "visitCount": 12,
+      "lastVisitTime": 1767852592020
+    },
+    {
+      "host": "newegg.com",
+      "title": "coupon code for IKEA Sep 1996",
+      "tag": "shopping_misc",
+      "visitCount": 14,
+      "lastVisitTime": 1764319787030
+    },
+    {
+      "host": "ebay.com",
+      "title": "DIY: build a cable organizer for under $30",
+      "tag": "shopping_misc",
+      "visitCount": 15,
+      "lastVisitTime": 1766212977857
+    },
+    {
+      "host": "threads.net",
+      "title": "the side-eye cat explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 9,
+      "lastVisitTime": 1761444427909
+    },
+    {
+      "host": "udemy.com",
+      "title": "Office hours schedule • Prof. Nguyen",
+      "tag": "school_work",
+      "visitCount": 4,
+      "lastVisitTime": 1760553235487
+    },
+    {
+      "host": "washingtonpost.com",
+      "title": "Explainer: what a volcanic eruption means for California",
+      "tag": "news",
+      "visitCount": 16,
+      "lastVisitTime": 1763953627439
+    },
+    {
+      "host": "craigslist.org",
+      "title": "coupon code for Etsy Jun 2008",
+      "tag": "shopping_misc",
+      "visitCount": 17,
+      "lastVisitTime": 1762861545988
+    },
+    {
+      "host": "khanacademy.org",
+      "title": "Project brief: HistoryCourt",
+      "tag": "school_work",
+      "visitCount": 3,
+      "lastVisitTime": 1761238955597
+    },
+    {
+      "host": "threads.net",
+      "title": "Best captions for a soft photo",
+      "tag": "social",
+      "visitCount": 17,
+      "lastVisitTime": 1766260648587
+    },
+    {
+      "host": "www.gist.drive.google.com",
+      "title": "Project brief: HistoryCourt",
+      "tag": "school_work",
+      "visitCount": 3,
+      "lastVisitTime": 1764345493622
+    },
+    {
+      "host": "piazza.com",
+      "title": "CMPSC 24: Homework 10 – linear algebra",
+      "tag": "school_work",
+      "visitCount": 14,
+      "lastVisitTime": 1763924620530
+    },
+    {
+      "host": "soundcloud.com",
+      "title": "Watch The Expanse S4E8",
+      "tag": "entertainment",
+      "visitCount": 5,
+      "lastVisitTime": 1758780381726
+    },
+    {
+      "host": "costco.com",
+      "title": "DIY: build a custom keycap set for under $120",
+      "tag": "shopping_misc",
+      "visitCount": 13,
+      "lastVisitTime": 1761058800531
+    },
+    {
+      "host": "khanacademy.org",
+      "title": "MATH 4A: Homework 5 – cryptography",
+      "tag": "school_work",
+      "visitCount": 13,
+      "lastVisitTime": 1767770084707
+    },
+    {
+      "host": "bbc.com",
+      "title": "Timeline: a large-scale protest from Jan to Feb",
+      "tag": "news",
+      "visitCount": 15,
+      "lastVisitTime": 1758557506631
+    },
+    {
+      "host": "foxnews.com",
+      "title": "Fact check: a video was faked",
+      "tag": "news",
+      "visitCount": 16,
+      "lastVisitTime": 1762612882197
+    },
+    {
+      "host": "support.wikipedia.org",
+      "title": "JWT pitfalls explained like I'm five",
+      "tag": "search",
+      "visitCount": 7,
+      "lastVisitTime": 1760581510321
+    },
+    {
+      "host": "wolframalpha.com",
+      "title": "is the moon hollow (debunked?)",
+      "tag": "search",
+      "visitCount": 9,
+      "lastVisitTime": 1767578592913
+    },
+    {
+      "host": "spotify.com",
+      "title": "Twitch VOD: xqc • Elden Ring",
+      "tag": "entertainment",
+      "visitCount": 5,
+      "lastVisitTime": 1758902927392
+    },
+    {
+      "host": "discord.com",
+      "title": "Is doomscrolling cringe or iconic?",
+      "tag": "social",
+      "visitCount": 16,
+      "lastVisitTime": 1765981776957
+    },
+    {
+      "host": "asana.com",
+      "title": "Final review sheet for CMPSC 40",
+      "tag": "school_work",
+      "visitCount": 1,
+      "lastVisitTime": 1767785187748
+    },
+    {
+      "host": "bbc.com",
+      "title": "Live updates: a tech regulation update",
+      "tag": "news",
+      "visitCount": 7,
+      "lastVisitTime": 1757924553670
+    },
+    {
+      "host": "slack.com",
+      "title": "Project brief: HistoryCourt",
+      "tag": "school_work",
+      "visitCount": 3,
+      "lastVisitTime": 1758803134975
+    },
+    {
+      "host": "www.craigslist.org",
+      "title": "SSD 2TB • Etsy",
+      "tag": "shopping_misc",
+      "visitCount": 4,
+      "lastVisitTime": 1762825964606
+    },
+    {
+      "host": "disneyplus.com",
+      "title": "Playlist: Main character energy",
+      "tag": "entertainment",
+      "visitCount": 5,
+      "lastVisitTime": 1762044257943
+    },
+    {
+      "host": "stackoverflow.com",
+      "title": "best way to learn public speaking fast",
+      "tag": "search",
+      "visitCount": 2,
+      "lastVisitTime": 1767029867656
+    },
+    {
+      "host": "aliexpress.com",
+      "title": "coupon code for IKEA Aug 2019",
+      "tag": "shopping_misc",
+      "visitCount": 14,
+      "lastVisitTime": 1758481411860
+    },
+    {
+      "host": "duckduckgo.com",
+      "title": "how to fix a CTF exploit",
+      "tag": "search",
+      "visitCount": 4,
+      "lastVisitTime": 1764284428486
+    },
+    {
+      "host": "sharepoint.com",
+      "title": "CMPSC 16: Homework 2 – machine learning",
+      "tag": "school_work",
+      "visitCount": 3,
+      "lastVisitTime": 1767519167735
+    },
+    {
+      "host": "brave.com",
+      "title": "why does a proof feel cursed",
+      "tag": "search",
+      "visitCount": 5,
+      "lastVisitTime": 1764815504569
+    },
+    {
+      "host": "linkedin.com",
+      "title": "Leo's profile • LinkedIn",
+      "tag": "social",
+      "visitCount": 2,
+      "lastVisitTime": 1766066891076
+    },
+    {
+      "host": "notion.so",
+      "title": "MATH 4B: Homework 7 – differential equations",
+      "tag": "school_work",
+      "visitCount": 18,
+      "lastVisitTime": 1765961694958
+    },
+    {
+      "host": "piazza.com",
+      "title": "Office hours schedule • Prof. Chen",
+      "tag": "school_work",
+      "visitCount": 9,
+      "lastVisitTime": 1762599912373
+    },
+    {
+      "host": "sharepoint.com",
+      "title": "MATH 4B: Homework 11 – complex numbers",
+      "tag": "school_work",
+      "visitCount": 17,
+      "lastVisitTime": 1763468244018
+    },
+    {
+      "host": "www.github.com",
+      "title": "Office hours schedule • TA Kim",
+      "tag": "school_work",
+      "visitCount": 17,
+      "lastVisitTime": 1762189201179
+    },
+    {
+      "host": "www.wolframalpha.com",
+      "title": "best way to learn learning Japanese fast",
+      "tag": "search",
+      "visitCount": 4,
+      "lastVisitTime": 1764541246215
+    },
+    {
+      "host": "cnn.com",
+      "title": "Explainer: what a volcanic eruption means for Brazil",
+      "tag": "news",
+      "visitCount": 1,
+      "lastVisitTime": 1765945640734
+    },
+    {
+      "host": "mastodon.social",
+      "title": "Why did Twitter shadowban me?",
+      "tag": "social",
+      "visitCount": 2,
+      "lastVisitTime": 1766987964974
+    },
+    {
+      "host": "washingtonpost.com",
+      "title": "Opinion: we should abolish meetings",
+      "tag": "news",
+      "visitCount": 8,
+      "lastVisitTime": 1767576482290
+    },
+    {
+      "host": "www.facebook.com",
+      "title": "Private account viewer? (please don't judge)",
+      "tag": "social",
+      "visitCount": 5,
+      "lastVisitTime": 1761870706320
+    },
+    {
+      "host": "crunchyroll.com",
+      "title": "Letterboxd list: Best tearjerkers",
+      "tag": "entertainment",
+      "visitCount": 16,
+      "lastVisitTime": 1764518803412
+    },
+    {
+      "host": "www.washingtonpost.com",
+      "title": "Timeline: a major election result from Feb to Sep",
+      "tag": "news",
+      "visitCount": 7,
+      "lastVisitTime": 1759922456173
+    },
+    {
+      "host": "crunchyroll.com",
+      "title": "Watch Blue Eye Samurai S4E6",
+      "tag": "entertainment",
+      "visitCount": 9,
+      "lastVisitTime": 1760654751681
+    },
+    {
+      "host": "www.office.com",
+      "title": "Office hours schedule • TA Rivera",
+      "tag": "school_work",
+      "visitCount": 13,
+      "lastVisitTime": 1763822617758
+    },
+    {
+      "host": "nytimes.com",
+      "title": "Explainer: what a major election result means for the Middle East",
+      "tag": "news",
+      "visitCount": 9,
+      "lastVisitTime": 1763815787743
+    },
+    {
+      "host": "snapchat.com",
+      "title": "DM etiquette: is it weird to send 'this is so cursed'?",
+      "tag": "social",
+      "visitCount": 4,
+      "lastVisitTime": 1768044846100
+    },
+    {
+      "host": "www.apnews.com",
+      "title": "NYT: Markets react to surprise policy shift",
+      "tag": "news",
+      "visitCount": 1,
+      "lastVisitTime": 1758135338006
+    },
+    {
+      "host": "stackexchange.com",
+      "title": "note taking quick reference sheet",
+      "tag": "search",
+      "visitCount": 11,
+      "lastVisitTime": 1759655257765
+    },
+    {
+      "host": "instagram.com",
+      "title": "Best captions for a unhinged photo",
+      "tag": "social",
+      "visitCount": 12,
+      "lastVisitTime": 1758741435545
+    },
+    {
+      "host": "facebook.com",
+      "title": "Best captions for a unhinged photo",
+      "tag": "social",
+      "visitCount": 9,
+      "lastVisitTime": 1761694939882
+    },
+    {
+      "host": "slack.com",
+      "title": "Final review sheet for PSTAT 120A",
+      "tag": "school_work",
+      "visitCount": 5,
+      "lastVisitTime": 1766914853482
+    },
+    {
+      "host": "www.wikipedia.org",
+      "title": "∫ e^{x} dx solved step by step",
+      "tag": "search",
+      "visitCount": 4,
+      "lastVisitTime": 1767330910600
+    },
+    {
+      "host": "spotify.com",
+      "title": "Twitch VOD: tarik • CS2",
+      "tag": "entertainment",
+      "visitCount": 3,
+      "lastVisitTime": 1765980877797
+    },
+    {
+      "host": "craigslist.org",
+      "title": "coupon code for Etsy May 2022",
+      "tag": "shopping_misc",
+      "visitCount": 7,
+      "lastVisitTime": 1767368418244
+    },
+    {
+      "host": "duckduckgo.com",
+      "title": "best way to learn learning Japanese fast",
+      "tag": "search",
+      "visitCount": 4,
+      "lastVisitTime": 1767643031889
+    },
+    {
+      "host": "www.overleaf.com",
+      "title": "Rubric: problem set",
+      "tag": "school_work",
+      "visitCount": 17,
+      "lastVisitTime": 1763870106896
+    },
+    {
+      "host": "www.brave.com",
+      "title": "what is the difference between BFS and DFS",
+      "tag": "search",
+      "visitCount": 15,
+      "lastVisitTime": 1765563182988
+    },
+    {
+      "host": "costco.com",
+      "title": "gaming mouse review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 5,
+      "lastVisitTime": 1758272851072
+    },
+    {
+      "host": "letterboxd.com",
+      "title": "Best scenes in The Batman (no spoilers?)",
+      "tag": "entertainment",
+      "visitCount": 1,
+      "lastVisitTime": 1764968637029
+    },
+    {
+      "host": "newegg.com",
+      "title": "noise-canceling headphones • Newegg",
+      "tag": "shopping_misc",
+      "visitCount": 16,
+      "lastVisitTime": 1759044172027
+    },
+    {
+      "host": "udemy.com",
+      "title": "CMPSC 16: Lecture 6 notes (draft)",
+      "tag": "school_work",
+      "visitCount": 1,
+      "lastVisitTime": 1763665011547
+    },
+    {
+      "host": "etsy.com",
+      "title": "coupon code for Costco Dec 2023",
+      "tag": "shopping_misc",
+      "visitCount": 2,
+      "lastVisitTime": 1766756528481
+    },
+    {
+      "host": "udemy.com",
+      "title": "Project brief: HistoryCourt",
+      "tag": "school_work",
+      "visitCount": 3,
+      "lastVisitTime": 1759358967451
+    },
+    {
+      "host": "www.foxnews.com",
+      "title": "Timeline: a new AI model release from May to Aug",
+      "tag": "news",
+      "visitCount": 11,
+      "lastVisitTime": 1762394503477
+    },
+    {
+      "host": "asana.com",
+      "title": "Figma – Smiley Agent UI mockups",
+      "tag": "school_work",
+      "visitCount": 13,
+      "lastVisitTime": 1758735852854
+    },
+    {
+      "host": "soundcloud.com",
+      "title": "Watch One Piece S6E1",
+      "tag": "entertainment",
+      "visitCount": 8,
+      "lastVisitTime": 1764190279040
+    },
+    {
+      "host": "edstem.org",
+      "title": "Final review sheet for CMPSC 16",
+      "tag": "school_work",
+      "visitCount": 13,
+      "lastVisitTime": 1758387993420
+    },
+    {
+      "host": "wolframalpha.com",
+      "title": "heap exploitation explained like I'm five",
+      "tag": "search",
+      "visitCount": 16,
+      "lastVisitTime": 1767193013071
+    },
+    {
+      "host": "www.google.com",
+      "title": "why does a proof segfault",
+      "tag": "search",
+      "visitCount": 5,
+      "lastVisitTime": 1767699835677
+    },
+    {
+      "host": "soundcloud.com",
+      "title": "IMDb: Dune (2022)",
+      "tag": "entertainment",
+      "visitCount": 3,
+      "lastVisitTime": 1766076131491
+    },
+    {
+      "host": "office.com",
+      "title": "Figma – EquationPlotter UI mockups",
+      "tag": "school_work",
+      "visitCount": 10,
+      "lastVisitTime": 1768005018721
+    },
+    {
+      "host": "mastodon.social",
+      "title": "Is skibidi cringe or iconic?",
+      "tag": "social",
+      "visitCount": 11,
+      "lastVisitTime": 1760539749254
+    },
+    {
+      "host": "youtube.com",
+      "title": "IMDb: Whiplash (2009)",
+      "tag": "entertainment",
+      "visitCount": 4,
+      "lastVisitTime": 1759749845712
+    },
+    {
+      "host": "theguardian.com",
+      "title": "Fact check: the headline is misleading",
+      "tag": "news",
+      "visitCount": 7,
+      "lastVisitTime": 1761141890622
+    },
+    {
+      "host": "github.com",
+      "title": "Taylor series of sin(x) solved step by step",
+      "tag": "search",
+      "visitCount": 5,
+      "lastVisitTime": 1767087883929
+    },
+    {
+      "host": "help.wikipedia.org",
+      "title": "how to debug a TypeScript type",
+      "tag": "search",
+      "visitCount": 10,
+      "lastVisitTime": 1757988876927
+    },
+    {
+      "host": "pinterest.com",
+      "title": "Private account viewer? (please don't judge)",
+      "tag": "social",
+      "visitCount": 11,
+      "lastVisitTime": 1758167291604
+    },
+    {
+      "host": "www.google.com",
+      "title": "differential equations quick reference sheet",
+      "tag": "search",
+      "visitCount": 15,
+      "lastVisitTime": 1764567995935
+    },
+    {
+      "host": "linkedin.com",
+      "title": "DM etiquette: is it weird to send 'sent by accident'?",
+      "tag": "social",
+      "visitCount": 18,
+      "lastVisitTime": 1758118251864
+    },
+    {
+      "host": "instagram.com",
+      "title": "Why did Discord shadowban me?",
+      "tag": "social",
+      "visitCount": 14,
+      "lastVisitTime": 1758715022628
+    },
+    {
+      "host": "newegg.com",
+      "title": "SSD 2TB review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 8,
+      "lastVisitTime": 1761387238476
+    },
+    {
+      "host": "ikea.com",
+      "title": "coupon code for Target May 2010",
+      "tag": "shopping_misc",
+      "visitCount": 14,
+      "lastVisitTime": 1763420325920
+    },
+    {
+      "host": "disneyplus.com",
+      "title": "Letterboxd list: Underrated anime",
+      "tag": "entertainment",
+      "visitCount": 7,
+      "lastVisitTime": 1763362439803
+    },
+    {
+      "host": "snapchat.com",
+      "title": "DM etiquette: is it weird to send 'hey lol'?",
+      "tag": "social",
+      "visitCount": 10,
+      "lastVisitTime": 1758604626581
+    },
+    {
+      "host": "www.crunchyroll.com",
+      "title": "Twitch VOD: tarik • League of Legends",
+      "tag": "entertainment",
+      "visitCount": 8,
+      "lastVisitTime": 1768007326810
+    },
+    {
+      "host": "cnn.com",
+      "title": "Opinion: everyone is sleeping on RSS",
+      "tag": "news",
+      "visitCount": 6,
+      "lastVisitTime": 1764321938349
+    },
+    {
+      "host": "figma.com",
+      "title": "Final review sheet for CMPSC 40",
+      "tag": "school_work",
+      "visitCount": 2,
+      "lastVisitTime": 1762812042274
+    },
+    {
+      "host": "edstem.org",
+      "title": "Office hours schedule • Prof. Nguyen",
+      "tag": "school_work",
+      "visitCount": 18,
+      "lastVisitTime": 1765423963343
+    },
+    {
+      "host": "bestbuy.com",
+      "title": "coupon code for Costco Oct 2001",
+      "tag": "shopping_misc",
+      "visitCount": 11,
+      "lastVisitTime": 1767872542671
+    },
+    {
+      "host": "apnews.com",
+      "title": "Live updates: a major election result",
+      "tag": "news",
+      "visitCount": 5,
+      "lastVisitTime": 1761992978586
+    },
+    {
+      "host": "mastodon.social",
+      "title": "Best captions for a sleep-deprived photo",
+      "tag": "social",
+      "visitCount": 10,
+      "lastVisitTime": 1757965313038
+    },
+    {
+      "host": "www.threads.net",
+      "title": "Jordan's profile • TikTok",
+      "tag": "social",
+      "visitCount": 9,
+      "lastVisitTime": 1759590808522
+    },
+    {
+      "host": "www.brave.com",
+      "title": "∫ e^{x} dx solved step by step",
+      "tag": "search",
+      "visitCount": 8,
+      "lastVisitTime": 1762908691041
+    },
+    {
+      "host": "cnn.com",
+      "title": "AP News: New study challenges popular diet myth",
+      "tag": "news",
+      "visitCount": 13,
+      "lastVisitTime": 1766720943576
+    },
+    {
+      "host": "mastodon.social",
+      "title": "girl dinner explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 12,
+      "lastVisitTime": 1764508719897
+    },
+    {
+      "host": "craigslist.org",
+      "title": "DIY: build a monitor stand for under $150",
+      "tag": "shopping_misc",
+      "visitCount": 18,
+      "lastVisitTime": 1764968437040
+    },
+    {
+      "host": "walmart.com",
+      "title": "how to fix a React component that keeps breaking",
+      "tag": "shopping_misc",
+      "visitCount": 2,
+      "lastVisitTime": 1762816064014
+    },
+    {
+      "host": "foxnews.com",
+      "title": "BBC: New study challenges popular diet myth",
+      "tag": "news",
+      "visitCount": 5,
+      "lastVisitTime": 1766798949592
+    },
+    {
+      "host": "www.slack.com",
+      "title": "Figma – seat checker UI mockups",
+      "tag": "school_work",
+      "visitCount": 7,
+      "lastVisitTime": 1765214865443
+    },
+    {
+      "host": "www.classroom.google.com",
+      "title": "Project brief: Matrix server",
+      "tag": "school_work",
+      "visitCount": 1,
+      "lastVisitTime": 1767186055814
+    },
+    {
+      "host": "udemy.com",
+      "title": "Office hours schedule • Prof. Xu",
+      "tag": "school_work",
+      "visitCount": 11,
+      "lastVisitTime": 1764251093682
+    },
+    {
+      "host": "washingtonpost.com",
+      "title": "Explainer: what a tech regulation update means for the Middle East",
+      "tag": "news",
+      "visitCount": 12,
+      "lastVisitTime": 1764822031816
+    },
+    {
+      "host": "hbomax.com",
+      "title": "\"The weirdest browser extensions\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 8,
+      "lastVisitTime": 1766632447301
+    },
+    {
+      "host": "discord.com",
+      "title": "How to turn off read receipts on X",
+      "tag": "social",
+      "visitCount": 12,
+      "lastVisitTime": 1765413556846
+    },
+    {
+      "host": "twitter.com",
+      "title": "How to turn off read receipts on LinkedIn",
+      "tag": "social",
+      "visitCount": 6,
+      "lastVisitTime": 1764516753582
+    },
+    {
+      "host": "soundcloud.com",
+      "title": "\"The weirdest browser extensions\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 2,
+      "lastVisitTime": 1766174971903
+    },
+    {
+      "host": "stackoverflow.com",
+      "title": "do pigeons have jobs (debunked?)",
+      "tag": "search",
+      "visitCount": 18,
+      "lastVisitTime": 1764662921138
+    },
+    {
+      "host": "ebay.com",
+      "title": "coupon code for Newegg Jul 2014",
+      "tag": "shopping_misc",
+      "visitCount": 15,
+      "lastVisitTime": 1764924058732
+    },
+    {
+      "host": "github.com",
+      "title": "Final review sheet for MATH 4A",
+      "tag": "school_work",
+      "visitCount": 11,
+      "lastVisitTime": 1763580046114
+    },
+    {
+      "host": "amazon.com",
+      "title": "DIY: build a custom keycap set for under $99",
+      "tag": "shopping_misc",
+      "visitCount": 5,
+      "lastVisitTime": 1764039539468
+    },
+    {
+      "host": "twitch.tv",
+      "title": "Watch Stranger Things S5E10",
+      "tag": "entertainment",
+      "visitCount": 7,
+      "lastVisitTime": 1767181734990
+    },
+    {
+      "host": "amazon.com",
+      "title": "shipping tracker: where is my package",
+      "tag": "shopping_misc",
+      "visitCount": 12,
+      "lastVisitTime": 1766915592368
+    },
+    {
+      "host": "duckduckgo.com",
+      "title": "why does a TypeScript type feel cursed",
+      "tag": "search",
+      "visitCount": 9,
+      "lastVisitTime": 1760865404271
+    },
+    {
+      "host": "www.bestbuy.com",
+      "title": "coupon code for Walmart Jun 2025",
+      "tag": "shopping_misc",
+      "visitCount": 12,
+      "lastVisitTime": 1767943780204
+    },
+    {
+      "host": "brave.com",
+      "title": "eigenvalues of a 2x2 matrix solved step by step",
+      "tag": "search",
+      "visitCount": 2,
+      "lastVisitTime": 1763543279031
+    },
+    {
+      "host": "www.nytimes.com",
+      "title": "Reuters: New study challenges popular diet myth",
+      "tag": "news",
+      "visitCount": 5,
+      "lastVisitTime": 1763512427047
+    },
+    {
+      "host": "discord.com",
+      "title": "Private account viewer? (please don't judge)",
+      "tag": "social",
+      "visitCount": 6,
+      "lastVisitTime": 1761952281012
+    },
+    {
+      "host": "bestbuy.com",
+      "title": "midi keyboard review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 6,
+      "lastVisitTime": 1765221372486
+    },
+    {
+      "host": "classroom.google.com",
+      "title": "Project brief: Smiley Agent",
+      "tag": "school_work",
+      "visitCount": 3,
+      "lastVisitTime": 1765621117814
+    },
+    {
+      "host": "duckduckgo.com",
+      "title": "SQL injection explained like I'm five",
+      "tag": "search",
+      "visitCount": 17,
+      "lastVisitTime": 1763846520301
+    },
+    {
+      "host": "snapchat.com",
+      "title": "DM etiquette: is it weird to send 'sent by accident'?",
+      "tag": "social",
+      "visitCount": 14,
+      "lastVisitTime": 1767734668789
+    },
+    {
+      "host": "snapchat.com",
+      "title": "Is corecore cringe or iconic?",
+      "tag": "social",
+      "visitCount": 6,
+      "lastVisitTime": 1764046131627
+    },
+    {
+      "host": "drive.google.com",
+      "title": "Rubric: midterm study guide",
+      "tag": "school_work",
+      "visitCount": 6,
+      "lastVisitTime": 1767892563170
+    },
+    {
+      "host": "khanacademy.org",
+      "title": "Final review sheet for CMPSC 40",
+      "tag": "school_work",
+      "visitCount": 14,
+      "lastVisitTime": 1765758035700
+    },
+    {
+      "host": "discord.com",
+      "title": "How to turn off read receipts on LinkedIn",
+      "tag": "social",
+      "visitCount": 11,
+      "lastVisitTime": 1765334604672
+    },
+    {
+      "host": "zoom.us",
+      "title": "Final review sheet for ECE 10A",
+      "tag": "school_work",
+      "visitCount": 3,
+      "lastVisitTime": 1764414118128
+    },
+    {
+      "host": "bestbuy.com",
+      "title": "best routers under $200",
+      "tag": "shopping_misc",
+      "visitCount": 14,
+      "lastVisitTime": 1764052058454
+    },
+    {
+      "host": "www.imdb.com",
+      "title": "Kendrick Lamar — Nights (lyrics)",
+      "tag": "entertainment",
+      "visitCount": 17,
+      "lastVisitTime": 1760006118876
+    },
+    {
+      "host": "google.com",
+      "title": "NTT in Kyber explained like I'm five",
+      "tag": "search",
+      "visitCount": 4,
+      "lastVisitTime": 1761107182598
+    },
+    {
+      "host": "economist.com",
+      "title": "Opinion: everyone is sleeping on RSS",
+      "tag": "news",
+      "visitCount": 7,
+      "lastVisitTime": 1759565422707
+    },
+    {
+      "host": "www.office.com",
+      "title": "Figma – seat checker UI mockups",
+      "tag": "school_work",
+      "visitCount": 14,
+      "lastVisitTime": 1765596053002
+    },
+    {
+      "host": "x.com",
+      "title": "Private account viewer? (please don't judge)",
+      "tag": "social",
+      "visitCount": 18,
+      "lastVisitTime": 1763630049405
+    },
+    {
+      "host": "netflix.com",
+      "title": "Hans Zimmer — Glimpse of Us (lyrics)",
+      "tag": "entertainment",
+      "visitCount": 18,
+      "lastVisitTime": 1767565617939
+    },
+    {
+      "host": "www.costco.com",
+      "title": "how to fix a TypeScript type that keeps breaking",
+      "tag": "shopping_misc",
+      "visitCount": 11,
+      "lastVisitTime": 1762758390191
+    },
+    {
+      "host": "etsy.com",
+      "title": "DIY: build a LED strip diffuser for under $60",
+      "tag": "shopping_misc",
+      "visitCount": 16,
+      "lastVisitTime": 1765678828969
+    },
+    {
+      "host": "walmart.com",
+      "title": "shipping tracker: where is my order",
+      "tag": "shopping_misc",
+      "visitCount": 12,
+      "lastVisitTime": 1765785663639
+    },
+    {
+      "host": "bbc.com",
+      "title": "Fact check: a video was faked",
+      "tag": "news",
+      "visitCount": 5,
+      "lastVisitTime": 1766740384237
+    },
+    {
+      "host": "ebay.com",
+      "title": "gaming mouse review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 12,
+      "lastVisitTime": 1758564750800
+    },
+    {
+      "host": "docs.google.com",
+      "title": "Overleaf – project writeup (working draft)",
+      "tag": "school_work",
+      "visitCount": 13,
+      "lastVisitTime": 1762887903913
+    },
+    {
+      "host": "ikea.com",
+      "title": "midi keyboard • Target",
+      "tag": "shopping_misc",
+      "visitCount": 13,
+      "lastVisitTime": 1763553573405
+    },
+    {
+      "host": "sharepoint.com",
+      "title": "Rubric: problem set",
+      "tag": "school_work",
+      "visitCount": 13,
+      "lastVisitTime": 1761216727696
+    },
+    {
+      "host": "github.com",
+      "title": "how to optimize a docker compose file",
+      "tag": "search",
+      "visitCount": 9,
+      "lastVisitTime": 1765485745010
+    },
+    {
+      "host": "www.github.com",
+      "title": "Project brief: Smiley Agent",
+      "tag": "school_work",
+      "visitCount": 4,
+      "lastVisitTime": 1760944847113
+    },
+    {
+      "host": "hbomax.com",
+      "title": "\"I built a tiny OS in 48 hours\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 9,
+      "lastVisitTime": 1766186479604
+    },
+    {
+      "host": "letterboxd.com",
+      "title": "IMDb: Dune (2000)",
+      "tag": "entertainment",
+      "visitCount": 9,
+      "lastVisitTime": 1760707190072
+    },
+    {
+      "host": "disneyplus.com",
+      "title": "Playlist: Study lo-fi mix",
+      "tag": "entertainment",
+      "visitCount": 15,
+      "lastVisitTime": 1766216861987
+    },
+    {
+      "host": "imdb.com",
+      "title": "IMDb: Whiplash (1995)",
+      "tag": "entertainment",
+      "visitCount": 11,
+      "lastVisitTime": 1760904213968
+    },
+    {
+      "host": "bbc.com",
+      "title": "Al Jazeera: Markets react to surprise policy shift",
+      "tag": "news",
+      "visitCount": 12,
+      "lastVisitTime": 1764564729269
+    },
+    {
+      "host": "brave.com",
+      "title": "why does a CTF exploit look wrong but pass tests",
+      "tag": "search",
+      "visitCount": 5,
+      "lastVisitTime": 1760228246861
+    },
+    {
+      "host": "foxnews.com",
+      "title": "Live updates: a volcanic eruption",
+      "tag": "news",
+      "visitCount": 4,
+      "lastVisitTime": 1765148131379
+    },
+    {
+      "host": "linkedin.com",
+      "title": "Private account viewer? (please don't judge)",
+      "tag": "social",
+      "visitCount": 12,
+      "lastVisitTime": 1763260542836
+    },
+    {
+      "host": "stackoverflow.com",
+      "title": "best way to learn Rust fast",
+      "tag": "search",
+      "visitCount": 6,
+      "lastVisitTime": 1761904310005
+    },
+    {
+      "host": "www.target.com",
+      "title": "used office chair near me (no scams pls)",
+      "tag": "shopping_misc",
+      "visitCount": 15,
+      "lastVisitTime": 1764073375844
+    },
+    {
+      "host": "www.instagram.com",
+      "title": "Private account viewer? (please don't judge)",
+      "tag": "social",
+      "visitCount": 6,
+      "lastVisitTime": 1760170568739
+    },
+    {
+      "host": "discord.com",
+      "title": "sigma grindset explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 1,
+      "lastVisitTime": 1762097861012
+    },
+    {
+      "host": "twitter.com",
+      "title": "the side-eye cat explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 9,
+      "lastVisitTime": 1763424879994
+    },
+    {
+      "host": "ebay.com",
+      "title": "standing desk converter • Costco",
+      "tag": "shopping_misc",
+      "visitCount": 14,
+      "lastVisitTime": 1763747988268
+    },
+    {
+      "host": "www.apnews.com",
+      "title": "Timeline: a volcanic eruption from Sep to Apr",
+      "tag": "news",
+      "visitCount": 6,
+      "lastVisitTime": 1766903312942
+    },
+    {
+      "host": "trello.com",
+      "title": "Project brief: blog front page",
+      "tag": "school_work",
+      "visitCount": 4,
+      "lastVisitTime": 1758185262359
+    },
+    {
+      "host": "www.ikea.com",
+      "title": "shipping tracker: where is my midi controller",
+      "tag": "shopping_misc",
+      "visitCount": 15,
+      "lastVisitTime": 1763833143952
+    },
+    {
+      "host": "amazon.com",
+      "title": "DIY: build a LED strip diffuser for under $75",
+      "tag": "shopping_misc",
+      "visitCount": 3,
+      "lastVisitTime": 1763445637189
+    },
+    {
+      "host": "mastodon.social",
+      "title": "spiderman pointing meme explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 16,
+      "lastVisitTime": 1766048488955
+    },
+    {
+      "host": "wikipedia.org",
+      "title": "SSTI explained like I'm five",
+      "tag": "search",
+      "visitCount": 6,
+      "lastVisitTime": 1766662840715
+    },
+    {
+      "host": "bloomberg.com",
+      "title": "Opinion: we should abolish meetings",
+      "tag": "news",
+      "visitCount": 15,
+      "lastVisitTime": 1765581240037
+    },
+    {
+      "host": "threads.net",
+      "title": "Private account viewer? (please don't judge)",
+      "tag": "social",
+      "visitCount": 5,
+      "lastVisitTime": 1765918587476
+    },
+    {
+      "host": "asana.com",
+      "title": "ECE 10A: Lecture 10 notes (draft)",
+      "tag": "school_work",
+      "visitCount": 7,
+      "lastVisitTime": 1766292309009
+    },
+    {
+      "host": "etsy.com",
+      "title": "standing desk converter • Costco",
+      "tag": "shopping_misc",
+      "visitCount": 17,
+      "lastVisitTime": 1762498399735
+    },
+    {
+      "host": "foxnews.com",
+      "title": "Timeline: a major election result from Jul to Aug",
+      "tag": "news",
+      "visitCount": 14,
+      "lastVisitTime": 1762561109293
+    },
+    {
+      "host": "www.edstem.org",
+      "title": "Rubric: problem set",
+      "tag": "school_work",
+      "visitCount": 1,
+      "lastVisitTime": 1764545462473
+    },
+    {
+      "host": "twitter.com",
+      "title": "sigma grindset explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 5,
+      "lastVisitTime": 1767383808038
+    },
+    {
+      "host": "soundcloud.com",
+      "title": "Radiohead — bad idea right? (lyrics)",
+      "tag": "entertainment",
+      "visitCount": 10,
+      "lastVisitTime": 1761460172924
+    },
+    {
+      "host": "docs.google.com",
+      "title": "Final review sheet for PSTAT 120A",
+      "tag": "school_work",
+      "visitCount": 17,
+      "lastVisitTime": 1767930164821
+    },
+    {
+      "host": "letterboxd.com",
+      "title": "Laufey — Nights (lyrics)",
+      "tag": "entertainment",
+      "visitCount": 15,
+      "lastVisitTime": 1767330273816
+    },
+    {
+      "host": "stackoverflow.com",
+      "title": "how to explain a React component",
+      "tag": "search",
+      "visitCount": 10,
+      "lastVisitTime": 1758401097183
+    },
+    {
+      "host": "washingtonpost.com",
+      "title": "Al Jazeera: Leaders meet to discuss climate commitments",
+      "tag": "news",
+      "visitCount": 10,
+      "lastVisitTime": 1766171225414
+    },
+    {
+      "host": "hbomax.com",
+      "title": "Letterboxd list: Best anime",
+      "tag": "entertainment",
+      "visitCount": 14,
+      "lastVisitTime": 1763643795083
+    },
+    {
+      "host": "ebay.com",
+      "title": "how to fix a TypeScript type that keeps breaking",
+      "tag": "shopping_misc",
+      "visitCount": 15,
+      "lastVisitTime": 1766843602236
+    },
+    {
+      "host": "stackexchange.com",
+      "title": "what is the difference between Linux and macOS",
+      "tag": "search",
+      "visitCount": 9,
+      "lastVisitTime": 1758557388827
+    },
+    {
+      "host": "bestbuy.com",
+      "title": "coupon code for Amazon Mar 2016",
+      "tag": "shopping_misc",
+      "visitCount": 4,
+      "lastVisitTime": 1760734132480
+    },
+    {
+      "host": "wsj.com",
+      "title": "BBC: Markets react to surprise policy shift",
+      "tag": "news",
+      "visitCount": 11,
+      "lastVisitTime": 1761580808956
+    },
+    {
+      "host": "foxnews.com",
+      "title": "Explainer: what a tech regulation update means for Japan",
+      "tag": "news",
+      "visitCount": 14,
+      "lastVisitTime": 1760313968380
+    },
+    {
+      "host": "coursera.org",
+      "title": "Figma – blog front page UI mockups",
+      "tag": "school_work",
+      "visitCount": 15,
+      "lastVisitTime": 1761789430997
+    },
+    {
+      "host": "hulu.com",
+      "title": "Joji — Glimpse of Us (lyrics)",
+      "tag": "entertainment",
+      "visitCount": 17,
+      "lastVisitTime": 1765273300292
+    },
+    {
+      "host": "bing.com",
+      "title": "JWT pitfalls explained like I'm five",
+      "tag": "search",
+      "visitCount": 9,
+      "lastVisitTime": 1761537785154
+    },
+    {
+      "host": "bloomberg.com",
+      "title": "Timeline: a new AI model release from Dec to Oct",
+      "tag": "news",
+      "visitCount": 3,
+      "lastVisitTime": 1761023565379
+    },
+    {
+      "host": "youtube.com",
+      "title": "Radiohead — No Surprises (lyrics)",
+      "tag": "entertainment",
+      "visitCount": 5,
+      "lastVisitTime": 1767722470365
+    },
+    {
+      "host": "bloomberg.com",
+      "title": "Fact check: the data was cherry-picked",
+      "tag": "news",
+      "visitCount": 4,
+      "lastVisitTime": 1763969367215
+    },
+    {
+      "host": "stackoverflow.com",
+      "title": "machine learning quick reference sheet",
+      "tag": "search",
+      "visitCount": 18,
+      "lastVisitTime": 1757897061005
+    },
+    {
+      "host": "foxnews.com",
+      "title": "Explainer: what a new AI model release means for New York",
+      "tag": "news",
+      "visitCount": 2,
+      "lastVisitTime": 1762395536078
+    },
+    {
+      "host": "hulu.com",
+      "title": "Playlist: Gym PR attempts",
+      "tag": "entertainment",
+      "visitCount": 10,
+      "lastVisitTime": 1760948744200
+    },
+    {
+      "host": "tiktok.com",
+      "title": "Private account viewer? (please don't judge)",
+      "tag": "social",
+      "visitCount": 1,
+      "lastVisitTime": 1763123819176
+    },
+    {
+      "host": "coursera.org",
+      "title": "Rubric: midterm study guide",
+      "tag": "school_work",
+      "visitCount": 4,
+      "lastVisitTime": 1760808509666
+    },
+    {
+      "host": "costco.com",
+      "title": "best laptops under $40",
+      "tag": "shopping_misc",
+      "visitCount": 5,
+      "lastVisitTime": 1761732232390
+    },
+    {
+      "host": "nytimes.com",
+      "title": "Fact check: the data was cherry-picked",
+      "tag": "news",
+      "visitCount": 7,
+      "lastVisitTime": 1763853086546
+    },
+    {
+      "host": "economist.com",
+      "title": "Live updates: a large-scale protest",
+      "tag": "news",
+      "visitCount": 6,
+      "lastVisitTime": 1767370607602
+    },
+    {
+      "host": "www.etsy.com",
+      "title": "shipping tracker: where is my package",
+      "tag": "shopping_misc",
+      "visitCount": 15,
+      "lastVisitTime": 1766714273110
+    },
+    {
+      "host": "walmart.com",
+      "title": "used RTX GPU near me (no scams pls)",
+      "tag": "shopping_misc",
+      "visitCount": 3,
+      "lastVisitTime": 1762969791658
+    },
+    {
+      "host": "ikea.com",
+      "title": "best keyboards under $30",
+      "tag": "shopping_misc",
+      "visitCount": 13,
+      "lastVisitTime": 1760533511263
+    },
+    {
+      "host": "youtube.com",
+      "title": "\"The weirdest browser extensions\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 6,
+      "lastVisitTime": 1761989939260
+    },
+    {
+      "host": "zoom.us",
+      "title": "Overleaf – poster notes (working draft)",
+      "tag": "school_work",
+      "visitCount": 6,
+      "lastVisitTime": 1763103240180
+    },
+    {
+      "host": "costco.com",
+      "title": "best microphones under $75",
+      "tag": "shopping_misc",
+      "visitCount": 12,
+      "lastVisitTime": 1760581575018
+    },
+    {
+      "host": "www.wolframalpha.com",
+      "title": "what is the difference between Docker and Podman",
+      "tag": "search",
+      "visitCount": 8,
+      "lastVisitTime": 1765636527717
+    },
+    {
+      "host": "www.notion.so",
+      "title": "MATH 4B: Lecture 2 notes (draft)",
+      "tag": "school_work",
+      "visitCount": 10,
+      "lastVisitTime": 1760964413548
+    },
+    {
+      "host": "reddit.com",
+      "title": "Is corecore cringe or iconic?",
+      "tag": "social",
+      "visitCount": 13,
+      "lastVisitTime": 1765041373078
+    },
+    {
+      "host": "disneyplus.com",
+      "title": "Playlist: Late-night coding",
+      "tag": "entertainment",
+      "visitCount": 6,
+      "lastVisitTime": 1757964272879
+    },
+    {
+      "host": "khanacademy.org",
+      "title": "Project brief: seat checker",
+      "tag": "school_work",
+      "visitCount": 1,
+      "lastVisitTime": 1764987438361
+    },
+    {
+      "host": "foxnews.com",
+      "title": "Timeline: a large-scale protest from Jun to Sep",
+      "tag": "news",
+      "visitCount": 17,
+      "lastVisitTime": 1765560526714
+    },
+    {
+      "host": "twitter.com",
+      "title": "DM etiquette: is it weird to send 'I am once again asking'?",
+      "tag": "social",
+      "visitCount": 9,
+      "lastVisitTime": 1759995178130
+    },
+    {
+      "host": "soundcloud.com",
+      "title": "Playlist: Main character energy",
+      "tag": "entertainment",
+      "visitCount": 12,
+      "lastVisitTime": 1763714627739
+    },
+    {
+      "host": "www.coursera.org",
+      "title": "Office hours schedule • Prof. Nguyen",
+      "tag": "school_work",
+      "visitCount": 14,
+      "lastVisitTime": 1761329690686
+    },
+    {
+      "host": "netflix.com",
+      "title": "Playlist: Gym PR attempts",
+      "tag": "entertainment",
+      "visitCount": 2,
+      "lastVisitTime": 1765919836368
+    },
+    {
+      "host": "www.ikea.com",
+      "title": "door closer • Newegg",
+      "tag": "shopping_misc",
+      "visitCount": 6,
+      "lastVisitTime": 1757745622192
+    },
+    {
+      "host": "twitch.tv",
+      "title": "IMDb: Oppenheimer (2023)",
+      "tag": "entertainment",
+      "visitCount": 3,
+      "lastVisitTime": 1759900637664
+    },
+    {
+      "host": "office.com",
+      "title": "MATH 4B: Homework 6 – cryptography",
+      "tag": "school_work",
+      "visitCount": 5,
+      "lastVisitTime": 1761597445571
+    },
+    {
+      "host": "aliexpress.com",
+      "title": "used mini fridge near me (no scams pls)",
+      "tag": "shopping_misc",
+      "visitCount": 13,
+      "lastVisitTime": 1763149280832
+    },
+    {
+      "host": "bestbuy.com",
+      "title": "DIY: build a LED strip diffuser for under $200",
+      "tag": "shopping_misc",
+      "visitCount": 7,
+      "lastVisitTime": 1758034867265
+    },
+    {
+      "host": "sharepoint.com",
+      "title": "ECE 10A: Lecture 9 notes (draft)",
+      "tag": "school_work",
+      "visitCount": 6,
+      "lastVisitTime": 1758317056454
+    },
+    {
+      "host": "soundcloud.com",
+      "title": "Best scenes in Parasite (no spoilers?)",
+      "tag": "entertainment",
+      "visitCount": 16,
+      "lastVisitTime": 1764231259941
+    },
+    {
+      "host": "www.aljazeera.com",
+      "title": "Explainer: what a tech regulation update means for the Middle East",
+      "tag": "news",
+      "visitCount": 2,
+      "lastVisitTime": 1765077771934
+    },
+    {
+      "host": "www.bestbuy.com",
+      "title": "how to fix a TypeScript type that keeps breaking",
+      "tag": "shopping_misc",
+      "visitCount": 8,
+      "lastVisitTime": 1765443363960
+    },
+    {
+      "host": "trello.com",
+      "title": "Project brief: seat checker",
+      "tag": "school_work",
+      "visitCount": 6,
+      "lastVisitTime": 1758442669629
+    },
+    {
+      "host": "twitter.com",
+      "title": "Is clean girl cringe or iconic?",
+      "tag": "social",
+      "visitCount": 3,
+      "lastVisitTime": 1767962433159
+    },
+    {
+      "host": "crunchyroll.com",
+      "title": "\"This exploit changed everything\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 15,
+      "lastVisitTime": 1766052641075
+    },
+    {
+      "host": "apnews.com",
+      "title": "Opinion: AI is overhyped (or not)",
+      "tag": "news",
+      "visitCount": 3,
+      "lastVisitTime": 1757791604939
+    },
+    {
+      "host": "homedepot.com",
+      "title": "coupon code for Target Apr 2023",
+      "tag": "shopping_misc",
+      "visitCount": 6,
+      "lastVisitTime": 1758978993751
+    },
+    {
+      "host": "threads.net",
+      "title": "Best captions for a low-effort photo",
+      "tag": "social",
+      "visitCount": 13,
+      "lastVisitTime": 1762875736449
+    },
+    {
+      "host": "www.instagram.com",
+      "title": "Ethan's profile • X",
+      "tag": "social",
+      "visitCount": 14,
+      "lastVisitTime": 1758755266026
+    },
+    {
+      "host": "snapchat.com",
+      "title": "coquette aesthetic explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 12,
+      "lastVisitTime": 1760342759115
+    },
+    {
+      "host": "stackexchange.com",
+      "title": "JWT pitfalls explained like I'm five",
+      "tag": "search",
+      "visitCount": 18,
+      "lastVisitTime": 1763402413225
+    },
+    {
+      "host": "www.github.com",
+      "title": "complex numbers quick reference sheet",
+      "tag": "search",
+      "visitCount": 6,
+      "lastVisitTime": 1762502541825
+    },
+    {
+      "host": "bloomberg.com",
+      "title": "Live updates: a large-scale protest",
+      "tag": "news",
+      "visitCount": 5,
+      "lastVisitTime": 1760053612632
+    },
+    {
+      "host": "tiktok.com",
+      "title": "Is maximalism cringe or iconic?",
+      "tag": "social",
+      "visitCount": 5,
+      "lastVisitTime": 1761099927360
+    },
+    {
+      "host": "docs.google.com",
+      "title": "Figma – HistoryCourt UI mockups",
+      "tag": "school_work",
+      "visitCount": 7,
+      "lastVisitTime": 1760402445276
+    },
+    {
+      "host": "google.com",
+      "title": "how to explain a flaky unit test",
+      "tag": "search",
+      "visitCount": 5,
+      "lastVisitTime": 1762965183837
+    },
+    {
+      "host": "imdb.com",
+      "title": "Playlist: Rainy day jazz",
+      "tag": "entertainment",
+      "visitCount": 11,
+      "lastVisitTime": 1767532368772
+    },
+    {
+      "host": "www.ikea.com",
+      "title": "used office chair near me (no scams pls)",
+      "tag": "shopping_misc",
+      "visitCount": 10,
+      "lastVisitTime": 1764548125544
+    },
+    {
+      "host": "bing.com",
+      "title": "integrating factor method solved step by step",
+      "tag": "search",
+      "visitCount": 5,
+      "lastVisitTime": 1761275257443
+    },
+    {
+      "host": "bloomberg.com",
+      "title": "Live updates: a new AI model release",
+      "tag": "news",
+      "visitCount": 5,
+      "lastVisitTime": 1763722061690
+    },
+    {
+      "host": "udemy.com",
+      "title": "Rubric: reflection write-up",
+      "tag": "school_work",
+      "visitCount": 5,
+      "lastVisitTime": 1764317411019
+    },
+    {
+      "host": "arxiv.org",
+      "title": "is my laptop mining crypto (debunked?)",
+      "tag": "search",
+      "visitCount": 4,
+      "lastVisitTime": 1759916440860
+    },
+    {
+      "host": "www.music.apple.com",
+      "title": "Twitch VOD: shroud • Valorant",
+      "tag": "entertainment",
+      "visitCount": 15,
+      "lastVisitTime": 1762484483628
+    },
+    {
+      "host": "bing.com",
+      "title": "best way to learn Rust fast",
+      "tag": "search",
+      "visitCount": 1,
+      "lastVisitTime": 1758744399726
+    },
+    {
+      "host": "twitch.tv",
+      "title": "Letterboxd list: Underrated thrillers",
+      "tag": "entertainment",
+      "visitCount": 12,
+      "lastVisitTime": 1765320735759
+    },
+    {
+      "host": "www.duckduckgo.com",
+      "title": "Taylor series of sin(x) solved step by step",
+      "tag": "search",
+      "visitCount": 15,
+      "lastVisitTime": 1761045327019
+    },
+    {
+      "host": "www.edstem.org",
+      "title": "Final review sheet for MATH 4B",
+      "tag": "school_work",
+      "visitCount": 6,
+      "lastVisitTime": 1760931005710
+    },
+    {
+      "host": "www.coursera.org",
+      "title": "Overleaf – research summary (working draft)",
+      "tag": "school_work",
+      "visitCount": 11,
+      "lastVisitTime": 1759173938008
+    },
+    {
+      "host": "stackoverflow.com",
+      "title": "why does a flaky unit test segfault",
+      "tag": "search",
+      "visitCount": 13,
+      "lastVisitTime": 1759516729445
+    },
+    {
+      "host": "arxiv.org",
+      "title": "how to explain a linear ODE",
+      "tag": "search",
+      "visitCount": 6,
+      "lastVisitTime": 1760750848062
+    },
+    {
+      "host": "zoom.us",
+      "title": "ECE 10A: Homework 10 – note taking",
+      "tag": "school_work",
+      "visitCount": 9,
+      "lastVisitTime": 1764864927140
+    },
+    {
+      "host": "x.com",
+      "title": "Best captions for a main character photo",
+      "tag": "social",
+      "visitCount": 10,
+      "lastVisitTime": 1760606425414
+    },
+    {
+      "host": "foxnews.com",
+      "title": "Live updates: a new AI model release",
+      "tag": "news",
+      "visitCount": 16,
+      "lastVisitTime": 1762710352860
+    },
+    {
+      "host": "www.disneyplus.com",
+      "title": "Twitch VOD: shroud • CS2",
+      "tag": "entertainment",
+      "visitCount": 15,
+      "lastVisitTime": 1760533933736
+    },
+    {
+      "host": "figma.com",
+      "title": "MATH 4B: Homework 10 – time management",
+      "tag": "school_work",
+      "visitCount": 7,
+      "lastVisitTime": 1758749182336
+    },
+    {
+      "host": "bsky.app",
+      "title": "DM etiquette: is it weird to send 'this is so cursed'?",
+      "tag": "social",
+      "visitCount": 10,
+      "lastVisitTime": 1767013306906
+    },
+    {
+      "host": "duckduckgo.com",
+      "title": "machine learning quick reference sheet",
+      "tag": "search",
+      "visitCount": 3,
+      "lastVisitTime": 1766900111472
+    },
+    {
+      "host": "www.instagram.com",
+      "title": "sigma grindset explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 13,
+      "lastVisitTime": 1766413539720
+    },
+    {
+      "host": "soundcloud.com",
+      "title": "Twitch VOD: xqc • Elden Ring",
+      "tag": "entertainment",
+      "visitCount": 1,
+      "lastVisitTime": 1757873271736
+    },
+    {
+      "host": "www.crunchyroll.com",
+      "title": "IMDb: Interstellar (1995)",
+      "tag": "entertainment",
+      "visitCount": 10,
+      "lastVisitTime": 1764976685433
+    },
+    {
+      "host": "www.washingtonpost.com",
+      "title": "Timeline: a new AI model release from Jul to May",
+      "tag": "news",
+      "visitCount": 3,
+      "lastVisitTime": 1759975748479
+    },
+    {
+      "host": "facebook.com",
+      "title": "sigma grindset explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 6,
+      "lastVisitTime": 1759344192173
+    },
+    {
+      "host": "www.bbc.com",
+      "title": "The Guardian: Wild weather causes travel delays and closures",
+      "tag": "news",
+      "visitCount": 5,
+      "lastVisitTime": 1759223051023
+    },
+    {
+      "host": "nytimes.com",
+      "title": "Opinion: AI is overhyped (or not)",
+      "tag": "news",
+      "visitCount": 13,
+      "lastVisitTime": 1762797293956
+    },
+    {
+      "host": "wolframalpha.com",
+      "title": "web security quick reference sheet",
+      "tag": "search",
+      "visitCount": 10,
+      "lastVisitTime": 1761810770564
+    },
+    {
+      "host": "notion.so",
+      "title": "Rubric: reflection write-up",
+      "tag": "school_work",
+      "visitCount": 15,
+      "lastVisitTime": 1767445989691
+    },
+    {
+      "host": "washingtonpost.com",
+      "title": "Opinion: everyone is sleeping on RSS",
+      "tag": "news",
+      "visitCount": 9,
+      "lastVisitTime": 1766425249082
+    },
+    {
+      "host": "www.edstem.org",
+      "title": "Office hours schedule • TA Kim",
+      "tag": "school_work",
+      "visitCount": 18,
+      "lastVisitTime": 1757773446221
+    },
+    {
+      "host": "www.snapchat.com",
+      "title": "spiderman pointing meme explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 7,
+      "lastVisitTime": 1758935233194
+    },
+    {
+      "host": "classroom.google.com",
+      "title": "Overleaf – final report (working draft)",
+      "tag": "school_work",
+      "visitCount": 10,
+      "lastVisitTime": 1763408664497
+    },
+    {
+      "host": "www.bestbuy.com",
+      "title": "standing desk converter review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 12,
+      "lastVisitTime": 1767849605573
+    },
+    {
+      "host": "theguardian.com",
+      "title": "Bloomberg: Investigation opens after data leak allegations",
+      "tag": "news",
+      "visitCount": 11,
+      "lastVisitTime": 1758132118010
+    },
+    {
+      "host": "bbc.com",
+      "title": "Timeline: a volcanic eruption from Oct to Mar",
+      "tag": "news",
+      "visitCount": 6,
+      "lastVisitTime": 1758731933665
+    },
+    {
+      "host": "aljazeera.com",
+      "title": "Opinion: AI is overhyped (or not)",
+      "tag": "news",
+      "visitCount": 13,
+      "lastVisitTime": 1759836728444
+    },
+    {
+      "host": "www.classroom.google.com",
+      "title": "PSTAT 120A: Homework 3 – web security",
+      "tag": "school_work",
+      "visitCount": 7,
+      "lastVisitTime": 1762436795404
+    },
+    {
+      "host": "netflix.com",
+      "title": "Watch Arcane S6E12",
+      "tag": "entertainment",
+      "visitCount": 15,
+      "lastVisitTime": 1760358705274
+    },
+    {
+      "host": "target.com",
+      "title": "best microphones under $75",
+      "tag": "shopping_misc",
+      "visitCount": 7,
+      "lastVisitTime": 1763082696858
+    },
+    {
+      "host": "bbc.com",
+      "title": "Live updates: a volcanic eruption",
+      "tag": "news",
+      "visitCount": 12,
+      "lastVisitTime": 1761688141159
+    },
+    {
+      "host": "wsj.com",
+      "title": "Opinion: AI is overhyped (or not)",
+      "tag": "news",
+      "visitCount": 16,
+      "lastVisitTime": 1760524549369
+    },
+    {
+      "host": "reuters.com",
+      "title": "AP News: Leaders meet to discuss climate commitments",
+      "tag": "news",
+      "visitCount": 2,
+      "lastVisitTime": 1761849164895
+    },
+    {
+      "host": "wikipedia.org",
+      "title": "integrating factor method solved step by step",
+      "tag": "search",
+      "visitCount": 3,
+      "lastVisitTime": 1763903900055
+    },
+    {
+      "host": "edstem.org",
+      "title": "CMPSC 40: Homework 2 – note taking",
+      "tag": "school_work",
+      "visitCount": 13,
+      "lastVisitTime": 1765256033834
+    },
+    {
+      "host": "www.wolframalpha.com",
+      "title": "differential equations quick reference sheet",
+      "tag": "search",
+      "visitCount": 7,
+      "lastVisitTime": 1763049600044
+    },
+    {
+      "host": "music.apple.com",
+      "title": "Best scenes in Interstellar (no spoilers?)",
+      "tag": "entertainment",
+      "visitCount": 15,
+      "lastVisitTime": 1765257412582
+    },
+    {
+      "host": "imdb.com",
+      "title": "Twitch VOD: pokimane • Valorant",
+      "tag": "entertainment",
+      "visitCount": 9,
+      "lastVisitTime": 1762456410765
+    },
+    {
+      "host": "cnn.com",
+      "title": "Opinion: we should abolish meetings",
+      "tag": "news",
+      "visitCount": 6,
+      "lastVisitTime": 1761173343179
+    },
+    {
+      "host": "reddit.com",
+      "title": "NPC walk explained (and why everyone is posting it)",
+      "tag": "social",
+      "visitCount": 10,
+      "lastVisitTime": 1764748739384
+    },
+    {
+      "host": "instagram.com",
+      "title": "Best captions for a chaotic photo",
+      "tag": "social",
+      "visitCount": 2,
+      "lastVisitTime": 1757884382774
+    },
+    {
+      "host": "bing.com",
+      "title": "best way to learn calculus fast",
+      "tag": "search",
+      "visitCount": 7,
+      "lastVisitTime": 1759490575469
+    },
+    {
+      "host": "canvas.ucsb.edu",
+      "title": "CMPSC 40: Lecture 10 notes (draft)",
+      "tag": "school_work",
+      "visitCount": 7,
+      "lastVisitTime": 1766251017685
+    },
+    {
+      "host": "www.apnews.com",
+      "title": "Opinion: everyone is sleeping on RSS",
+      "tag": "news",
+      "visitCount": 9,
+      "lastVisitTime": 1762872823451
+    },
+    {
+      "host": "craigslist.org",
+      "title": "standing desk converter review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 9,
+      "lastVisitTime": 1759482410854
+    },
+    {
+      "host": "classroom.google.com",
+      "title": "Rubric: reflection write-up",
+      "tag": "school_work",
+      "visitCount": 4,
+      "lastVisitTime": 1761943825749
+    },
+    {
+      "host": "duckduckgo.com",
+      "title": "is the moon hollow (debunked?)",
+      "tag": "search",
+      "visitCount": 1,
+      "lastVisitTime": 1760887010620
+    },
+    {
+      "host": "bing.com",
+      "title": "why does a TypeScript type feel cursed",
+      "tag": "search",
+      "visitCount": 16,
+      "lastVisitTime": 1758109340912
+    },
+    {
+      "host": "hulu.com",
+      "title": "Radiohead — No Surprises (lyrics)",
+      "tag": "entertainment",
+      "visitCount": 6,
+      "lastVisitTime": 1762822424579
+    },
+    {
+      "host": "www.arxiv.org",
+      "title": "NTT in Kyber explained like I'm five",
+      "tag": "search",
+      "visitCount": 2,
+      "lastVisitTime": 1762088898215
+    },
+    {
+      "host": "bsky.app",
+      "title": "Best captions for a soft photo",
+      "tag": "social",
+      "visitCount": 16,
+      "lastVisitTime": 1762993546527
+    },
+    {
+      "host": "stackexchange.com",
+      "title": "Laplace transform table solved step by step",
+      "tag": "search",
+      "visitCount": 17,
+      "lastVisitTime": 1760772662400
+    },
+    {
+      "host": "cnn.com",
+      "title": "WSJ: Markets react to surprise policy shift",
+      "tag": "news",
+      "visitCount": 5,
+      "lastVisitTime": 1760633177876
+    },
+    {
+      "host": "www.bing.com",
+      "title": "note taking quick reference sheet",
+      "tag": "search",
+      "visitCount": 6,
+      "lastVisitTime": 1762654761249
+    },
+    {
+      "host": "www.soundcloud.com",
+      "title": "\"Why math proofs feel impossible\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 10,
+      "lastVisitTime": 1766392602887
+    },
+    {
+      "host": "newegg.com",
+      "title": "smart light switch • Best Buy",
+      "tag": "shopping_misc",
+      "visitCount": 16,
+      "lastVisitTime": 1767185339530
+    },
+    {
+      "host": "zoom.us",
+      "title": "MATH 4B: Lecture 12 notes (draft)",
+      "tag": "school_work",
+      "visitCount": 7,
+      "lastVisitTime": 1761207869373
+    },
+    {
+      "host": "www.craigslist.org",
+      "title": "best microphones under $150",
+      "tag": "shopping_misc",
+      "visitCount": 11,
+      "lastVisitTime": 1766059075419
+    },
+    {
+      "host": "craigslist.org",
+      "title": "DIY: build a soundproof panel for under $40",
+      "tag": "shopping_misc",
+      "visitCount": 4,
+      "lastVisitTime": 1762606185617
+    },
+    {
+      "host": "brave.com",
+      "title": "what is the difference between slope field and phase portrait",
+      "tag": "search",
+      "visitCount": 3,
+      "lastVisitTime": 1760212092213
+    },
+    {
+      "host": "hulu.com",
+      "title": "Watch Arcane S4E12",
+      "tag": "entertainment",
+      "visitCount": 12,
+      "lastVisitTime": 1764041709294
+    },
+    {
+      "host": "crunchyroll.com",
+      "title": "\"The weirdest browser extensions\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 7,
+      "lastVisitTime": 1767385951210
+    },
+    {
+      "host": "economist.com",
+      "title": "Opinion: AI is overhyped (or not)",
+      "tag": "news",
+      "visitCount": 15,
+      "lastVisitTime": 1761458658146
+    },
+    {
+      "host": "craigslist.org",
+      "title": "DIY: build a monitor stand for under $99",
+      "tag": "shopping_misc",
+      "visitCount": 16,
+      "lastVisitTime": 1763812366326
+    },
+    {
+      "host": "www.khanacademy.org",
+      "title": "Overleaf – draft abstract (working draft)",
+      "tag": "school_work",
+      "visitCount": 12,
+      "lastVisitTime": 1764271356122
+    },
+    {
+      "host": "brave.com",
+      "title": "best way to learn reverse engineering fast",
+      "tag": "search",
+      "visitCount": 4,
+      "lastVisitTime": 1760188568174
+    },
+    {
+      "host": "www.theguardian.com",
+      "title": "Timeline: a volcanic eruption from May to Nov",
+      "tag": "news",
+      "visitCount": 15,
+      "lastVisitTime": 1759453344724
+    },
+    {
+      "host": "spotify.com",
+      "title": "\"I built a tiny OS in 48 hours\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 9,
+      "lastVisitTime": 1764417635892
+    },
+    {
+      "host": "reddit.com",
+      "title": "Sam's profile • Facebook",
+      "tag": "social",
+      "visitCount": 1,
+      "lastVisitTime": 1766049688672
+    },
+    {
+      "host": "theguardian.com",
+      "title": "Explainer: what a volcanic eruption means for Brazil",
+      "tag": "news",
+      "visitCount": 7,
+      "lastVisitTime": 1765470181836
+    },
+    {
+      "host": "imdb.com",
+      "title": "\"The weirdest browser extensions\" — YouTube",
+      "tag": "entertainment",
+      "visitCount": 12,
+      "lastVisitTime": 1765228796197
+    },
+    {
+      "host": "www.soundcloud.com",
+      "title": "Letterboxd list: Top comedies",
+      "tag": "entertainment",
+      "visitCount": 12,
+      "lastVisitTime": 1761819374531
+    },
+    {
+      "host": "pinterest.com",
+      "title": "Why did Discord shadowban me?",
+      "tag": "social",
+      "visitCount": 2,
+      "lastVisitTime": 1760035257237
+    },
+    {
+      "host": "foxnews.com",
+      "title": "Fact check: a policy was misquoted",
+      "tag": "news",
+      "visitCount": 3,
+      "lastVisitTime": 1758323734084
+    },
+    {
+      "host": "bestbuy.com",
+      "title": "shipping tracker: where is my keyboard",
+      "tag": "shopping_misc",
+      "visitCount": 1,
+      "lastVisitTime": 1767397973870
+    },
+    {
+      "host": "linkedin.com",
+      "title": "DM etiquette: is it weird to send 'pls ignore'?",
+      "tag": "social",
+      "visitCount": 9,
+      "lastVisitTime": 1767272443759
+    },
+    {
+      "host": "ebay.com",
+      "title": "DIY: build a soundproof panel for under $40",
+      "tag": "shopping_misc",
+      "visitCount": 10,
+      "lastVisitTime": 1758005864289
+    },
+    {
+      "host": "hulu.com",
+      "title": "Taylor Swift — Ocean Eyes (lyrics)",
+      "tag": "entertainment",
+      "visitCount": 14,
+      "lastVisitTime": 1762188356861
+    },
+    {
+      "host": "instagram.com",
+      "title": "DM etiquette: is it weird to send 'sent by accident'?",
+      "tag": "social",
+      "visitCount": 3,
+      "lastVisitTime": 1765785431603
+    },
+    {
+      "host": "www.disneyplus.com",
+      "title": "Letterboxd list: Best comedies",
+      "tag": "entertainment",
+      "visitCount": 11,
+      "lastVisitTime": 1765621861754
+    },
+    {
+      "host": "www.etsy.com",
+      "title": "how to fix a CTF exploit that keeps breaking",
+      "tag": "shopping_misc",
+      "visitCount": 7,
+      "lastVisitTime": 1759753162628
+    },
+    {
+      "host": "docs.google.com",
+      "title": "Overleaf – poster notes (working draft)",
+      "tag": "school_work",
+      "visitCount": 13,
+      "lastVisitTime": 1760431424943
+    },
+    {
+      "host": "coursera.org",
+      "title": "CMPSC 40: Homework 8 – complex numbers",
+      "tag": "school_work",
+      "visitCount": 3,
+      "lastVisitTime": 1760048698597
+    },
+    {
+      "host": "apnews.com",
+      "title": "Al Jazeera: Markets react to surprise policy shift",
+      "tag": "news",
+      "visitCount": 6,
+      "lastVisitTime": 1759943797134
+    },
+    {
+      "host": "youtube.com",
+      "title": "Letterboxd list: Best comedies",
+      "tag": "entertainment",
+      "visitCount": 2,
+      "lastVisitTime": 1757787456717
+    },
+    {
+      "host": "pinterest.com",
+      "title": "Kai's profile • Twitter",
+      "tag": "social",
+      "visitCount": 14,
+      "lastVisitTime": 1766027185035
+    },
+    {
+      "host": "target.com",
+      "title": "best keyboards under $60",
+      "tag": "shopping_misc",
+      "visitCount": 5,
+      "lastVisitTime": 1758837576912
+    },
+    {
+      "host": "www.arxiv.org",
+      "title": "how to organize a proof",
+      "tag": "search",
+      "visitCount": 5,
+      "lastVisitTime": 1759821972322
+    },
+    {
+      "host": "wolframalpha.com",
+      "title": "do pigeons have jobs (debunked?)",
+      "tag": "search",
+      "visitCount": 15,
+      "lastVisitTime": 1766509914402
+    },
+    {
+      "host": "github.com",
+      "title": "best way to learn calculus fast",
+      "tag": "search",
+      "visitCount": 15,
+      "lastVisitTime": 1764821022673
+    },
+    {
+      "host": "khanacademy.org",
+      "title": "MATH 4A: Homework 2 – note taking",
+      "tag": "school_work",
+      "visitCount": 7,
+      "lastVisitTime": 1758636340283
+    },
+    {
+      "host": "udemy.com",
+      "title": "Figma – HistoryCourt UI mockups",
+      "tag": "school_work",
+      "visitCount": 7,
+      "lastVisitTime": 1764943049126
+    },
+    {
+      "host": "instagram.com",
+      "title": "Why did LinkedIn shadowban me?",
+      "tag": "social",
+      "visitCount": 3,
+      "lastVisitTime": 1762480079757
+    },
+    {
+      "host": "aljazeera.com",
+      "title": "Opinion: we should abolish meetings",
+      "tag": "news",
+      "visitCount": 10,
+      "lastVisitTime": 1762954852713
+    },
+    {
+      "host": "support.wikipedia.org",
+      "title": "Taylor series of sin(x) solved step by step",
+      "tag": "search",
+      "visitCount": 18,
+      "lastVisitTime": 1759108940357
+    },
+    {
+      "host": "disneyplus.com",
+      "title": "Radiohead — Ocean Eyes (lyrics)",
+      "tag": "entertainment",
+      "visitCount": 7,
+      "lastVisitTime": 1759549989112
+    },
+    {
+      "host": "youtube.com",
+      "title": "Watch One Piece S2E7",
+      "tag": "entertainment",
+      "visitCount": 6,
+      "lastVisitTime": 1764221177185
+    },
+    {
+      "host": "www.craigslist.org",
+      "title": "USB-C hub review: is it worth it?",
+      "tag": "shopping_misc",
+      "visitCount": 15,
+      "lastVisitTime": 1757682894187
+    },
+    {
+      "host": "overleaf.com",
+      "title": "Project brief: Matrix server",
+      "tag": "school_work",
+      "visitCount": 6,
+      "lastVisitTime": 1761735198826
+    },
+    {
+      "host": "washingtonpost.com",
+      "title": "Live updates: a large-scale protest",
+      "tag": "news",
+      "visitCount": 10,
+      "lastVisitTime": 1764606318887
+    },
+    {
+      "host": "www.github.com",
+      "title": "eigenvalues of a 2x2 matrix solved step by step",
+      "tag": "search",
+      "visitCount": 13,
+      "lastVisitTime": 1758438662228
+    },
+    {
+      "host": "x.com",
+      "title": "DM etiquette: is it weird to send 'I am once again asking'?",
+      "tag": "social",
+      "visitCount": 4,
+      "lastVisitTime": 1762623039469
+    },
+    {
+      "host": "x.com",
+      "title": "Why did Twitter shadowban me?",
+      "tag": "social",
+      "visitCount": 10,
+      "lastVisitTime": 1764488904310
+    },
+    {
+      "host": "twitter.com",
+      "title": "Why did Facebook shadowban me?",
+      "tag": "social",
+      "visitCount": 17,
+      "lastVisitTime": 1766493537000
+    },
+    {
+      "host": "twitch.tv",
+      "title": "Twitch VOD: xqc • League of Legends",
+      "tag": "entertainment",
+      "visitCount": 4,
+      "lastVisitTime": 1766818001607
+    },
+    {
+      "host": "bing.com",
+      "title": "best way to learn learning Japanese fast",
+      "tag": "search",
+      "visitCount": 9,
+      "lastVisitTime": 1767745305038
+    },
+    {
+      "host": "www.newegg.com",
+      "title": "how to fix a TypeScript type that keeps breaking",
+      "tag": "shopping_misc",
+      "visitCount": 9,
+      "lastVisitTime": 1765574590599
+    }
+  ]
+}

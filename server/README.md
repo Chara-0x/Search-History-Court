@@ -14,6 +14,10 @@ The server listens on `http://localhost:5000`.
 - `/review` pre-upload review (choose categories/domains before uploading)
 - `/me/<session_id>` case builder (tag selection + preview/edit)
 - `/play/<case_id>` jury UI for guessing the lie
+- `/roulette` create multiplayer roulette game (upload multiple players' histories)
+- `/roulette/<game_id>` guess which player owns the shown trio of tabs
+- `/roulette-room` create a joinable room; each browser uploads their own history, then host starts the roulette game
+- `/roulette-room/<room_id>` join a specific room and upload your history
 
 ## Key API routes
 - `POST /api/upload-history` body `{ history: [...] }` -> `{ ok, session_id }`

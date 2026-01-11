@@ -1,5 +1,5 @@
 chrome.action.onClicked.addListener(() => {
-  chrome.tabs.create({ url: "https://historycourt.lol/review" });
+  chrome.tabs.create({ url: "https://historycourt.lol/roulette-room" });
 });
 
 const COOLDOWN_MS = 60 * 60 * 1000; // 1 hour cooldown
@@ -102,6 +102,56 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   (async () => {
     if (message?.type === "hc-should-prompt") {
       sendResponse({ ok: true, shouldPrompt: await shouldPromptNow() });
+      return;
+    }
+
+    if (message?.type === "join-room") {
+      const roomId = (message.roomId || "").trim();
+      const name = (message.name || "Player").trim() || "Player";
+      if (!roomId) {
+        sendResponse({ ok: false, error: "room_id_missing" });
+        return;
+      }
+
+      const can = await shouldPromptNow();
+      if (!can) {
+        sendResponse({ ok: false, error: "cooldown_or_in_progress" });
+        return;
+      }
+      await chrome.storage.local.set({ [UPLOAD_LOCK_KEY]: true });
+
+      let url = null;
+      try {
+        const startTime = 0;
+        const batchSize = Math.max(200, Math.min(Number(message.maxResults) || 5000, 20000));
+
+        const items = await fetchAllHistory({ startTime, batchSize });
+        const sanitized = sanitizeHistoryItems(items);
+        const deduped = dedupeSanitizedItems(sanitized);
+        const shuffled = shuffleInPlace(deduped);
+
+        const apiBase = message.apiBase || "https://historycourt.lol";
+        url = `${apiBase.replace(/\/$/, "")}/api/roulette/room/${encodeURIComponent(roomId)}/join`;
+
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, history: shuffled }),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          await setCooldown(10 * 60 * 1000);
+          sendResponse({ ok: false, error: json.error || `HTTP ${res.status}`, url });
+          return;
+        }
+        await setCooldown(COOLDOWN_MS);
+        sendResponse({ ok: true, ...json, url });
+      } catch (e) {
+        await setCooldown(10 * 60 * 1000);
+        sendResponse({ ok: false, error: String(e), url });
+      } finally {
+        await chrome.storage.local.set({ [UPLOAD_LOCK_KEY]: false });
+      }
       return;
     }
 

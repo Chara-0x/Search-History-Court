@@ -60,3 +60,45 @@ export function uploadHistory(history) {
     body: JSON.stringify({ history }),
   });
 }
+
+// Multiplayer roulette mode
+export function createRouletteGame(payload) {
+  return request("/api/roulette/create", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function fetchRouletteRound(gameId, round) {
+  return request(`/api/roulette/${gameId}/round/${round}`);
+}
+
+export function submitRouletteGuess(gameId, round, playerId) {
+  return request(`/api/roulette/${gameId}/guess`, {
+    method: "POST",
+    body: JSON.stringify({ round, player_id: playerId }),
+  });
+}
+
+// Room-based roulette
+export function createRouletteRoom(picks = 3) {
+  return request("/api/roulette/room/create", {
+    method: "POST",
+    body: JSON.stringify({ picks }),
+  });
+}
+
+export function fetchRouletteRoom(roomId) {
+  return request(`/api/roulette/room/${roomId}`);
+}
+
+export function joinRouletteRoom(roomId, payload) {
+  return request(`/api/roulette/room/${roomId}/join`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function startRouletteRoom(roomId) {
+  return request(`/api/roulette/room/${roomId}/start`, { method: "POST" });
+}

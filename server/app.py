@@ -5,7 +5,11 @@ import sqlite3
 from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_cors import CORS
 
-from rounds import make_rounds, make_rounds_ai_two_stage
+from rounds import (
+    make_rounds,
+    make_rounds_ai_two_stage,
+    make_roulette_rounds,
+)
 from tagging import (
     TAG_DEFS,
     TAG_LOOKUP,
@@ -55,6 +59,39 @@ def init_db():
         created_at TEXT NOT NULL,
         rounds_json TEXT NOT NULL,
         FOREIGN KEY(session_id) REFERENCES sessions(id)
+      )
+    """)
+
+    # Multiplayer roulette games (whose history is this?)
+    cur.execute("""
+      CREATE TABLE IF NOT EXISTS roulette_games (
+        id TEXT PRIMARY KEY,
+        created_at TEXT NOT NULL,
+        rounds_json TEXT NOT NULL,
+        players_json TEXT NOT NULL
+      )
+    """)
+
+    # Multiplayer rooms (players join separately with their own history)
+    cur.execute("""
+      CREATE TABLE IF NOT EXISTS roulette_rooms (
+        id TEXT PRIMARY KEY,
+        created_at TEXT NOT NULL,
+        picks INTEGER NOT NULL DEFAULT 3,
+        status TEXT NOT NULL DEFAULT 'open',
+        game_id TEXT,
+        started_at TEXT
+      )
+    """)
+    cur.execute("""
+      CREATE TABLE IF NOT EXISTS roulette_room_players (
+        room_id TEXT NOT NULL,
+        player_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        history_json TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (room_id, player_id),
+        FOREIGN KEY(room_id) REFERENCES roulette_rooms(id)
       )
     """)
     conn.commit()
@@ -109,6 +146,26 @@ def loading_game():
     return serve_react()
 
 
+@app.get("/roulette")
+def roulette_home():
+    return serve_react()
+
+
+@app.get("/roulette/<game_id>")
+def roulette_play(game_id):
+    return serve_react()
+
+
+@app.get("/roulette-room")
+def roulette_room_home():
+    return serve_react()
+
+
+@app.get("/roulette-room/<room_id>")
+def roulette_room_join_page(room_id):
+    return serve_react()
+
+
 @app.get("/play/<case_id>")
 def play(case_id):
     return serve_react()
@@ -138,6 +195,36 @@ def upload_history():
     return jsonify({"ok": True, "session_id": session_id, "total_in": len(history), "total_saved": len(cleaned)})
 
 
+def _get_roulette_game(game_id):
+    conn = db()
+    row = conn.execute(
+        "SELECT rounds_json, players_json FROM roulette_games WHERE id = ?",
+        (game_id,),
+    ).fetchone()
+    if not row:
+        conn.close()
+        return None, None, None
+    rounds = json.loads(row["rounds_json"] or "[]")
+    players = json.loads(row["players_json"] or "[]")
+    return conn, rounds, players
+
+
+def _get_room(room_id):
+    conn = db()
+    room = conn.execute(
+        "SELECT id, picks, status, game_id FROM roulette_rooms WHERE id = ?",
+        (room_id,),
+    ).fetchone()
+    if not room:
+        conn.close()
+        return None, None, None
+    players = conn.execute(
+        "SELECT player_id, name, history_json FROM roulette_room_players WHERE room_id = ? ORDER BY created_at",
+        (room_id,),
+    ).fetchall()
+    return conn, room, players
+
+
 @app.post("/api/review-summary")
 def review_summary():
     data = request.get_json(silent=True) or {}
@@ -151,6 +238,243 @@ def review_summary():
         "items": items,
         "tags": summary,
         "total": len(items),
+    })
+
+
+# -----------------------------
+# Roulette rooms (players join individually)
+# -----------------------------
+@app.post("/api/roulette/room/create")
+def roulette_room_create():
+    data = request.get_json(silent=True) or {}
+    picks = int(data.get("picks") or 3)
+    picks = max(3, min(picks, 6))
+
+    room_id = gen_id(8)
+    conn = db()
+    conn.execute(
+        "INSERT INTO roulette_rooms (id, created_at, picks, status) VALUES (?, ?, ?, ?)",
+        (room_id, utc_now_iso(), picks, "open"),
+    )
+    conn.commit()
+    conn.close()
+
+    join_url = f"{request.host_url.rstrip('/')}/roulette-room/{room_id}"
+    return jsonify({"ok": True, "room_id": room_id, "picks": picks, "join_url": join_url})
+
+
+@app.get("/api/roulette/room/<room_id>")
+def roulette_room_status(room_id):
+    conn, room, players = _get_room(room_id)
+    if not room:
+        return jsonify({"ok": False, "error": "Room not found"}), 404
+
+    players_out = []
+    for p in players or []:
+        try:
+            hist = json.loads(p["history_json"] or "[]")
+        except Exception:
+            hist = []
+        players_out.append({
+            "id": p["player_id"],
+            "name": p["name"],
+            "count": len(hist),
+        })
+
+    payload = {
+        "ok": True,
+        "room_id": room["id"],
+        "picks": room["picks"],
+        "status": room["status"],
+        "players": players_out,
+        "can_start": len(players_out) >= 2,
+    }
+    if room["game_id"]:
+        play_url = f"{request.host_url.rstrip('/')}/roulette/{room['game_id']}"
+        payload["game_id"] = room["game_id"]
+        payload["play_url"] = play_url
+    conn.close()
+    return jsonify(payload)
+
+
+@app.post("/api/roulette/room/<room_id>/join")
+def roulette_room_join(room_id):
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "Player").strip()
+    history = data.get("history") if isinstance(data, dict) else None
+
+    if not history or not isinstance(history, list):
+        return jsonify({"ok": False, "error": "history array required"}), 400
+
+    conn, room, _players = _get_room(room_id)
+    if not room:
+        return jsonify({"ok": False, "error": "Room not found"}), 404
+    if room["status"] != "open":
+        conn.close()
+        return jsonify({"ok": False, "error": "Room already started"}), 400
+
+    cleaned = tag_history_items(history, max_history=4000)
+    if not cleaned:
+        conn.close()
+        return jsonify({"ok": False, "error": "No usable history items"}), 400
+
+    player_id = gen_id(6)
+    conn.execute(
+        "INSERT INTO roulette_room_players (room_id, player_id, name, history_json, created_at) VALUES (?, ?, ?, ?, ?)",
+        (room_id, player_id, name or "Player", json.dumps(cleaned), utc_now_iso()),
+    )
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True, "player_id": player_id, "name": name or "Player", "count": len(cleaned)})
+
+
+@app.post("/api/roulette/room/<room_id>/start")
+def roulette_room_start(room_id):
+    conn, room, players = _get_room(room_id)
+    if not room:
+        return jsonify({"ok": False, "error": "Room not found"}), 404
+
+    # If already started, return existing link
+    if room["game_id"]:
+        play_url = f"{request.host_url.rstrip('/')}/roulette/{room['game_id']}"
+        conn.close()
+        return jsonify({"ok": True, "game_id": room['game_id'], "play_url": play_url, "already_started": True})
+
+    if room["status"] != "open":
+        conn.close()
+        return jsonify({"ok": False, "error": "Room closed"}), 400
+
+    if not players or len(players) < 2:
+        conn.close()
+        return jsonify({"ok": False, "error": "Need at least 2 players"}), 400
+
+    players_payload = []
+    players_public = []
+    for p in players:
+        try:
+            hist = json.loads(p["history_json"] or "[]")
+        except Exception:
+            hist = []
+        players_payload.append({"id": p["player_id"], "name": p["name"], "history": hist})
+        players_public.append({"id": p["player_id"], "name": p["name"]})
+
+    game_id = gen_id(10)
+    rounds = make_roulette_rounds(players_payload, picks_per_player=room["picks"], seed=room_id)
+
+    conn.execute(
+        "INSERT INTO roulette_games (id, created_at, rounds_json, players_json) VALUES (?, ?, ?, ?)",
+        (game_id, utc_now_iso(), json.dumps(rounds), json.dumps(players_public)),
+    )
+    conn.execute(
+        "UPDATE roulette_rooms SET status = 'started', game_id = ?, started_at = ? WHERE id = ?",
+        (game_id, utc_now_iso(), room_id),
+    )
+    conn.commit()
+    conn.close()
+
+    play_url = f"{request.host_url.rstrip('/')}/roulette/{game_id}"
+    return jsonify({"ok": True, "game_id": game_id, "play_url": play_url})
+
+
+@app.post("/api/roulette/create")
+def roulette_create():
+    data = request.get_json(silent=True) or {}
+    players_in = data.get("players") if isinstance(data, dict) else None
+    picks = int(data.get("picks") or 3)
+    picks = max(3, min(picks, 6))
+
+    if not players_in or not isinstance(players_in, list):
+        return jsonify({"ok": False, "error": "players list required"}), 400
+
+    cleaned_players = []
+    for idx, p in enumerate(players_in):
+        if not isinstance(p, dict):
+            continue
+        history = p.get("history")
+        if not history or not isinstance(history, list):
+            continue
+        cleaned_history = tag_history_items(history, max_history=4000)
+        if not cleaned_history:
+            continue
+        player_id = p.get("id") or gen_id(6)
+        name = (p.get("name") or f"Player {idx + 1}").strip() or f"Player {idx + 1}"
+        cleaned_players.append({
+            "id": player_id,
+            "name": name,
+            "history": cleaned_history,
+        })
+
+    if len(cleaned_players) < 2:
+        return jsonify({"ok": False, "error": "Need at least 2 players with history"}), 400
+
+    game_id = gen_id(10)
+    rounds = make_roulette_rounds(cleaned_players, picks_per_player=picks, seed=game_id)
+    players_public = [{"id": p["id"], "name": p["name"]} for p in cleaned_players]
+
+    conn = db()
+    conn.execute(
+        "INSERT INTO roulette_games (id, created_at, rounds_json, players_json) VALUES (?, ?, ?, ?)",
+        (game_id, utc_now_iso(), json.dumps(rounds), json.dumps(players_public)),
+    )
+    conn.commit()
+    conn.close()
+
+    play_url = f"{request.host_url.rstrip('/')}/roulette/{game_id}"
+    return jsonify({
+        "ok": True,
+        "game_id": game_id,
+        "play_url": play_url,
+        "total_rounds": len(rounds),
+        "players": players_public,
+        "picks": picks,
+    })
+
+
+@app.get("/api/roulette/<game_id>/round/<int:r_idx>")
+def roulette_round(game_id, r_idx):
+    conn, rounds, players = _get_roulette_game(game_id)
+    if rounds is None:
+        return jsonify({"ok": False, "error": "Game not found"}), 404
+
+    if r_idx < 0 or r_idx >= len(rounds):
+        conn.close()
+        return jsonify({"ok": False, "error": "Round out of range"}), 404
+
+    r = rounds[r_idx]
+    cards = [{"host": c["host"], "title": c["title"]} for c in r.get("cards", [])]
+    conn.close()
+    return jsonify({
+        "ok": True,
+        "round": r_idx,
+        "total": len(rounds),
+        "cards": cards,
+        "player_choices": players,
+    })
+
+
+@app.post("/api/roulette/<game_id>/guess")
+def roulette_guess(game_id):
+    data = request.get_json(silent=True) or {}
+    r_idx = int(data.get("round") or 0)
+    player_id = data.get("player_id")
+
+    conn, rounds, players = _get_roulette_game(game_id)
+    if rounds is None:
+        return jsonify({"ok": False, "error": "Game not found"}), 404
+
+    if r_idx < 0 or r_idx >= len(rounds):
+        conn.close()
+        return jsonify({"ok": False, "error": "Round out of range"}), 400
+    r = rounds[r_idx]
+    correct_id = r.get("player_id")
+    correct_name = r.get("player_name") or correct_id
+    is_correct = (player_id == correct_id)
+    conn.close()
+    return jsonify({
+        "ok": True,
+        "correct": is_correct,
+        "correct_player_id": correct_id,
+        "correct_player_name": correct_name,
     })
 
 

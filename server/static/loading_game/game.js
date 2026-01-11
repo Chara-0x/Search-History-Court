@@ -1,5 +1,5 @@
 const SIZE = 8;
-const CELL_SIZE = 62; // 56px + 6px gap
+const CELL_SIZE = 62; 
 const COLORS = ["c1", "c2", "c3", "c4", "c5"];
 const BOMB_TYPE = "bomb";
 const PURPLE_TYPE = "c4";
@@ -9,7 +9,7 @@ const scoreEl = document.getElementById("score");
 const resetBtn = document.getElementById("reset");
 const bombBar = document.getElementById("bomb-bar");
 
-// Setup Floating Layer correctly
+// Setup Floating Layer
 let popLayer = document.getElementById("pop-layer");
 if (!popLayer) {
   popLayer = document.createElement("div");
@@ -49,12 +49,11 @@ function initGame() {
   grid = [];
   tilesById = {};
   
-  // Smart Generation: Ensure no matches created initially
+  // Smart Generation
   for (let r = 0; r < SIZE; r++) {
     const row = [];
     for (let c = 0; c < SIZE; c++) {
       let type;
-      // Keep picking until it doesn't cause a match
       do {
         type = COLORS[Math.floor(Math.random() * COLORS.length)];
       } while (causesMatch(r, c, type, row, grid));
@@ -67,14 +66,8 @@ function initGame() {
 }
 
 function causesMatch(r, c, type, currentRow, currentGrid) {
-  // Horizontal (left 2)
-  if (c >= 2) {
-    if (currentRow[c-1].type === type && currentRow[c-2].type === type) return true;
-  }
-  // Vertical (up 2)
-  if (r >= 2) {
-    if (currentGrid[r-1][c].type === type && currentGrid[r-2][c].type === type) return true;
-  }
+  if (c >= 2 && currentRow[c-1].type === type && currentRow[c-2].type === type) return true;
+  if (r >= 2 && currentGrid[r-1][c].type === type && currentGrid[r-2][c].type === type) return true;
   return false;
 }
 
@@ -86,8 +79,8 @@ function createTile(r, c, type) {
   if (type === BOMB_TYPE) el.classList.add("bomb");
   el.style.background = getGradient(type);
   
-  // Position
-  setVisualPos(el, r, c);
+  // Initial Position (Instant)
+  el.style.transform = `translate(${c * CELL_SIZE}px, ${r * CELL_SIZE}px)`;
   
   // Events
   el.addEventListener("pointerdown", handlePointerDown);
@@ -103,19 +96,40 @@ function createTile(r, c, type) {
 
 function getGradient(type) {
   const map = {
-    c1: "linear-gradient(135deg, #ef4444, #b91c1c)", // Red
-    c2: "linear-gradient(135deg, #f59e0b, #d97706)", // Orange
-    c3: "linear-gradient(135deg, #10b981, #047857)", // Teal
-    c4: "linear-gradient(135deg, #8b5cf6, #6d28d9)", // Purple
-    c5: "linear-gradient(135deg, #3b82f6, #1d4ed8)", // Blue
+    c1: "linear-gradient(135deg, #ef4444, #b91c1c)",
+    c2: "linear-gradient(135deg, #f59e0b, #d97706)",
+    c3: "linear-gradient(135deg, #10b981, #047857)",
+    c4: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
+    c5: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
     [BOMB_TYPE]: "transparent"
   };
   return map[type] || "transparent";
 }
 
-// Sets the transform. scale can be passed to shrinking/growing
-function setVisualPos(el, r, c, scale = 1) {
-  el.style.transform = `translate(${c * CELL_SIZE}px, ${r * CELL_SIZE}px) scale(${scale})`;
+// --- ANIMATION HELPERS (Anime.js) ---
+
+function animateTile(tile, r, c, scale = 1, duration = 250) {
+  // Stop dragging interactions if any
+  anime.remove(tile.el);
+  
+  return anime({
+    targets: tile.el,
+    translateX: c * CELL_SIZE,
+    translateY: r * CELL_SIZE,
+    scale: scale,
+    opacity: 1,
+    easing: 'easeOutQuad',
+    duration: duration
+  }).finished;
+}
+
+function setVisualScale(tile, scale) {
+  anime({
+    targets: tile.el,
+    scale: scale,
+    duration: 150,
+    easing: 'easeOutQuad'
+  });
 }
 
 // --- INPUT HANDLING ---
@@ -125,6 +139,9 @@ function handlePointerDown(e) {
   const tId = e.target.dataset.tid;
   const tile = tilesById[tId];
   if (!tile) return;
+
+  // Stop any ongoing animations on this tile
+  anime.remove(tile.el);
 
   dragStart = {
     x: e.clientX,
@@ -139,26 +156,23 @@ function handlePointerDown(e) {
   tile.el.addEventListener("pointermove", handlePointerMove);
   tile.el.addEventListener("pointerup", handlePointerUp);
   
-  // Slight scale up while dragging
+  // Slight instant scale for feedback
   tile.el.style.transform = `translate(${dragStart.origX}px, ${dragStart.origY}px) scale(1.1)`;
 }
 
 function handlePointerMove(e) {
   if (!dragStart) return;
-  
   const dx = e.clientX - dragStart.x;
   const dy = e.clientY - dragStart.y;
-  
-  // Visual Follow
   const newX = dragStart.origX + dx;
   const newY = dragStart.origY + dy;
   
+  // Direct DOM manipulation for lag-free drag
   dragStart.tile.el.style.transform = `translate(${newX}px, ${newY}px) scale(1.1)`;
 }
 
 function handlePointerUp(e) {
   if (!dragStart) return;
-  
   const tile = dragStart.tile;
   const dx = e.clientX - dragStart.x;
   const dy = e.clientY - dragStart.y;
@@ -168,34 +182,29 @@ function handlePointerUp(e) {
   tile.el.removeEventListener("pointerup", handlePointerUp);
   tile.el.releasePointerCapture(e.pointerId);
   tile.el.classList.remove("dragging");
-  
   dragStart = null;
   
-  // Threshold for drag (30px)
+  // Drag Threshold
   if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
     let r2 = tile.r;
     let c2 = tile.c;
-    
-    // Determine major axis
     if (Math.abs(dx) > Math.abs(dy)) {
       if (dx > 0) c2++; else c2--;
     } else {
       if (dy > 0) r2++; else r2--;
     }
-    
     attemptSwap(tile, r2, c2);
   } else {
-    // Snap back and click
-    // Note: handleClick will set the correct scale/pos
+    // Snap back and select
     handleClick(tile);
   }
 }
 
 function handleClick(tile) {
   if (selectedTile === tile) {
-    // Deselect: scale back to 1
+    // Deselect
     tile.el.classList.remove("selected");
-    setVisualPos(tile.el, tile.r, tile.c, 1.0);
+    animateTile(tile, tile.r, tile.c, 1.0, 150);
     selectedTile = null;
     return;
   }
@@ -203,47 +212,43 @@ function handleClick(tile) {
   if (selectedTile) {
     const dist = Math.abs(tile.r - selectedTile.r) + Math.abs(tile.c - selectedTile.c);
     if (dist === 1) {
-      // Adjacent -> Swap
       const prev = selectedTile;
       prev.el.classList.remove("selected");
-      // Reset scale for the previous tile before swapping logic takes over
-      setVisualPos(prev.el, prev.r, prev.c, 1.0);
+      // Scale back to 1 before swap
+      setVisualScale(prev, 1.0);
       selectedTile = null;
       attemptSwap(prev, tile.r, tile.c);
     } else {
-      // New Selection
+      // Change Selection
       selectedTile.el.classList.remove("selected");
-      setVisualPos(selectedTile.el, selectedTile.r, selectedTile.c, 1.0);
+      setVisualScale(selectedTile, 1.0);
       
       selectedTile = tile;
       tile.el.classList.add("selected");
-      setVisualPos(tile.el, tile.r, tile.c, 0.9); // Scale down for effect
+      setVisualScale(tile, 0.9);
     }
   } else {
     // Select
     selectedTile = tile;
     tile.el.classList.add("selected");
-    setVisualPos(tile.el, tile.r, tile.c, 0.9); // Scale down for effect
+    setVisualScale(tile, 0.9);
   }
 }
 
 async function attemptSwap(t1, r2, c2) {
-  // Reset scales to 1.0 immediately for the move
-  setVisualPos(t1.el, t1.r, t1.c, 1.0);
-  
-  // Bounds Check
+  // Bounds
   if (r2 < 0 || r2 >= SIZE || c2 < 0 || c2 >= SIZE) {
-    setVisualPos(t1.el, t1.r, t1.c, 1.0);
+    animateTile(t1, t1.r, t1.c); // Snap back
     return;
   }
   
   const t2 = grid[r2][c2];
-  if(!t2) { setVisualPos(t1.el, t1.r, t1.c, 1.0); return; }
+  if (!t2) { animateTile(t1, t1.r, t1.c); return; }
 
-  // Bomb Check
+  // Bomb Interaction
   if (t1.type === BOMB_TYPE || t2.type === BOMB_TYPE) {
     if(t1.type === BOMB_TYPE && t2.type === BOMB_TYPE) {
-        setVisualPos(t1.el, t1.r, t1.c, 1.0); return; 
+        animateTile(t1, t1.r, t1.c); return; // Double bomb not impl
     }
     const color = (t1.type === BOMB_TYPE) ? t2.type : t1.type;
     await triggerBomb(t1, t2, color);
@@ -252,22 +257,25 @@ async function attemptSwap(t1, r2, c2) {
 
   isBusy = true;
   
-  // Swap Logic
+  // Logic Swap
   swapTilesData(t1, t2);
-  setVisualPos(t1.el, t1.r, t1.c);
-  setVisualPos(t2.el, t2.r, t2.c);
   
-  await sleep(250);
+  // Animate Swap
+  const p1 = animateTile(t1, t1.r, t1.c);
+  const p2 = animateTile(t2, t2.r, t2.c);
+  await Promise.all([p1, p2]);
   
-  const matches = findMatches();
+  // Check Matches
+  const matches = findMatches(); // This detects 5-matches now
+  
   if (matches.length > 0) {
     await processMatches(matches, 1);
   } else {
-    // Undo
+    // Invalid -> Undo
     swapTilesData(t1, t2);
-    setVisualPos(t1.el, t1.r, t1.c);
-    setVisualPos(t2.el, t2.r, t2.c);
-    await sleep(250);
+    const u1 = animateTile(t1, t1.r, t1.c);
+    const u2 = animateTile(t2, t2.r, t2.c);
+    await Promise.all([u1, u2]);
   }
   
   isBusy = false;
@@ -285,9 +293,11 @@ function swapTilesData(t1, t2) {
 
 async function triggerBomb(t1, t2, targetColor) {
   isBusy = true;
-  setVisualPos(t1.el, t2.r, t2.c); 
-  setVisualPos(t2.el, t1.r, t1.c);
-  await sleep(300);
+  // Animate Swap First
+  await Promise.all([
+    animateTile(t1, t2.r, t2.c),
+    animateTile(t2, t1.r, t1.c)
+  ]);
 
   const hits = [];
   for (let r = 0; r < SIZE; r++) {
@@ -295,6 +305,7 @@ async function triggerBomb(t1, t2, targetColor) {
       if (grid[r][c].type === targetColor) hits.push(grid[r][c]);
     }
   }
+  // Include involved tiles
   if(!hits.includes(t1)) hits.push(t1);
   if(!hits.includes(t2)) hits.push(t2);
 
@@ -307,19 +318,21 @@ async function triggerBomb(t1, t2, targetColor) {
 async function processMatches(matches, combo) {
   score += matches.length * 10 * combo;
   
+  // Feedback
   if (combo > 1) showFloat(`COMBO x${combo}`, "txt-nice");
-  else if (matches.length >= 4) showFloat("SPLENDID!", "txt-huge");
+  else if (matches.length >= 5) showFloat("5 MATCH!", "txt-huge"); // Special text
+  else if (matches.length === 4) showFloat("SPLENDID!", "txt-huge");
   else showFloat(["Good!", "Pop!", "Nice!"][Math.floor(Math.random()*3)], "txt-std");
   
+  // Purple Logic
   let pDelta = 0;
   matches.forEach(t => { if (t.type === PURPLE_TYPE) pDelta++; });
-  
   if (pDelta > 0) {
     purpleCount += pDelta;
     if (purpleCount >= 7) {
       pendingBombs += Math.floor(purpleCount / 7);
       purpleCount %= 7;
-      showFloat("BOMB READY!", "txt-bomb");
+      showFloat("BOMB CHARGED!", "txt-bomb");
     }
   }
   updateUI();
@@ -329,14 +342,17 @@ async function processMatches(matches, combo) {
 }
 
 async function removeTiles(tiles) {
-  // Use scale(0) in the transform to shrink them in place
-  tiles.forEach(t => {
-    t.el.style.transform = `translate(${t.c * CELL_SIZE}px, ${t.r * CELL_SIZE}px) scale(0)`;
-    t.el.classList.add("pop-anim"); 
-  });
+  // Use Anime.js to scale out
+  const els = tiles.map(t => t.el);
+  await anime({
+    targets: els,
+    scale: 0,
+    opacity: 0,
+    duration: 300,
+    easing: 'easeInBack'
+  }).finished;
   
-  await sleep(280);
-  
+  // Clean Data
   tiles.forEach(t => {
     t.el.remove();
     delete tilesById[t.id];
@@ -346,6 +362,7 @@ async function removeTiles(tiles) {
 
 async function fillBoard(comboMultiplier) {
   // 1. Drop existing
+  const moves = [];
   for (let c = 0; c < SIZE; c++) {
     for (let r = SIZE - 1; r >= 0; r--) {
       if (grid[r][c] === null) {
@@ -355,16 +372,18 @@ async function fillBoard(comboMultiplier) {
             grid[r][c] = t;
             grid[k][c] = null;
             t.r = r;
-            setVisualPos(t.el, t.r, t.c);
+            // Queue animation
+            moves.push(animateTile(t, t.r, t.c));
             break;
           }
         }
       }
     }
   }
-  await sleep(200);
+  if(moves.length) await Promise.all(moves);
 
   // 2. Spawn New
+  const spawns = [];
   for (let c = 0; c < SIZE; c++) {
     for (let r = 0; r < SIZE; r++) {
       if (grid[r][c] === null) {
@@ -374,17 +393,27 @@ async function fillBoard(comboMultiplier) {
         const t = createTile(r, c, type);
         grid[r][c] = t;
         
-        // Start above board
-        t.el.style.transition = 'none';
-        t.el.style.transform = `translate(${c * CELL_SIZE}px, -${SIZE * CELL_SIZE}px)`;
-        t.el.offsetHeight; 
-        t.el.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s';
-        setVisualPos(t.el, r, c);
+        // Prepare for entry animation
+        // Start above the board
+        const startY = -((SIZE - r) * CELL_SIZE); 
+        t.el.style.transform = `translate(${c * CELL_SIZE}px, ${startY}px)`;
+        t.el.style.opacity = '0';
+        
+        // Animate in
+        spawns.push(anime({
+          targets: t.el,
+          translateY: r * CELL_SIZE,
+          opacity: 1,
+          duration: 400,
+          easing: 'easeOutBounce',
+          delay: r * 50 // Stagger drop
+        }).finished);
       }
     }
   }
-  await sleep(250);
+  if(spawns.length) await Promise.all(spawns);
   
+  // 3. Check for new matches
   const nextMatches = findMatches();
   if (nextMatches.length > 0) {
     await processMatches(nextMatches, comboMultiplier + 1);
@@ -404,6 +433,12 @@ function findMatches() {
         matchLen++;
       } else {
         if (matchLen >= 3) {
+          // --- 5-MATCH BOMB LOGIC ---
+          if (matchLen >= 5) {
+            pendingBombs++;
+            showFloat("5-MATCH! BOMB!", "txt-bomb");
+          }
+          // --------------------------
           for (let k = 0; k < matchLen; k++) matched.add(grid[r][c-k]);
         }
         matchLen = 1;
@@ -421,6 +456,12 @@ function findMatches() {
         matchLen++;
       } else {
         if (matchLen >= 3) {
+          // --- 5-MATCH BOMB LOGIC ---
+          if (matchLen >= 5) {
+            pendingBombs++;
+            showFloat("5-MATCH! BOMB!", "txt-bomb");
+          }
+          // --------------------------
           for (let k = 0; k < matchLen; k++) matched.add(grid[r-k][c]);
         }
         matchLen = 1;
@@ -444,8 +485,6 @@ function showFloat(text, cls) {
   popLayer.appendChild(el);
   el.addEventListener("animationend", () => el.remove());
 }
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 resetBtn.addEventListener("click", initGame);
 initGame();

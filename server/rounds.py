@@ -825,6 +825,116 @@ def make_rounds(
 
 
 # -----------------------------
+# Multiplayer roulette picks
+# -----------------------------
+def pick_weird_cards(
+    history: Sequence[Dict[str, Any]],
+    count: int = 3,
+    allowed_tags: Optional[Sequence[str]] = None,
+    seed: Optional[str] = None,
+):
+    """
+    Return `count` spicy/unique history entries for a single player.
+
+    Prefers the two-stage curator to surface the strangest items, then
+    falls back to heuristic candidate selection. Always returns at
+    least `count` items by padding with canned fakes.
+    """
+
+    allowed_tags = list(allowed_tags or [t["id"] for t in TAG_DEFS])
+    rng = random.Random(seed) if seed else random.Random()
+    max_pool = max(count * 8, 60)
+
+    pool: List[Dict[str, Any]] = []
+
+    try:
+        pool = curate_history_ai(
+            history,
+            pick_n=max_pool,
+            seed=seed,
+            allowed_tags=allowed_tags,
+            meta={"mode": "roulette"},
+        )
+    except Exception:
+        pool = []
+
+    if not pool:
+        pool = select_candidates(
+            history,
+            max_history=1500,
+            max_candidates=max_pool,
+            allowed_tags=allowed_tags,
+        )
+
+    cleaned: List[Dict[str, Any]] = []
+    seen: set[Tuple[str, str]] = set()
+
+    for it in pool:
+        host = canonical_host(it.get("host"))
+        title = clean_title_v2(it.get("title") or "")
+        if not host or not title:
+            continue
+        pair = (host, title)
+        if pair in seen:
+            continue
+        seen.add(pair)
+        cleaned.append({
+            "host": host,
+            "title": title,
+            "tag": it.get("tag") or detect_tag(host, title),
+        })
+        if len(cleaned) >= max_pool:
+            break
+
+    if len(cleaned) < count:
+        needed = count - len(cleaned)
+        for _ in range(needed):
+            fake_title, fake_host = rng.choice(FAKE_TITLES)
+            cleaned.append({
+                "host": canonical_host(fake_host),
+                "title": clean_title_v2(fake_title),
+                "tag": "shopping_misc",
+            })
+
+    rng.shuffle(cleaned)
+    return cleaned[:count]
+
+
+def make_roulette_rounds(
+    players: Sequence[Dict[str, Any]],
+    picks_per_player: int = 3,
+    seed: Optional[str] = None,
+):
+    """
+    Build rounds for the multiplayer "whose history is this?" mode.
+
+    Each player contributes `picks_per_player` cards; rounds are then
+    shuffled so guessing players only see the cards, not the owner.
+    """
+
+    rng = random.Random(seed) if seed else random.Random()
+    rounds: List[Dict[str, Any]] = []
+
+    for idx, player in enumerate(players):
+        player_id = player.get("id") or f"p{idx+1}"
+        player_name = (player.get("name") or f"Player {idx+1}").strip() or f"Player {idx+1}"
+        history = player.get("history") or []
+        cards = pick_weird_cards(
+            history,
+            count=picks_per_player,
+            seed=f"{seed or ''}-{player_id}",
+        )
+        rounds.append({
+            "player_id": player_id,
+            "player_name": player_name,
+            "cards": cards,
+        })
+
+    rng.shuffle(rounds)
+    return rounds
+
+
+# -----------------------------
 # Curator schema + normalization
 # -----------------------------
 def build_curator_json_schema(max_pick: int) -> Dict[str, Any]:
@@ -1020,7 +1130,7 @@ def curate_history_ai(
                 {"role": "user", "content": json.dumps(user, ensure_ascii=False)},
                 {"role": "user", "content": "Return ONLY valid JSON."},
             ],
-            temperature=0.2,
+            temperature=0.5,
             response_format={
                 "type": "json_schema",
                 "json_schema": {"name": "historycourt_curator", "strict": True, "schema": schema},
@@ -1038,10 +1148,11 @@ def curate_history_ai(
                 {"role": "user", "content": json.dumps(user, ensure_ascii=False)},
                 {"role": "user", "content": "Return ONLY valid JSON of the form {\"picks\": [...]}."},
             ],
-            temperature=0.2,
+            temperature=0.5,
             response_format={"type": "json_object"},
         )
         raw_content = resp.choices[0].message.content or ""
+        # log it out
         parsed = json.loads(raw_content or "{}")
 
     try:

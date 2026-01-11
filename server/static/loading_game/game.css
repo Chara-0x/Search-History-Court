@@ -101,20 +101,15 @@ button:hover { background: rgba(255, 255, 255, 0.25); }
   top: 14px;
   left: 14px;
   
-  /* Transition for smooth movement */
-  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.1s, opacity 0.2s;
+  /* NO CSS TRANSITION for transform - handled by JS */
   will-change: transform;
   
   cursor: pointer;
   z-index: 10;
 }
 
-/* --- REMOVED TRANSFORM FROM CSS CLASSES --- */
-/* The scaling is now handled in JS to preserve the translate coordinates */
-
 .cell.dragging {
   z-index: 100;
-  transition: none !important; /* Instant follow */
   box-shadow: 0 15px 30px rgba(0,0,0,0.4);
   filter: brightness(1.2);
 }
@@ -123,11 +118,6 @@ button:hover { background: rgba(255, 255, 255, 0.25); }
   z-index: 20;
   filter: brightness(1.4);
   box-shadow: 0 0 0 3px #fff;
-}
-
-.cell.pop-anim {
-  opacity: 0;
-  /* Transform is handled inline by JS */
 }
 
 /* Bomb Visuals */
@@ -157,7 +147,7 @@ button:hover { background: rgba(255, 255, 255, 0.25); }
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 999; /* Ensure text is ALWAYS on top */
+  z-index: 999;
   overflow: visible;
 }
 
@@ -172,6 +162,7 @@ button:hover { background: rgba(255, 255, 255, 0.25); }
   opacity: 0;
 }
 
+/* We still keep text animation in CSS for simplicity, or could move to JS */
 .float-anim {
   animation: floatUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }

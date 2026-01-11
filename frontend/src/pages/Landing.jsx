@@ -19,6 +19,12 @@ export default function LandingPage() {
             >
               Review upload
             </Link>
+            <Link
+              to="/roulette-room"
+              className="inline-flex items-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-semibold px-5 py-3 rounded-xl shadow-sm"
+            >
+              Create a room
+            </Link>
             <a
               href="https://github.com"
               className="text-sm px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100"
