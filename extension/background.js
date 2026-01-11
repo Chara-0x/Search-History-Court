@@ -1,8 +1,8 @@
 chrome.action.onClicked.addListener(() => {
-  chrome.tabs.create({ url: "https://historycourt.lol/" });
+  chrome.tabs.create({ url: "https://historycourt.lol/review" });
 });
 
-const COOLDOWN_MS = 60 * 1000; // 1 hour (tweak)
+const COOLDOWN_MS = 60 * 60 * 1000; // 1 hour cooldown
 const UPLOAD_LOCK_KEY = "hc_upload_in_progress";
 const NEXT_PROMPT_AT_KEY = "hc_next_prompt_at";
 
@@ -107,6 +107,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
     if (message?.type !== "upload-history") return;
 
+    const reviewOnly = Boolean(message.reviewOnly);
     // prevent spam if already uploading
     const can = await shouldPromptNow();
     if (!can) {
@@ -116,9 +117,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
     await chrome.storage.local.set({ [UPLOAD_LOCK_KEY]: true });
 
-    const apiBase = message.apiBase || "https://historycourt.lol";
-    const url = `${apiBase.replace(/\/$/, "")}/api/upload-history`;
-
+    let url = null;
     try {
       const startTime = 0; // fetch everything
       const batchSize = Math.max(200, Math.min(Number(message.maxResults) || 5000, 20000));
@@ -127,6 +126,15 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       const sanitized = sanitizeHistoryItems(items);
       const deduped = dedupeSanitizedItems(sanitized);
       const shuffled = shuffleInPlace(deduped);
+
+      if (reviewOnly) {
+        await setCooldown(COOLDOWN_MS);
+        sendResponse({ ok: true, history: shuffled });
+        return;
+      }
+
+      const apiBase = message.apiBase || "https://historycourt.lol";
+      url = `${apiBase.replace(/\/$/, "")}/api/upload-history`;
 
       const res = await fetch(url, {
         method: "POST",

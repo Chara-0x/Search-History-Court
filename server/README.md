@@ -11,11 +11,13 @@ The server listens on `http://localhost:5000`.
 
 ## Pages
 - `/` landing page
+- `/review` pre-upload review (choose categories/domains before uploading)
 - `/me/<session_id>` case builder (tag selection + preview/edit)
 - `/play/<case_id>` jury UI for guessing the lie
 
 ## Key API routes
 - `POST /api/upload-history` body `{ history: [...] }` -> `{ ok, session_id }`
+- `POST /api/review-summary` body `{ history: [...] }` -> returns tagged items and per-category counts (no persistence)
 - `GET /api/session/<session_id>/tags` bucket history into 6 perspectives; each tag reports count, needs (target 30+ items), and sample items.
 - `POST /api/create-case` body `{ session_id, rounds, tags }` -> generates rounds using the selected tags. Response includes `{ case_id, play_url, rounds }`.
 - `GET /api/case/<case_id>/rounds` full rounds (for preview/edit UI)

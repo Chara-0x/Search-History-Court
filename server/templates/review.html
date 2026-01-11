@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Review Upload | Search History Liar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <main class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+    <header class="space-y-3">
+      <p class="text-xs uppercase tracking-[0.28em] text-indigo-500 font-semibold">Pre-upload review</p>
+      <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Choose what to upload</h1>
+      <p class="text-slate-600 max-w-3xl">We pulled a sanitized snapshot (host + title only). Pick which categories and domains to keep before sending to the server.</p>
+      <div class="text-sm bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-sm">
+        <p><span class="font-semibold">Reminder:</span> Filtering happens client side. Nothing is stored until you press Upload Selected.</p>
+      </div>
+    </header>
+
+    <section id="missingState" class="hidden bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm">
+      No cached history found. Use the extension banner on this site to fetch your history, then return here.
+    </section>
+
+    <section id="reviewState" class="hidden space-y-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="text-sm text-slate-600" id="totals"></div>
+        <div class="flex gap-2 text-xs">
+          <button id="selectAllTags" class="px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100">Select all tags</button>
+          <button id="deselectAllTags" class="px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100">Deselect all</button>
+        </div>
+      </div>
+
+      <div id="tagGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 space-y-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <p class="text-sm font-semibold text-slate-900">Filtered domains</p>
+          <p id="filterSummary" class="text-xs text-slate-500"></p>
+        </div>
+        <div id="hostList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <button id="uploadBtn" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-3 rounded-xl shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+          <span>Upload selected</span>
+          <span id="uploadCount" class="text-xs bg-white/20 px-2 py-1 rounded-full"></span>
+        </button>
+        <button id="clearBtn" class="text-sm px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100">Clear cached history</button>
+        <p id="uploadStatus" class="text-sm text-slate-500"></p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "hc_review_payload";
+    const TAG_DEFS = {{ tag_defs|tojson }};
+    const TYPE_TO_TAG = {{ type_to_tag|tojson }};
+    const MAX_SELECTED_TAGS = 6;
+    const tagGrid = document.getElementById("tagGrid");
+    const hostList = document.getElementById("hostList");
+    const totalsEl = document.getElementById("totals");
+    const filterSummary = document.getElementById("filterSummary");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const uploadCount = document.getElementById("uploadCount");
+    const uploadStatus = document.getElementById("uploadStatus");
+
+    let items = [];
+    let summary = [];
+    let selectedTags = new Set();
+    let selectedHosts = {}; // tag -> Set(host)
+    let typeMap = {};
+
+    function setStatus(msg, tone = "muted") {
+      const colors = { muted: "text-slate-500", good: "text-emerald-600", bad: "text-rose-600" };
+      uploadStatus.className = "text-sm " + (colors[tone] || colors.muted);
+      uploadStatus.textContent = msg || "";
+    }
+
+    function renderTags() {
+      tagGrid.innerHTML = "";
+      summary.forEach((tag) => {
+        const active = selectedTags.has(tag.id);
+        const btn = document.createElement("button");
+        btn.className = [
+          "w-full text-left rounded-xl border p-4 transition shadow-sm",
+          active ? "border-indigo-300 bg-indigo-50" : "border-slate-200 bg-white hover:border-slate-300"
+        ].join(" ");
+        btn.onclick = () => {
+          if (active) {
+            selectedTags.delete(tag.id);
+          } else {
+            if (selectedTags.size >= MAX_SELECTED_TAGS && tag.id !== "uncategorized") {
+              setStatus(`You can select up to ${MAX_SELECTED_TAGS} categories.`, "bad");
+              return;
+            }
+            selectedTags.add(tag.id);
+          }
+          ensureHostSelection();
+          renderTags();
+          renderHosts();
+        };
+        const hostNames = (tag.hosts || []).slice(0, 3).map((h) => h.host).join(", ");
+        btn.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="text-xs uppercase tracking-[0.18em] text-slate-500 font-semibold">${tag.id}</p>
+              <p class="text-lg font-bold text-slate-900">${tag.label}</p>
+            </div>
+            <span class="text-xs px-2 py-1 rounded-full ${active ? "bg-indigo-200 text-indigo-800" : "bg-slate-100 text-slate-600"}">
+              ${tag.count} items
+            </span>
+          </div>
+          <p class="mt-2 text-xs text-slate-500">Top domains: ${hostNames || "..."}</p>
+        `;
+        tagGrid.appendChild(btn);
+      });
+      updateCounts();
+    }
+
+    function ensureHostSelection() {
+      // Initialize host sets for selected tags
+      summary.forEach((tag) => {
+        if (selectedTags.has(tag.id)) {
+          if (!selectedHosts[tag.id]) {
+            selectedHosts[tag.id] = new Set((tag.hosts || []).map((h) => h.host));
+          }
+        }
+      });
+    }
+
+    function renderHosts() {
+      hostList.innerHTML = "";
+        const filteredSummary = summary.filter((t) => selectedTags.has(t.id));
+      let totalHosts = 0;
+      filteredSummary.forEach((tag) => {
+        const box = document.createElement("div");
+        box.className = "border border-slate-200 rounded-xl p-3 bg-white";
+        const hosts = tag.hosts || [];
+        totalHosts += hosts.length;
+        let html = `
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <p class="text-xs uppercase tracking-[0.18em] text-slate-500 font-semibold">${tag.id}</p>
+              <p class="text-sm font-semibold text-slate-800">${tag.label}</p>
+            </div>
+            <button class="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-slate-200" data-all="${tag.id}">Toggle all</button>
+          </div>
+        `;
+        html += '<div class="space-y-1 max-h-56 overflow-y-auto">';
+        hosts.forEach((h) => {
+          const checked = selectedHosts[tag.id]?.has(h.host);
+          html += `
+            <label class="flex items-center gap-2 text-sm text-slate-700">
+              <input type="checkbox" data-tag="${tag.id}" data-host="${h.host}" ${checked ? "checked" : ""}>
+              <span class="flex-1 truncate">${h.host}</span>
+              <span class="text-xs text-slate-500">${h.count}</span>
+            </label>
+          `;
+        });
+        html += '</div>';
+        box.innerHTML = html;
+        hostList.appendChild(box);
+      });
+      filterSummary.textContent = filteredSummary.length
+        ? `${filteredSummary.length} selected categories, ${totalHosts} listed domains`
+        : "No categories selected.";
+      hostList.querySelectorAll("input[type=checkbox]").forEach((cb) => {
+        cb.onchange = () => {
+          const tag = cb.getAttribute("data-tag");
+          const host = cb.getAttribute("data-host");
+          if (!selectedHosts[tag]) selectedHosts[tag] = new Set();
+          if (cb.checked) selectedHosts[tag].add(host);
+          else selectedHosts[tag].delete(host);
+          updateCounts();
+        };
+      });
+      hostList.querySelectorAll("button[data-all]").forEach((btn) => {
+        btn.onclick = () => {
+          const tag = btn.getAttribute("data-all");
+          const allHosts = summary.find((t) => t.id === tag)?.hosts || [];
+          const set = selectedHosts[tag] || new Set();
+          const allChecked = allHosts.every((h) => set.has(h.host));
+          if (allChecked) {
+            selectedHosts[tag] = new Set();
+          } else {
+            selectedHosts[tag] = new Set(allHosts.map((h) => h.host));
+          }
+          renderHosts();
+          updateCounts();
+        };
+      });
+      updateCounts();
+    }
+
+    function filteredItems() {
+      return items.filter((it) => {
+        if (!selectedTags.has(it.tag)) return false;
+        if (!selectedHosts[it.tag]) return true;
+        if (selectedHosts[it.tag].size === 0) return false;
+        return selectedHosts[it.tag].has(it.host);
+      });
+    }
+
+    function updateCounts() {
+      const count = filteredItems().length;
+      uploadCount.textContent = `${count} items`;
+      uploadBtn.disabled = count === 0;
+      totalsEl.textContent = `${items.length} total items • ${summary.length} categories`;
+    }
+
+    function canonicalHost(host = "") {
+      const h = host.trim().toLowerCase();
+      return h.startsWith("www.") ? h.slice(4) : h;
+    }
+
+    function detectTag(host, title) {
+      const h = canonicalHost(host);
+      const t = (title || "").toLowerCase();
+      const hostType = (() => {
+        const parts = h.split(".");
+        const candidates = [h];
+        if (parts.length >= 3) candidates.push(parts.slice(-2).join("."));
+        for (const c of candidates) {
+          if (typeMap[c]) return typeMap[c];
+        }
+        return null;
+      })();
+      if (hostType && TYPE_TO_TAG[hostType]) return TYPE_TO_TAG[hostType];
+      for (const tag of TAG_DEFS) {
+        if ((tag.hosts || []).some((p) => h.includes(p))) return tag.id;
+        if ((tag.keywords || []).some((kw) => t.includes(kw))) return tag.id;
+      }
+      return "uncategorized";
+    }
+
+    function classifyHistory(history) {
+      const tagged = [];
+      for (const h of history || []) {
+        if (!h || typeof h !== "object") continue;
+        const host = canonicalHost(h.host || "");
+        const title = (h.title || "").trim();
+        if (!host || !title) continue;
+        tagged.push({
+          host,
+          title,
+          tag: detectTag(host, title),
+          lastVisitTime: h.lastVisitTime || null,
+          visitCount: h.visitCount || 1,
+        });
+      }
+      return tagged;
+    }
+
+    function summarize(tagged) {
+      const counts = {};
+      const hosts = {};
+      TAG_DEFS.concat([{ id: "uncategorized", label: "Uncategorized", hosts: [], keywords: [] }]).forEach((t) => {
+        counts[t.id] = 0;
+        hosts[t.id] = {};
+      });
+      for (const it of tagged) {
+        const tag = it.tag || "uncategorized";
+        counts[tag] = (counts[tag] || 0) + 1;
+        hosts[tag][it.host] = (hosts[tag][it.host] || 0) + 1;
+      }
+      const out = [];
+      Object.keys(counts).forEach((tagId) => {
+        const def = TAG_DEFS.find((t) => t.id === tagId) || { id: tagId, label: tagId === "uncategorized" ? "Uncategorized (won't upload by default)" : tagId };
+        const topHosts = Object.entries(hosts[tagId] || {}).sort((a, b) => b[1] - a[1]).slice(0, 20).map(([h, c]) => ({ host: h, count: c }));
+        out.push({ id: tagId, label: def.label, count: counts[tagId], hosts: topHosts });
+      });
+      return out;
+    }
+
+    async function loadSummary(history) {
+      setStatus("Building preview...");
+      items = classifyHistory(history);
+      summary = summarize(items);
+      selectedTags = new Set(summary.filter((t) => t.id !== "uncategorized" && t.count > 0).map((t) => t.id).slice(0, MAX_SELECTED_TAGS));
+      selectedHosts = {};
+      summary.forEach((t) => {
+        if (selectedTags.has(t.id)) {
+          selectedHosts[t.id] = new Set((t.hosts || []).map((h) => h.host));
+        }
+      });
+      setStatus("Ready.");
+      document.getElementById("reviewState").classList.remove("hidden");
+      renderTags();
+      renderHosts();
+    }
+
+    async function uploadSelected() {
+      const chosen = filteredItems();
+      if (!chosen.length) return;
+      uploadBtn.disabled = true;
+      setStatus("Uploading selection...");
+      const res = await fetch("/api/upload-history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ history: chosen }),
+      });
+      const json = await res.json().catch(() => ({}));
+      uploadBtn.disabled = false;
+      if (!json.ok || !json.session_id) {
+        setStatus(json.error || "Upload failed.", "bad");
+        return;
+      }
+      localStorage.removeItem(STORAGE_KEY);
+      setStatus("Uploaded. Redirecting...", "good");
+      window.location.href = `/me/${encodeURIComponent(json.session_id)}`;
+    }
+
+    document.getElementById("uploadBtn").onclick = uploadSelected;
+    document.getElementById("clearBtn").onclick = () => {
+      localStorage.removeItem(STORAGE_KEY);
+      window.location.reload();
+    };
+    document.getElementById("selectAllTags").onclick = () => {
+      selectedTags = new Set(summary.map((t) => t.id));
+      summary.forEach((t) => selectedHosts[t.id] = new Set((t.hosts || []).map((h) => h.host)));
+      renderTags();
+      renderHosts();
+    };
+    document.getElementById("deselectAllTags").onclick = () => {
+      selectedTags = new Set();
+      renderTags();
+      renderHosts();
+    };
+
+    async function bootstrap() {
+      const typeRes = await fetch("/api/type-map").then((r) => r.json()).catch(() => ({}));
+      if (typeRes?.ok && typeRes.type_map) {
+        typeMap = typeRes.type_map;
+      }
+
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        document.getElementById("missingState").classList.remove("hidden");
+        return;
+      }
+      let history = [];
+      try {
+        history = JSON.parse(raw) || [];
+      } catch (e) {
+        console.error("Failed to parse cached history", e);
+      }
+      if (!Array.isArray(history) || !history.length) {
+        document.getElementById("missingState").classList.remove("hidden");
+        return;
+      }
+      loadSummary(history);
+    }
+    bootstrap();
+  </script>
+</body>
+</html>

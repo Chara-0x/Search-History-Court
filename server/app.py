@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 from os import getenv
@@ -6,21 +7,25 @@ import re
 import sqlite3
 import string
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 from openai import OpenAI
 
+# ============================================================
+# App setup
+# ============================================================
 app = Flask(__name__, template_folder="templates", static_folder="static")
 CORS(app, resources={r"/api/*": {"origins": "*"}})
-
 app.config["JSON_SORT_KEYS"] = False
 
 DB_PATH = os.environ.get("HISTORYCOURT_DB", "historycourt.db")
+TYPE_MAP_PATH = getenv("TYPE_MAP_PATH", os.path.join(os.path.dirname(__file__), "types.csv"))
 
-# -----------------------------
+# ============================================================
 # DB helpers
-# -----------------------------
+# ============================================================
 def db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -61,6 +66,50 @@ def canonical_host(host: str) -> str:
         h = h[4:]
     return h
 
+def host_from_url(url: str) -> str:
+    try:
+        u = urlparse(url)
+        return canonical_host(u.netloc or "")
+    except Exception:
+        return ""
+
+# ============================================================
+# Type map (host -> category type)
+# ============================================================
+def load_type_map(path=TYPE_MAP_PATH):
+    mapping = {}
+    if not path or not os.path.exists(path):
+        return mapping
+    try:
+        with open(path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                host = canonical_host(row.get("url"))
+                if not host:
+                    continue
+                mapping[host] = (row.get("type") or "").strip()
+    except Exception as e:
+        print(f"Failed to load type map from {path}: {e}")
+        return {}
+    print(f"Loaded {len(mapping)} host type entries from {path}")
+    return mapping
+
+TYPE_MAP = load_type_map()
+
+def lookup_host_type(host: str):
+    h = canonical_host(host)
+    if not h:
+        return None
+    parts = h.split(".")
+    candidates = [h]
+    if len(parts) >= 3:
+        root = ".".join(parts[-2:])
+        candidates.append(root)
+    for cand in candidates:
+        if cand in TYPE_MAP:
+            return TYPE_MAP[cand]
+    return None
+
 def get_case_with_history(case_id):
     """
     Returns (conn, case_row, history_list). Caller must close conn.
@@ -80,13 +129,12 @@ def get_case_with_history(case_id):
     history = json.loads(session_row["history_json"] or "[]") if session_row else []
     return conn, case_row, history
 
-
-# -----------------------------
+# ============================================================
 # 2 Truths 1 Lie Generation
-# -----------------------------
+# ============================================================
 STOPWORDS = {
-    "the", "and", "for", "with", "from", "that", "this", "you", "your", "are", 
-    "was", "how", "what", "why", "when", "where", "a", "an", "to", "of", "in", 
+    "the", "and", "for", "with", "from", "that", "this", "you", "your", "are",
+    "was", "how", "what", "why", "when", "where", "a", "an", "to", "of", "in",
     "on", "at", "as", "is", "it", "by", "or", "be", "vs", "login", "sign", "page"
 }
 
@@ -105,9 +153,9 @@ FAKE_TITLES = [
     ("pretend to work screen", "github.com"),
 ]
 
-# -----------------------------
+# ============================================================
 # Tagging (6 perspectives)
-# -----------------------------
+# ============================================================
 TAG_MIN_COUNT = 30
 TAG_DEFS = [
     {
@@ -168,13 +216,50 @@ TAG_DEFS = [
 ]
 TAG_LOOKUP = {t["id"]: t for t in TAG_DEFS}
 
+TYPE_TO_TAG = {
+    "Social_Network": "social",
+    "People_and_Society": "social",
+    "Arts_and_Entertainment": "entertainment",
+    "Games": "entertainment",
+    "Sports": "entertainment",
+    "Books_and_Literature": "entertainment",
+    "News_and_Media": "news",
+    "Career_and_Education": "school_work",
+    "Business_and_Industry": "school_work",
+    "Reference": "search",
+    "Science": "search",
+    "Internet_and_Telecom": "search",
+    "Computer_and_Electronics": "search",
+    "Law_and_Government": "news",
+    "Finance": "shopping_misc",
+    "Shopping": "shopping_misc",
+    "Autos_and_Vehicles": "shopping_misc",
+    "Beauty_and_Fitness": "shopping_misc",
+    "Food_and_Drink": "shopping_misc",
+    "Home_and_Garden": "shopping_misc",
+    "Recreation_and_Hobbies": "shopping_misc",
+    "Travel": "shopping_misc",
+    "Pets_and_Animals": "shopping_misc",
+    "Gambling": "shopping_misc",
+    "Adult": "shopping_misc",
+    "Health": "shopping_misc",
+    "Not_working": "shopping_misc",
+    "type": "shopping_misc",  # header guard
+}
+
 def detect_tag(host: str, title: str) -> str:
     """
-    Assign an item to one of the defined perspectives based on host/keywords.
-    Falls back to shopping_misc (wildcards) so nothing is lost.
+    Assign an item to one of the defined perspectives using the CSV type map first,
+    then host/keyword heuristics. Falls back to shopping_misc so nothing is lost.
     """
     h = canonical_host(host)
     t = (title or "").lower()
+
+    host_type = lookup_host_type(h)
+    if host_type:
+        tag = TYPE_TO_TAG.get(host_type)
+        if tag:
+            return tag
 
     for tag in TAG_DEFS:
         if any(p in h for p in tag["hosts"]):
@@ -183,13 +268,14 @@ def detect_tag(host: str, title: str) -> str:
             return tag["id"]
     return "shopping_misc"
 
-# -----------------------------
-# Candidate selection (anti-repetitive, keep Google only if titles vary)
-# -----------------------------
+# ============================================================
+# Title cleanup and "noise" filters (new)
+# ============================================================
 GENERIC_TITLE_PATTERNS = [
     r"^new tab$",
     r"^home$",
     r"^homepage$",
+    r"^untitled$",
     r"sign in",
     r"log in",
     r"login",
@@ -200,13 +286,14 @@ GENERIC_TITLE_PATTERNS = [
     r"index of",
 ]
 
-KEEP_HOST_ALLOWLIST = {
-    "google.com", "www.google.com",
-    "youtube.com", "www.youtube.com",
-    "github.com", "www.github.com",
-    "reddit.com", "www.reddit.com",
-    "wikipedia.org", "en.wikipedia.org",
-}
+def clean_title_v2(title: str) -> str:
+    if not title:
+        return "Untitled"
+    # remove suffixes like " - Google Search", " - YouTube", etc.
+    title = re.sub(r"\s[-|\u2022]\s.*$", "", title).strip()
+    if len(title) > 90:
+        title = title[:87] + "..."
+    return title
 
 def is_generic_title(title: str) -> bool:
     if not title:
@@ -219,14 +306,31 @@ def is_generic_title(title: str) -> bool:
             return True
     return False
 
-def clean_title_v2(title: str) -> str:
-    if not title:
-        return "Untitled"
-    # remove suffixes like " - Google Search", " - YouTube", etc.
-    title = re.sub(r"\s[-|\u2022]\s.*$", "", title).strip()
-    if len(title) > 90:
-        title = title[:87] + "..."
-    return title
+# Excludes you probably don't want in the pool
+EXCLUDE_HOST_EXACT = {
+    "localhost",
+    "127.0.0.1",
+}
+EXCLUDE_HOST_SUBSTRINGS = (
+    "chrome.google.com",
+    "accounts.google.com",
+    "login.",
+    "auth.",
+)
+
+def _is_noise_title(title: str) -> bool:
+    return is_generic_title(title)
+
+# ============================================================
+# Candidate selection scoring (existing)
+# ============================================================
+KEEP_HOST_ALLOWLIST = {
+    "google.com", "www.google.com",
+    "youtube.com", "www.youtube.com",
+    "github.com", "www.github.com",
+    "reddit.com", "www.reddit.com",
+    "wikipedia.org", "en.wikipedia.org",
+}
 
 def build_host_stats(items):
     """
@@ -291,7 +395,7 @@ def select_candidates(history, max_history=2000, max_candidates=700, allowed_tag
     Returns a curated pool for AI.
     """
     allowed_set = set(allowed_tags or [t["id"] for t in TAG_DEFS])
-    # Clean & cap
+
     items = []
     for h in (history or [])[:max_history]:
         if not isinstance(h, dict):
@@ -316,7 +420,6 @@ def select_candidates(history, max_history=2000, max_candidates=700, allowed_tag
 
     host_stats = build_host_stats(items)
 
-    # Score and keep only decent stuff
     scored = []
     for it in items:
         s = score_item(it, host_stats)
@@ -325,7 +428,6 @@ def select_candidates(history, max_history=2000, max_candidates=700, allowed_tag
 
     scored.sort(key=lambda x: x[0], reverse=True)
 
-    # Diversity caps
     per_host_cap = 3
     per_host_cap_allow = 8
 
@@ -343,8 +445,6 @@ def select_candidates(history, max_history=2000, max_candidates=700, allowed_tag
         if per_host.get(it["host"], 0) >= cap:
             continue
 
-        # skip hosts that have almost no title variety (boring "home" pages),
-        # but don't apply to allowlist
         hs = host_stats.get(it["host"], {"variety": 0.0})
         if it["host"] not in KEEP_HOST_ALLOWLIST and hs["variety"] < 0.15:
             continue
@@ -356,11 +456,126 @@ def select_candidates(history, max_history=2000, max_candidates=700, allowed_tag
 
     return out
 
+# ============================================================
+# NEW: staged shrink (early stop) + route integration
+# ============================================================
+def _stage0_basic(history, max_history=200000):
+    """
+    Stage 0: normalize basic shape into canonical items.
+    Expects extension may send host/title already. If it sends url too, handle it.
+    """
+    out = []
+    for h in (history or [])[:max_history]:
+        if not isinstance(h, dict):
+            continue
+
+        host = h.get("host")
+        if not host and h.get("url"):
+            host = host_from_url(h.get("url"))
+
+        host = canonical_host(host)
+        title = clean_title_v2(h.get("title") or "")
+
+        if not host or not title:
+            continue
+
+        out.append({
+            "host": host,
+            "title": title,
+            "visitCount": int(h.get("visitCount") or 1),
+            "lastVisitTime": h.get("lastVisitTime"),
+        })
+    return out
+
+def _stage1_filter_noise(items):
+    """
+    Remove obvious junk (logins, empty, generic titles, unwanted hosts).
+    """
+    filtered = []
+    for it in items:
+        host = it["host"]
+        title = it["title"]
+
+        if host in EXCLUDE_HOST_EXACT:
+            continue
+        if any(s in host for s in EXCLUDE_HOST_SUBSTRINGS):
+            continue
+        if _is_noise_title(title):
+            continue
+
+        filtered.append(it)
+    return filtered
+
+def _stage2_dedupe(items):
+    seen = set()
+    out = []
+    for it in items:
+        key = (it["host"], it["title"].lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(it)
+    return out
+
+def _stage3_loose_host_cap(items, cap=30):
+    """
+    Cheap cap before heavier stuff. Keeps first N per host (order doesn't matter much).
+    """
+    per_host = {}
+    out = []
+    for it in items:
+        h = it["host"]
+        if per_host.get(h, 0) >= cap:
+            continue
+        per_host[h] = per_host.get(h, 0) + 1
+        out.append(it)
+    return out
+
+def shrink_history_staged(history, stop_threshold=1000):
+    """
+    Do something like before running check on each stage:
+    if under threshold, stop sanitizing and return current list.
+
+    Returns items shaped like:
+      [{"host": "...", "title": "...", "visitCount": int, "lastVisitTime": ...}, ...]
+    """
+    # Stage 0
+    items = _stage0_basic(history)
+    if len(items) <= stop_threshold:
+        return items
+
+    # Stage 1
+    items = _stage1_filter_noise(items)
+    if len(items) <= stop_threshold:
+        return items
+
+    # Stage 2
+    items = _stage2_dedupe(items)
+    if len(items) <= stop_threshold:
+        return items
+
+    # Stage 3 (cheap pre-cap)
+    items = _stage3_loose_host_cap(items, cap=30)
+    if len(items) <= stop_threshold:
+        return items
+
+    # Final: if still large, use your existing "select_candidates" to shrink
+    # down to a manageable pool for downstream AI/game.
+    # (This is your "smart" shrink, but only after all early-stop checks.)
+    candidates = select_candidates(
+        items,
+        max_history=5000,
+        max_candidates=700,
+        allowed_tags=[t["id"] for t in TAG_DEFS],
+    )
+
+    # Keep the candidates if we got enough; otherwise return the staged items
+    return candidates if candidates else items
+
+# ============================================================
+# Tag summaries and review helpers (yours)
+# ============================================================
 def summarize_tags(history, min_count=TAG_MIN_COUNT, max_per_tag=60, max_history=2000):
-    """
-    Buckets history into 7 perspectives with counts so the UI can show
-    which perspectives have enough material.
-    """
     buckets = {t["id"]: [] for t in TAG_DEFS}
     seen = set()
 
@@ -408,9 +623,6 @@ def summarize_tags(history, min_count=TAG_MIN_COUNT, max_per_tag=60, max_history
     return summary
 
 def filter_history_by_tags(history, selected_tags):
-    """
-    Keep only history items that match the chosen tag ids.
-    """
     if not selected_tags:
         return history
     allowed = set(selected_tags)
@@ -431,13 +643,55 @@ def filter_history_by_tags(history, selected_tags):
             "visitCount": int(h.get("visitCount") or 1),
         })
     return filtered
-def normalize_ai_rounds(data, compact_real_set, real_lookup, allowed_tags=None):
-    """
-    Accepts AI output in multiple shapes and normalizes to:
-      [{"topic": "tag_id", "cards":[{"host","title","is_lie"}*3], "lie_index": int}, ...]
-    Enforces per-round single tag: all cards must match the round tag.
-    """
-    # 1) Extract rounds list
+
+def tag_history_items(history, max_history=5000):
+    out = []
+    for h in (history or [])[:max_history]:
+        if not isinstance(h, dict):
+            continue
+        host = canonical_host(h.get("host"))
+        title = clean_title_v2(h.get("title") or "")
+        if not host or not title:
+            continue
+        tag = detect_tag(host, title)
+        out.append({
+            "host": host,
+            "title": title,
+            "tag": tag,
+            "lastVisitTime": h.get("lastVisitTime"),
+            "visitCount": int(h.get("visitCount") or 1),
+        })
+    return out
+
+def summarize_items_by_tag(items, max_hosts=None):
+    tag_counts = {t["id"]: 0 for t in TAG_DEFS}
+    host_counts = {t["id"]: {} for t in TAG_DEFS}
+    for it in items:
+        tag = it.get("tag") or "shopping_misc"
+        host = it.get("host") or "unknown"
+        tag_counts[tag] = tag_counts.get(tag, 0) + 1
+        hc = host_counts.setdefault(tag, {})
+        hc[host] = hc.get(host, 0) + 1
+
+    summary = []
+    for tag in TAG_DEFS:
+        hosts = host_counts.get(tag["id"], {})
+        sorted_hosts = sorted(hosts.items(), key=lambda x: x[1], reverse=True)
+        if max_hosts:
+            sorted_hosts = sorted_hosts[:max_hosts]
+        summary.append({
+            "id": tag["id"],
+            "label": tag["label"],
+            "count": tag_counts.get(tag["id"], 0),
+            "hosts": [{"host": h, "count": c} for h, c in sorted_hosts],
+        })
+    return summary
+
+# ============================================================
+# AI round normalization + generation (your existing)
+# NOTE: kept as-is, except we ensure select_candidates exists above.
+# ============================================================
+def normalize_ai_rounds(data, compact_real_set, real_lookup, allowed_tags=None, real_items_by_idx=None):
     rounds = None
     if isinstance(data, dict) and isinstance(data.get("rounds"), list):
         rounds = data["rounds"]
@@ -446,9 +700,10 @@ def normalize_ai_rounds(data, compact_real_set, real_lookup, allowed_tags=None):
     else:
         raise ValueError("AI output must be dict with rounds[] or a list of rounds")
 
-    allowed_set = set(allowed_tags or [])
+    allowed_set = set(allowed_tags or [t["id"] for t in TAG_DEFS])
+    real_items_by_idx = real_items_by_idx or {}
+
     def norm_one_round(r, idx):
-        # r can be dict with cards, or directly a list of 3 cards
         round_tag = None
         cards = None
         lie_index = None
@@ -465,7 +720,6 @@ def normalize_ai_rounds(data, compact_real_set, real_lookup, allowed_tags=None):
         if not isinstance(cards, list) or len(cards) != 3:
             raise ValueError(f"Round {idx}: cards must be a list of length 3")
 
-        # infer lie_index if needed from per-card flags
         if lie_index is None:
             flags = []
             for c in cards:
@@ -476,45 +730,81 @@ def normalize_ai_rounds(data, compact_real_set, real_lookup, allowed_tags=None):
             if flags.count(True) == 1:
                 lie_index = flags.index(True)
             else:
-                # If model forgot lie flags, pick the "most lie-like" card:
-                # (fallback: choose card whose (host,title) is NOT in real_set, if exactly one)
-                in_real = []
+                # Try using real_idx presence to infer truths
+                real_idx_flags = []
                 for c in cards:
-                    host = canonical_host(c.get("host")) if isinstance(c, dict) else ""
-                    title = clean_title_v2(c.get("title") or "") if isinstance(c, dict) else ""
-                    in_real.append((host, title) in compact_real_set)
-                if in_real.count(False) == 1:
-                    lie_index = in_real.index(False)
+                    if not isinstance(c, dict):
+                        real_idx_flags.append(None)
+                    else:
+                        real_idx_flags.append(c.get("real_idx", c.get("idx")))
+                missing_real_idx = [i for i, val in enumerate(real_idx_flags) if val in (None, "", [])]
+                provided_real_idx = [i for i, val in enumerate(real_idx_flags) if val not in (None, "", [])]
+                if len(missing_real_idx) == 1 and len(provided_real_idx) >= 2:
+                    lie_index = missing_real_idx[0]
                 else:
-                    raise ValueError(f"Round {idx}: could not infer lie_index (no lie flags)")
+                    in_real = []
+                    for c in cards:
+                        host = canonical_host(c.get("host")) if isinstance(c, dict) else ""
+                        title = clean_title_v2(c.get("title") or "") if isinstance(c, dict) else ""
+                        in_real.append((host, title) in compact_real_set)
+                    if in_real.count(False) == 1:
+                        lie_index = in_real.index(False)
+                    else:
+                        raise ValueError(f"Round {idx}: could not infer lie_index (no lie flags)")
 
         if not isinstance(lie_index, int) or not (0 <= lie_index <= 2):
             raise ValueError(f"Round {idx}: invalid lie_index {lie_index}")
 
-        # normalize card objects
         norm_cards = []
         for i, c in enumerate(cards):
             if not isinstance(c, dict):
                 raise ValueError(f"Round {idx}: card {i} must be object")
+
+            real_idx = c.get("real_idx", c.get("idx"))
             host = canonical_host(c.get("host"))
             title = clean_title_v2(c.get("title") or "")
+            tag_hint = c.get("tag") or c.get("topic")
+
+            if real_idx is not None:
+                try:
+                    real_idx = int(real_idx)
+                except Exception:
+                    raise ValueError(f"Round {idx}: card {i} real_idx not int")
+                real_item = real_items_by_idx.get(real_idx)
+                if not real_item:
+                    raise ValueError(f"Round {idx}: card {i} real_idx {real_idx} invalid")
+                if i == lie_index:
+                    raise ValueError(f"Round {idx}: lie card {i} must not reference real_idx")
+                host = real_item["host"]
+                title = real_item["title"]
+                tag_hint = real_item.get("tag")
+
             if not host or not title:
                 raise ValueError(f"Round {idx}: card {i} missing host/title")
+
             pair = (host, title)
             expected_tag = real_lookup.get(pair)
-            card_tag = expected_tag or detect_tag(host, title)
-            norm_cards.append({"host": host, "title": title, "is_lie": (i == lie_index), "tag": card_tag})
+            card_tag = tag_hint or expected_tag or detect_tag(host, title)
+
+            norm_cards.append({
+                "host": host,
+                "title": title,
+                "is_lie": (i == lie_index),
+                "tag": card_tag,
+                "real_idx": real_idx if i != lie_index else None,
+            })
             if round_tag is None:
                 round_tag = card_tag
 
-        # validation: truths from pool, lie not in pool
         for i, c in enumerate(norm_cards):
             pair = (c["host"], c["title"])
             if i == lie_index:
                 if pair in compact_real_set:
                     raise ValueError(f"Round {idx}: lie matches real item")
+                if c.get("real_idx") is not None:
+                    raise ValueError(f"Round {idx}: lie card has real_idx")
             else:
-                if pair not in compact_real_set:
+                if pair not in compact_real_set and c.get("real_idx") is None:
                     raise ValueError(f"Round {idx}: truth not in real pool: {pair}")
                 expected_tag = real_lookup.get(pair)
                 card_tag = c.get("tag") or expected_tag or detect_tag(c["host"], c["title"])
@@ -539,9 +829,7 @@ def normalize_ai_rounds(data, compact_real_set, real_lookup, allowed_tags=None):
     normalized = []
     for idx, r in enumerate(rounds):
         normalized.append(norm_one_round(r, idx))
-
     return normalized
-
 
 def log_ai_run(meta, request_payload, raw_response, normalized, error=None):
     entry = {
@@ -559,39 +847,32 @@ def log_ai_run(meta, request_payload, raw_response, normalized, error=None):
         pass
 
 def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None, meta=None):
-    """
-    AI-generated 2-truth-1-lie rounds:
-    - 2 truths MUST come from candidate pool
-    - lie MUST NOT match any truth (host+title pair)
-    - avoid repeating hosts across rounds as much as possible
-    """
     allowed_tags = allowed_tags or [t["id"] for t in TAG_DEFS]
     candidates = select_candidates(
         history,
-        max_history=1000,
-        max_candidates=300,
+        max_history=500,
+        max_candidates=150,
         allowed_tags=allowed_tags,
     )
     print(f"AI round generation: {len(candidates)} candidates from {len(history)} history items")
     with open("candidates_debug.json", "w") as f:
         json.dump(candidates, f, indent=2)
 
-    # Fallback if not enough data
     if len(candidates) < max(10, n_rounds * 2):
         return make_rounds(history, n_rounds=n_rounds, seed=seed, allowed_tags=allowed_tags)
 
-    # Build a compact view for the model
-    # (don't send lastVisitTime unless you want recency behavior)
     compact = []
     real_lookup = {}
-    for c in candidates:
+    real_items_by_idx = {}
+    for idx, c in enumerate(candidates):
         host = canonical_host(c["host"])
         title = clean_title_v2(c["title"])
         tag = c.get("tag") or detect_tag(host, title)
-        compact.append({"host": host, "title": title, "tag": tag})
+        item = {"id": idx, "host": host, "title": title, "tag": tag}
+        compact.append(item)
         real_lookup[(host, title)] = tag
+        real_items_by_idx[idx] = item
 
-    # Structured Outputs schema (model MUST return this JSON)
     schema = {
         "name": "historycourt_rounds",
         "schema": {
@@ -620,7 +901,8 @@ def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None, meta=None
                                     "required": ["host", "title"],
                                     "properties": {
                                         "host": {"type": "string"},
-                                        "title": {"type": "string"}
+                                        "title": {"type": "string"},
+                                        "real_idx": {"type": "integer", "minimum": 0, "maximum": len(compact)},
                                     }
                                 }
                             },
@@ -634,8 +916,8 @@ def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None, meta=None
     }
 
     client = OpenAI(
-      base_url="https://openrouter.ai/api/v1",
-      api_key=getenv("OPENROUTER_API_KEY"),
+        base_url="https://openrouter.ai/api/v1",
+        api_key=getenv("OPENROUTER_API_KEY"),
     )
 
     system = (
@@ -654,6 +936,8 @@ def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None, meta=None
         "9) Each round MUST declare a tag from the allowed list, and all 3 cards (including the lie) must belong to that same tag.\n"
         "10) Both truth cards must come from REAL_ITEMS with that same tag.\n"
         "11) Use canonical hosts without leading www.\n"
+        "12) Whenever possible, reference truths by setting real_idx to the REAL_ITEMS index so the backend can validate. Lies must NOT include real_idx.\n"
+        "13) Do not rewrite or encode titles/hosts; copy them exactly from REAL_ITEMS when using real_idx.\n"
     )
 
     user = {
@@ -674,16 +958,25 @@ def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None, meta=None
         temperature=0.35,
         response_format={"type": "json_object"},
     )
+
     raw_content = resp.choices[0].message.content
     print(raw_content)
+
     try:
         data = json.loads(raw_content)
     except Exception as e:
         log_ai_run(meta or {}, {"REAL_ITEMS": compact, "allowed_tags": allowed_tags, "n_rounds": n_rounds, "seed": seed}, raw_content, None, e)
         raise
+
     real_set = {(x["host"], x["title"]) for x in compact}
     try:
-        normalized_rounds = normalize_ai_rounds(data, real_set, real_lookup, allowed_tags=allowed_tags)
+        normalized_rounds = normalize_ai_rounds(
+            data,
+            real_set,
+            real_lookup,
+            allowed_tags=allowed_tags,
+            real_items_by_idx=real_items_by_idx,
+        )
         log_ai_run(meta or {}, {"REAL_ITEMS": compact, "allowed_tags": allowed_tags, "n_rounds": n_rounds, "seed": seed}, data, normalized_rounds, None)
         return normalized_rounds
     except Exception as e:
@@ -691,9 +984,9 @@ def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None, meta=None
         raise
 
 def clean_title(title):
-    if not title: return "Untitled Page"
-    # Remove common suffixes like " - Google Search" or " - YouTube"
-    title = re.sub(r'\s-.*', '', title)
+    if not title:
+        return "Untitled Page"
+    title = re.sub(r"\s-.*", "", title)
     return title[:65] + "..." if len(title) > 65 else title
 
 def make_rounds(history, n_rounds=10, seed=None, allowed_tags=None):
@@ -727,7 +1020,7 @@ def make_rounds(history, n_rounds=10, seed=None, allowed_tags=None):
     if not tag_keys:
         tag_keys = list(tag_buckets.keys()) or ["shopping_misc"]
 
-    for i in range(n_rounds):
+    for _ in range(n_rounds):
         tag = random.choice(tag_keys)
         bucket = tag_buckets.get(tag, [])
         if len(bucket) < 2:
@@ -751,25 +1044,25 @@ def make_rounds(history, n_rounds=10, seed=None, allowed_tags=None):
             lie
         ]
         random.shuffle(cards)
-
         lie_index = next(i for i, card in enumerate(cards) if card["is_lie"])
 
-        rounds.append({
-            "cards": cards,
-            "lie_index": lie_index,
-            "topic": tag
-        })
-
+        rounds.append({"cards": cards, "lie_index": lie_index, "topic": tag})
     return rounds
 
-
-# -----------------------------
+# ============================================================
 # Routes
-# -----------------------------
-
+# ============================================================
 @app.get("/")
 def index():
     return render_template("landing.html")
+
+@app.get("/review")
+def review():
+    return render_template(
+        "review.html",
+        tag_defs=TAG_DEFS,
+        type_to_tag=TYPE_TO_TAG,
+    )
 
 @app.get("/me/<session_id>")
 def me(session_id):
@@ -783,20 +1076,50 @@ def play(case_id):
 def upload_history():
     data = request.get_json(silent=True) or {}
     history = data.get("history") if isinstance(data, dict) else None
-    
-    # Simple validation
+
     if not history or not isinstance(history, list):
         return jsonify({"ok": False}), 400
+
+    # >>> NEW: staged shrink with early-stop checks <<<
+    stop_threshold = int(data.get("stop_threshold") or 1000)
+    try:
+        shrunk = shrink_history_staged(history, stop_threshold=stop_threshold)
+    except Exception as e:
+        # If shrink fails for any reason, fall back to basic sanitize
+        app.logger.warning("History shrink failed; storing basic sanitized history: %s", e)
+        shrunk = _stage0_basic(history)
 
     session_id = gen_id(14)
     conn = db()
     conn.execute(
         "INSERT INTO sessions (id, created_at, history_json) VALUES (?, ?, ?)",
-        (session_id, utc_now_iso(), json.dumps(history)),
+        (session_id, utc_now_iso(), json.dumps(shrunk)),
     )
     conn.commit()
     conn.close()
-    return jsonify({"ok": True, "session_id": session_id})
+    return jsonify({"ok": True, "session_id": session_id, "total_in": len(history), "total_saved": len(shrunk)})
+
+@app.post("/api/review-summary")
+def review_summary():
+    data = request.get_json(silent=True) or {}
+    history = data.get("history") if isinstance(data, dict) else None
+    if not history or not isinstance(history, list):
+        return jsonify({"ok": False, "error": "Invalid history"}), 400
+    items = tag_history_items(history, max_history=5000)
+    summary = summarize_items_by_tag(items)
+    return jsonify({
+        "ok": True,
+        "items": items,
+        "tags": summary,
+        "total": len(items),
+    })
+
+@app.get("/api/type-map")
+def type_map():
+    """
+    Expose host->type mapping so clients can classify locally.
+    """
+    return jsonify({"ok": True, "type_map": TYPE_MAP, "type_to_tag": TYPE_TO_TAG})
 
 @app.get("/api/session/<session_id>/tags")
 def session_tags(session_id):
@@ -851,7 +1174,7 @@ def create_case():
             seed=session_id,
             allowed_tags=selected_tags,
         )
-    
+
     case_id = gen_id(12)
     conn.execute(
         "INSERT INTO cases (id, session_id, created_at, rounds_json) VALUES (?, ?, ?, ?)",
@@ -859,7 +1182,7 @@ def create_case():
     )
     conn.commit()
     conn.close()
-    
+
     play_url = f"{request.host_url.rstrip('/')}/play/{case_id}"
     return jsonify({
         "ok": True,
@@ -946,21 +1269,21 @@ def get_round(case_id, r_idx):
     conn = db()
     row = conn.execute("SELECT rounds_json FROM cases WHERE id = ?", (case_id,)).fetchone()
     conn.close()
-    
-    if not row: return jsonify({"ok": False}), 404
-    
+
+    if not row:
+        return jsonify({"ok": False}), 404
+
     rounds = json.loads(row["rounds_json"])
     if r_idx >= len(rounds):
         return jsonify({"ok": False, "msg": "Game over"}), 404
 
     r = rounds[r_idx]
-    # We strip the "is_lie" boolean from the response so the client can't cheat by inspecting network
     public_cards = [{"host": c["host"], "title": c["title"]} for c in r["cards"]]
-    
+
     return jsonify({
-        "ok": True, 
+        "ok": True,
         "total": len(rounds),
-        "cards": public_cards 
+        "cards": public_cards
     })
 
 @app.post("/api/case/<case_id>/guess")
@@ -972,18 +1295,18 @@ def guess(case_id):
     conn = db()
     row = conn.execute("SELECT rounds_json FROM cases WHERE id = ?", (case_id,)).fetchone()
     conn.close()
-    
+
     if not row:
         return jsonify({"ok": False, "error": "Case not found"}), 404
 
     rounds = json.loads(row["rounds_json"])
     if r_idx >= len(rounds):
         return jsonify({"ok": False, "error": "Round out of range"}), 400
+
     current_round = rounds[r_idx]
-    
     lie_index = current_round["lie_index"]
     is_correct = (selection == lie_index)
-    
+
     return jsonify({
         "ok": True,
         "correct": is_correct,
