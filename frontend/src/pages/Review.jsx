@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchTypeMeta, uploadHistory } from "../api/client";
 import { MAX_TAGS, classifyHistory, summarizeByTag } from "../lib/history";
+import PageFrame from "../components/PageFrame";
 
 const STORAGE_KEY = "hc_review_payload";
 
@@ -179,15 +180,15 @@ export default function ReviewPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
-      <main className="max-w-5xl mx-auto px-6 py-10 space-y-8">
-        <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.28em] text-indigo-500 font-semibold">Pre-upload review</p>
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Choose what to upload</h1>
-          <p className="text-slate-600 max-w-3xl">
+    <PageFrame badge="Pre-upload" tag="Review Snapshot">
+      <main className="space-y-8">
+        <header className="space-y-3 text-left">
+          <p className="text-xs uppercase tracking-[0.28em] font-mono text-slate-600">Pre-upload review</p>
+          <h1 className="text-4xl md:text-5xl font-display font-black tracking-tight">Choose what to upload</h1>
+          <p className="text-slate-700 max-w-3xl">
             We pulled a sanitized snapshot (host + title only). Pick which categories and domains to keep before sending to the server.
           </p>
-          <div className="text-sm bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-sm">
+          <div className="text-sm shell-card px-4 py-3 bg-white rounded-none">
             <p>
               <span className="font-semibold">Reminder:</span> Filtering happens client side. Nothing is stored until you press Upload Selected.
             </p>
@@ -195,32 +196,26 @@ export default function ReviewPage() {
         </header>
 
         {missing && (
-          <section className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm">
+          <section className="shell-card rounded-none border-alert-red/60 text-alert-red px-4 py-3 bg-white">
             No cached history found. Use the extension banner on this site to fetch your history, then return here.
           </section>
         )}
 
         {!missing && (
-          <section className={loading ? "opacity-60 pointer-events-none" : ""}>
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <div className="text-sm text-slate-600">{totalsText}</div>
+          <section className={loading ? "opacity-60 pointer-events-none space-y-5" : "space-y-5"}>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="text-sm font-mono text-slate-700">{totalsText}</div>
               <div className="flex gap-2 text-xs">
-                <button
-                  onClick={selectAllTags}
-                  className="px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100"
-                >
+                <button onClick={selectAllTags} className="btn-outline px-3 py-2 rounded-lg bg-white">
                   Select all tags
                 </button>
-                <button
-                  onClick={deselectAllTags}
-                  className="px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100"
-                >
+                <button onClick={deselectAllTags} className="btn-outline px-3 py-2 rounded-lg bg-white">
                   Deselect all
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {summary.map((tag) => {
                 const active = selectedTags.has(tag.id);
                 const hostNames = (tag.hosts || []).slice(0, 3).map((h) => h.host).join(", ");
@@ -228,61 +223,66 @@ export default function ReviewPage() {
                   <button
                     key={tag.id}
                     className={[
-                      "w-full text-left rounded-xl border p-4 transition shadow-sm",
-                      active ? "border-indigo-300 bg-indigo-50" : "border-slate-200 bg-white hover:border-slate-300",
+                      "relative w-full text-left shell-card p-4 transition-transform rounded-none",
+                      active ? "bg-neon-green/30 border-ink border-4 shadow-hard-sm" : "bg-white hover:-translate-y-1",
                     ].join(" ")}
                     onClick={() => toggleTag(tag.id)}
                   >
+                    {active && (
+                      <span className="absolute top-2 right-2 text-[10px] font-mono bg-white border-2 border-ink px-2 py-0.5 uppercase shadow-hard-sm">
+                        Selected
+                      </span>
+                    )}
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="text-xs uppercase tracking-[0.18em] text-slate-500 font-semibold">{tag.id}</p>
-                        <p className="text-lg font-bold text-slate-900">{tag.label}</p>
+                        <p className="text-xs uppercase tracking-[0.18em] text-slate-600 font-mono">{tag.id}</p>
+                        <p className="text-lg font-display font-bold">{tag.label}</p>
                       </div>
                       <span
                         className={[
-                          "text-xs px-2 py-1 rounded-full",
-                          active ? "bg-indigo-200 text-indigo-800" : "bg-slate-100 text-slate-600",
+                          "text-xs px-2 py-1 rounded-full border",
+                          active ? "bg-ink text-white border-ink" : "bg-white text-ink border-ink",
                         ].join(" ")}
                       >
                         {tag.count} items
                       </span>
                     </div>
-                    <p className="mt-2 text-xs text-slate-500">Top domains: {hostNames || "..."}</p>
+                    <p className="mt-2 text-xs text-slate-600">Top domains: {hostNames || "..."}</p>
                   </button>
                 );
               })}
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 space-y-3">
+            <div className="shell-card p-5 space-y-4 bg-white rounded-none">
               <div className="flex flex-wrap items-center gap-3">
-                <p className="text-sm font-semibold text-slate-900">Filtered domains</p>
-                <p className="text-xs text-slate-500">{filterText}</p>
+                <p className="text-sm font-display font-bold">Filtered domains</p>
+                <p className="text-xs font-mono text-slate-600">{filterText}</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {summary
                   .filter((t) => selectedTags.has(t.id))
                   .map((tag) => (
-                    <div key={tag.id} className="border border-slate-200 rounded-xl p-3 bg-white">
+                    <div key={tag.id} className="border-2 border-ink bg-white p-3 shadow-hard-sm rounded-none">
                       <div className="flex items-center justify-between mb-2">
                         <div>
-                          <p className="text-xs uppercase tracking-[0.18em] text-slate-500 font-semibold">{tag.id}</p>
-                          <p className="text-sm font-semibold text-slate-800">{tag.label}</p>
+                          <p className="text-xs uppercase tracking-[0.18em] text-slate-600 font-mono">{tag.id}</p>
+                          <p className="text-sm font-semibold text-ink">{tag.label}</p>
                         </div>
                         <button
-                          className="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-slate-200"
+                          className="text-xs px-2 py-1 rounded bg-neon-green/40 border border-ink hover:-translate-y-0.5 transition-transform"
                           onClick={() => toggleAllHosts(tag.id)}
                         >
                           Toggle all
                         </button>
                       </div>
-                      <div className="space-y-1 max-h-56 overflow-y-auto">
+                      <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
                         {(tag.hosts || []).map((h) => {
                           const checked = selectedHosts[tag.id]?.has(h.host);
                           return (
-                            <label key={h.host} className="flex items-center gap-2 text-sm text-slate-700">
+                            <label key={h.host} className="flex items-center gap-2 text-sm text-slate-800">
                               <input
                                 type="checkbox"
-                                className="rounded border-slate-300"
+                                className="rounded border-ink text-ink"
                                 checked={!!checked}
                                 onChange={(e) => toggleHost(tag.id, h.host, e.target.checked)}
                               />
@@ -297,19 +297,15 @@ export default function ReviewPage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 mt-4">
+            <div className="flex flex-wrap items-center gap-3 mt-1">
               <button
                 onClick={onUpload}
                 disabled={uploading}
-                className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-3 rounded-xl shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-ink px-5 py-3 rounded-none disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span>{uploading ? "Uploading..." : "Upload selected"}</span>
-                <span className="text-xs bg-white/20 px-2 py-1 rounded-full">{filteredItems.length} items</span>
+                {uploading ? "Uploading..." : `Upload selected (${filteredItems.length})`}
               </button>
-              <button
-                onClick={clearCached}
-                className="text-sm px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100"
-              >
+              <button onClick={clearCached} className="btn-outline px-3 py-2 rounded-lg bg-white">
                 Clear cached history
               </button>
               <p className={`text-sm ${statusColor[status.tone] || statusColor.muted}`}>{status.msg}</p>
@@ -317,6 +313,6 @@ export default function ReviewPage() {
           </section>
         )}
       </main>
-    </div>
+    </PageFrame>
   );
 }

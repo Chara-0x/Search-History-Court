@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchRouletteRound, submitRouletteGuess } from "../api/client";
+import PageFrame from "../components/PageFrame";
 
 export default function RoulettePlayPage() {
   const { gameId } = useParams();
@@ -56,28 +57,28 @@ export default function RoulettePlayPage() {
   const gameOver = total > 0 && roundIdx >= total;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col">
-      <main className="max-w-5xl mx-auto w-full px-6 py-10 flex-1">
-        <div className="flex items-start justify-between gap-3 flex-wrap mb-6">
+    <PageFrame badge="Roulette Jury" tag={`Game ${gameId || "?"}`}>
+      <main className="space-y-6">
+        <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-indigo-500 font-semibold">Roulette Jury</p>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Guess the Owner</h1>
-            <p className="text-slate-500 text-sm">Game ID: {gameId}</p>
+            <p className="text-xs uppercase tracking-[0.28em] font-mono text-slate-600">Roulette Jury</p>
+            <h1 className="text-3xl font-display font-black tracking-tight">Guess the Owner</h1>
+            <p className="text-slate-600 text-sm">Game ID: {gameId}</p>
           </div>
           <div className="flex gap-2 items-center">
-            <Link to="/roulette" className="text-sm text-indigo-600 hover:underline">
+            <Link to="/roulette" className="text-sm text-ink underline decoration-2 decoration-ink/40 hover:decoration-ink">
               New game
             </Link>
-            <Link to="/" className="text-sm text-slate-500 hover:underline">
+            <Link to="/" className="text-sm text-slate-700 underline decoration-dotted decoration-ink/40">
               Home
             </Link>
           </div>
         </div>
 
         {gameOver ? (
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 text-center">
-            <h2 className="text-2xl font-bold mb-2">All rounds complete</h2>
-            <p className="text-lg text-indigo-600 font-bold">
+          <div className="shell-card bg-white rounded-3xl p-8 text-center space-y-3">
+            <h2 className="text-2xl font-display font-bold">All rounds complete</h2>
+            <p className="text-3xl font-black text-neon-blue">
               Score: {score} / {total}
             </p>
             <button
@@ -85,38 +86,38 @@ export default function RoulettePlayPage() {
                 setRoundIdx(0);
                 setScore(0);
               }}
-              className="mt-4 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800"
+              className="btn-ink px-5 py-2 rounded-xl"
             >
               Replay
             </button>
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-5">
-              <div className="text-sm text-slate-500">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-mono text-slate-700">
                 Round {Math.min(roundIdx + 1, total || 1)} / {total || "?"}
               </div>
-              <div className="text-sm font-semibold text-slate-900">
-                Score: <span className="text-indigo-600">{score}</span>
+              <div className="text-sm font-semibold text-ink">
+                Score: <span className="text-neon-pink">{score}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {loading && <div className="col-span-3 text-center text-slate-400">Picking weird tabs...</div>}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              {loading && <div className="col-span-3 text-center text-slate-500 font-mono">Picking weird tabs...</div>}
               {!loading &&
                 cards.map((c, idx) => (
                   <div
                     key={idx}
-                    className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 space-y-2 h-40 flex flex-col justify-between"
+                    className="shell-card rounded-2xl p-4 space-y-2 h-44 flex flex-col justify-between bg-white"
                   >
-                    <div className="text-xs font-mono text-slate-500">{c.host}</div>
-                    <p className="text-base font-semibold text-slate-900 leading-snug">"{c.title}"</p>
+                    <div className="text-xs font-mono text-slate-600">{c.host}</div>
+                    <p className="text-base font-display font-semibold text-ink leading-snug">"{c.title}"</p>
                   </div>
                 ))}
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 space-y-3">
-              <p className="text-sm font-semibold text-slate-900">Whose history is this?</p>
+            <div className="shell-card rounded-3xl bg-white p-4 space-y-3">
+              <p className="text-sm font-display font-bold">Whose history is this?</p>
               <div className="flex flex-wrap gap-2">
                 {players.map((p) => {
                   const isCorrect = correctId && p.id === correctId;
@@ -126,10 +127,10 @@ export default function RoulettePlayPage() {
                       onClick={() => handleGuess(p.id)}
                       disabled={locked}
                       className={[
-                        "px-4 py-2 rounded-lg border text-sm font-semibold transition",
+                        "px-4 py-2 rounded-lg border-2 text-sm font-semibold transition",
                         isCorrect
-                          ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-                          : "border-slate-200 bg-slate-50 hover:bg-slate-100",
+                          ? "border-emerald-500 bg-neon-green/40"
+                          : "border-ink bg-white hover:-translate-y-0.5",
                       ].join(" ")}
                     >
                       {p.name || p.id}
@@ -137,12 +138,12 @@ export default function RoulettePlayPage() {
                   );
                 })}
               </div>
-              <div className="text-sm font-semibold text-slate-800 min-h-[24px]">{verdict}</div>
+              <div className="text-sm font-semibold text-ink min-h-[24px]">{verdict}</div>
               {correctId && (
                 <div className="flex justify-end">
                   <button
                     onClick={() => setRoundIdx((r) => r + 1)}
-                    className="px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800"
+                    className="btn-ink px-4 py-2 rounded-full"
                   >
                     Next round →
                   </button>
@@ -152,6 +153,6 @@ export default function RoulettePlayPage() {
           </>
         )}
       </main>
-    </div>
+    </PageFrame>
   );
 }

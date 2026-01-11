@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { createCase, editCase, fetchCaseRounds, fetchSessionTags } from "../api/client";
+import PageFrame from "../components/PageFrame";
 
 const statusColor = {
   muted: "text-slate-500",
@@ -149,33 +150,33 @@ export default function CaseBuilderPage() {
   const selectedCount = selectedTags.size;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
-      <main className="max-w-6xl mx-auto px-6 py-10 space-y-10">
+    <PageFrame badge="Case Builder" tag={`Session ${sessionId || "?"}`}>
+      <main className="space-y-10">
         <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.28em] text-indigo-500 font-semibold">Case Builder</p>
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Curate your evidence</h1>
-          <p className="text-slate-600 max-w-3xl">
+          <p className="text-xs uppercase tracking-[0.28em] font-mono text-slate-600">Case Builder</p>
+          <h1 className="text-4xl md:text-5xl font-display font-black tracking-tight">Curate your evidence</h1>
+          <p className="text-slate-700 max-w-3xl">
             We scanned your upload and grouped pages into website-type tags. Pick the perspectives you want, then preview and edit the rounds before sharing.
           </p>
-          <div className="inline-flex items-center gap-2 text-xs text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-full shadow-sm">
+          <div className="inline-flex items-center gap-2 text-xs text-slate-700 bg-white border-2 border-ink px-3 py-1.5 rounded-full shadow-hard-sm">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            Session <span className="font-mono text-slate-700">{sessionId}</span>
+            Session <span className="font-mono text-ink">{sessionId}</span>
           </div>
         </header>
 
-        <section className="bg-white border border-slate-200 rounded-2xl shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 px-6 py-4 gap-3">
+        <section className="shell-card overflow-hidden bg-white">
+          <div className="flex flex-col md:flex-row md:items-center justify-between border-b-2 border-ink px-6 py-4 gap-3">
             <div>
-              <p className="text-sm font-semibold text-slate-900">Website type tags</p>
-              <p className="text-xs text-slate-500">Select the perspectives to feed the AI (aim for at least {minTagCount} items per tag).</p>
+              <p className="text-sm font-semibold text-ink">Website type tags</p>
+              <p className="text-xs text-slate-600">Select the perspectives to feed the AI (aim for at least {minTagCount} items per tag).</p>
             </div>
             <div className="flex items-center gap-3">
-              <button onClick={selectReady} className="text-sm px-3 py-2 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200">
+              <button onClick={selectReady} className="btn-outline px-3 py-2 rounded-lg bg-white">
                 Ready-only
               </button>
               <button
                 onClick={selectAllTags}
-                className="text-sm px-3 py-2 rounded-lg border border-slate-200 bg-indigo-600 text-white hover:bg-indigo-700"
+                className="btn-ink px-3 py-2 rounded-lg"
               >
                 Select all
               </button>
@@ -191,8 +192,8 @@ export default function CaseBuilderPage() {
                 <button
                   key={tag.id}
                   className={[
-                    "text-left rounded-xl border p-4 transition shadow-sm",
-                    active ? "border-indigo-300 bg-indigo-50" : "border-slate-200 bg-white hover:border-slate-300",
+                    "relative text-left shell-card p-4 transition rounded-none",
+                    active ? "bg-neon-green/30 border-ink border-4 shadow-hard-sm" : "bg-white hover:-translate-y-1",
                   ].join(" ")}
                   onClick={() => {
                     setSelectedTags((prev) => {
@@ -202,12 +203,17 @@ export default function CaseBuilderPage() {
                     });
                   }}
                 >
+                  {active && (
+                    <span className="absolute top-2 right-2 text-ink bg-white border-2 border-ink px-2 py-0.5 text-[10px] font-mono uppercase shadow-hard-sm">
+                      Selected
+                    </span>
+                  )}
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500 font-semibold">{tag.id}</p>
-                      <p className="text-lg font-bold text-slate-900">{tag.label}</p>
+                      <p className="text-xs uppercase tracking-[0.18em] text-slate-600 font-mono">{tag.id}</p>
+                      <p className="text-lg font-display font-bold text-ink">{tag.label}</p>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full ${isReady ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                    <span className={`text-xs px-2 py-1 rounded-full border ${isReady ? "bg-emerald-100 text-emerald-700 border-emerald-400" : "bg-amber-100 text-amber-800 border-amber-400"}`}>
                       {isReady ? "Ready" : `Needs ${Math.max(0, minTagCount - tag.count)}`}
                     </span>
                   </div>
@@ -217,28 +223,28 @@ export default function CaseBuilderPage() {
               );
             })}
           </div>
-          <div className="px-6 pb-5 text-sm text-slate-500">
+          <div className="px-6 pb-5 text-sm text-slate-700 font-mono">
             {selectedCount} selected - {readyCount} tags meet the {minTagCount}+ goal
           </div>
         </section>
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
-          <div className="md:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+          <div className="md:col-span-2 shell-card bg-white p-6 space-y-4 rounded-none">
             <div className="flex flex-wrap items-center gap-3">
-              <label className="text-sm font-semibold text-slate-800">Rounds</label>
+              <label className="text-sm font-semibold text-ink">Rounds</label>
               <input
                 type="number"
                 min="3"
                 max="15"
                 value={roundsInput}
                 onChange={(e) => setRoundsInput(e.target.value)}
-                className="w-20 text-center rounded-lg border border-slate-200 px-2 py-2 font-semibold text-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-20 text-center rounded-lg border-2 border-ink px-2 py-2 font-semibold text-lg focus:outline-none"
               />
-              <span className="text-xs text-slate-500">More rounds = more spice.</span>
+              <span className="text-xs text-slate-600">More rounds = more spice.</span>
             </div>
             <button
               onClick={handleGenerate}
-              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-3 rounded-xl shadow-md"
+              className="btn-ink inline-flex items-center gap-2 px-4 py-3 rounded-xl"
             >
               <span>Generate rounds</span>
               {overlay.active && <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>}
@@ -246,9 +252,9 @@ export default function CaseBuilderPage() {
             <div className={`text-sm ${statusColor[genStatus.tone] || statusColor.muted}`}>{genStatus.msg}</div>
           </div>
 
-          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 text-indigo-800 shadow-sm">
-            <h3 className="font-semibold mb-2">Tips for better chaos</h3>
-            <ul className="text-sm space-y-2">
+          <div className="border-2 border-ink bg-neon-blue/10 p-6 text-ink shadow-hard-sm rounded-none">
+            <h3 className="font-display font-bold mb-2">Tips for better chaos</h3>
+            <ul className="text-sm space-y-2 text-slate-800">
               <li>- Keep at least {minTagCount} items per tag so each perspective feels full.</li>
               <li>- Mix serious (school/work/news) with weird (social/entertainment/shopping) for fun lies.</li>
               <li>- Use the preview tools to delete or swap any boring round.</li>
@@ -256,16 +262,16 @@ export default function CaseBuilderPage() {
           </div>
         </section>
 
-        <section className={`${caseState.id ? "" : "hidden"} bg-white border border-slate-200 rounded-2xl shadow-sm`} id="previewSection">
-          <div className="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 border-b border-slate-100 gap-3">
+        <section className={`${caseState.id ? "" : "hidden"} shell-card bg-white overflow-hidden rounded-none`} id="previewSection">
+          <div className="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 border-b-2 border-ink gap-3">
             <div>
-              <p className="text-sm font-semibold text-slate-900">Preview &amp; edit</p>
-              <p className="text-xs text-slate-500">Swap or delete rounds until you&apos;re happy. Changes save instantly.</p>
+              <p className="text-sm font-semibold text-ink">Preview &amp; edit</p>
+              <p className="text-xs text-slate-600">Swap or delete rounds until you&apos;re happy. Changes save instantly.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => handleEdit("append_round")}
-                className="text-sm px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100"
+                className="btn-outline text-sm px-3 py-2 rounded-lg bg-white"
               >
                 Add round
               </button>
@@ -275,14 +281,14 @@ export default function CaseBuilderPage() {
             </div>
           </div>
 
-          <div className="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="px-6 py-4 border-b-2 border-ink flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="flex-1">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-500 font-semibold">Shareable link</p>
-              <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono text-sm text-indigo-700 break-all">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-600 font-mono">Shareable link</p>
+              <div className="bg-white border-2 border-ink px-3 py-2 font-mono text-sm text-ink break-all shadow-hard-sm rounded-none">
                 {caseState.playUrl || "Awaiting generation..."}
               </div>
             </div>
-            <button onClick={copyLink} className="text-sm px-3 py-2 rounded-lg border border-indigo-200 text-indigo-700 hover:bg-indigo-50">
+            <button onClick={copyLink} className="btn-outline text-sm px-3 py-2 rounded-lg bg-white">
               Copy
             </button>
           </div>
@@ -292,22 +298,22 @@ export default function CaseBuilderPage() {
               <div className="text-sm text-slate-500">No rounds yet. Generate or add one.</div>
             )}
             {(caseState.rounds || []).map((round, idx) => (
-              <div key={idx} className="border border-slate-200 rounded-xl p-4 bg-slate-50">
+              <div key={idx} className="border-2 border-ink p-4 bg-white shadow-hard-sm rounded-none">
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500 font-semibold">Round {idx + 1}</p>
-                    <p className="text-lg font-bold text-slate-900">{round.topic || `Round ${idx + 1}`}</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-600 font-mono">Round {idx + 1}</p>
+                    <p className="text-lg font-display font-bold text-ink">{round.topic || `Round ${idx + 1}`}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEdit("regenerate_round", idx)}
-                      className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100"
+                      className="btn-outline text-xs px-3 py-1.5 rounded-lg bg-white"
                     >
                       Swap
                     </button>
                     <button
                       onClick={() => handleEdit("delete_round", idx)}
-                      className="text-xs px-3 py-1.5 rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50"
+                      className="text-xs px-3 py-1.5 rounded-lg border-2 border-alert-red text-alert-red bg-white hover:-translate-y-0.5 transition-transform"
                     >
                       Delete
                     </button>
@@ -318,20 +324,20 @@ export default function CaseBuilderPage() {
                     const isLie = ci === round.lie_index || c.is_lie;
                     return (
                       <div
-                        key={ci}
-                        className={[
-                          "flex items-start gap-3 rounded-lg px-3 py-2 border",
-                          isLie ? "bg-rose-50 border-rose-100" : "bg-white border-slate-200",
+                      key={ci}
+                      className={[
+                          "flex items-start gap-3 px-3 py-2 border-2 rounded-none",
+                          isLie ? "bg-neon-pink/10 border-alert-red" : "bg-white border-ink/30",
                         ].join(" ")}
-                      >
+                    >
                         <div className="text-xs font-mono text-slate-500">{ci + 1}</div>
                         <div className="flex-1">
-                          <p className="text-sm font-semibold text-slate-800">{c.title || "?"}</p>
-                          <p className="text-xs text-slate-500">{c.host || "?"}</p>
+                          <p className="text-sm font-semibold text-ink">{c.title || "?"}</p>
+                          <p className="text-xs text-slate-600">{c.host || "?"}</p>
                         </div>
                         <span
                           className={`text-[11px] px-2 py-1 rounded-full ${
-                            isLie ? "bg-rose-200 text-rose-800" : "bg-emerald-100 text-emerald-700"
+                            isLie ? "bg-alert-red text-white" : "bg-neon-green text-ink"
                           }`}
                         >
                           {isLie ? "Lie" : "Truth"}
@@ -349,7 +355,7 @@ export default function CaseBuilderPage() {
 
       {overlay.active && (
         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-          <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+          <div className="w-full max-w-2xl bg-white shadow-hard-lg border-2 border-ink overflow-hidden rounded-none">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-indigo-500 font-semibold">Loading game</p>
@@ -358,28 +364,28 @@ export default function CaseBuilderPage() {
               <span className="text-sm font-mono text-slate-500">{Math.floor(overlay.progress)}%</span>
             </div>
             <div className="px-6 py-5 space-y-4">
-              <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-3 bg-indigo-600 rounded-full" style={{ width: `${overlay.progress}%` }}></div>
+              <div className="w-full h-3 bg-slate-100 overflow-hidden border border-ink">
+                <div className="h-3 bg-ink" style={{ width: `${overlay.progress}%` }}></div>
               </div>
               <p className="text-sm text-slate-600">{overlay.message}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-700">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                <div className="p-3 bg-white border-2 border-ink space-y-2 shadow-hard-sm rounded-none">
                   <p className="font-semibold mb-1">Mini-game</p>
                   <p className="text-xs text-slate-500">Click to nudge the progress bar or open the mini-game while you wait.</p>
                   <button
                     onClick={nudgeOverlay}
-                    className="w-full bg-slate-900 text-white rounded-lg py-2 font-semibold hover:bg-slate-800"
+                    className="w-full btn-ink py-2 rounded-none"
                   >
                     Nudge progress
                   </button>
                   <button
                     onClick={() => window.open("/loading-game", "MiniGame", "width=600,height=700")}
-                    className="w-full text-center bg-indigo-600 text-white rounded-lg py-2 font-semibold hover:bg-indigo-700"
+                    className="w-full text-center btn-outline bg-neon-blue/30 py-2 font-semibold"
                   >
                     Open mini-game
                   </button>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="p-3 bg-white border-2 border-ink shadow-hard-sm rounded-none">
                   <p className="font-semibold mb-1">What’s happening</p>
                   <ul className="text-xs text-slate-500 space-y-1">
                     <li>- Filtering boring logins</li>
@@ -393,6 +399,6 @@ export default function CaseBuilderPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageFrame>
   );
 }

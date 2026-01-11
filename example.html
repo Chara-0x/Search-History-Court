@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Preview: Evidence File</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: '#FDFBF7',
+                        ink: '#18181B',
+                        'neon-green': '#CCF381',
+                        'neon-pink': '#FF5E78',
+                        'neon-blue': '#4D96FF',
+                        'alert-red': '#FF2A2A',
+                    },
+                    fontFamily: {
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        body: ['"Inter"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'hard': '4px 4px 0px 0px #18181B',
+                        'hard-sm': '2px 2px 0px 0px #18181B',
+                        'hard-lg': '8px 8px 0px 0px #18181B',
+                    },
+                    backgroundImage: {
+                        'dot-grid': 'radial-gradient(#18181b 1px, transparent 1px)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #FDFBF7;
+            background-image: radial-gradient(#18181b40 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        
+        /* Utility to simulate the 'tape' effect */
+        .tape {
+            background-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            backdrop-filter: blur(2px);
+            border-left: 1px solid rgba(255,255,255,0.3);
+            border-right: 1px solid rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body class="text-ink font-body p-6 min-h-screen">
+
+    <nav class="max-w-5xl mx-auto mb-12 flex justify-between items-center bg-white border-2 border-ink p-4 shadow-hard">
+        <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-neon-pink border border-ink rounded-full"></div>
+            <span class="font-mono font-bold uppercase tracking-wider text-sm">Case File #8821</span>
+        </div>
+        <div class="font-mono text-xs bg-ink text-white px-2 py-1">CONFIDENTIAL</div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto space-y-16">
+
+        <section class="text-center space-y-4">
+            <h1 class="text-6xl md:text-8xl font-display font-black tracking-tighter leading-[0.85] uppercase transform -rotate-1">
+                Search History<br>
+                <span class="text-white text-stroke-ink relative inline-block mt-2">
+                    <span class="absolute inset-0 translate-x-1 translate-y-1 text-ink -z-10" aria-hidden="true">LIAR</span>
+                    <span class="relative z-10 text-neon-pink underline decoration-4 decoration-ink underline-offset-4">LIAR</span>
+                </span>
+            </h1>
+            <p class="font-mono text-slate-600 bg-white inline-block px-4 py-2 border border-ink shadow-hard-sm mt-6">
+                v2.0 • Evidence Processing Unit
+            </p>
+        </section>
+
+        <section>
+            <div class="flex items-center gap-4 mb-6">
+                <h2 class="font-display font-bold text-2xl uppercase border-b-4 border-neon-green inline-block">Evidence Board</h2>
+                <span class="text-xs font-mono text-slate-500">// CARD STATES PREVIEW</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <button class="group relative bg-white border-2 border-ink shadow-hard h-80 p-6 flex flex-col items-center text-center hover:-translate-y-1 hover:shadow-hard-lg transition-all duration-200">
+                    <div class="tape absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-8 rotate-1 opacity-60"></div>
+                    
+                    <div class="w-16 h-16 bg-slate-100 border-2 border-ink flex items-center justify-center mb-6 rounded-full group-hover:bg-neon-blue group-hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    </div>
+                    
+                    <h3 class="font-display font-bold text-xl leading-tight mb-2">"How to train a raccoon to steal wifi"</h3>
+                    
+                    <div class="mt-auto w-full border-t-2 border-dashed border-slate-300 pt-3">
+                        <span class="font-mono text-xs bg-slate-200 px-2 py-1">reddit.com</span>
+                    </div>
+                </button>
+
+                <button class="relative bg-neon-green/20 border-2 border-ink shadow-none h-80 p-6 flex flex-col items-center text-center translate-x-1 translate-y-1">
+                    <div class="absolute top-2 right-2 w-4 h-4 bg-ink rounded-full"></div>
+                    <div class="absolute top-2 left-2 w-4 h-4 bg-ink rounded-full"></div>
+                    <div class="absolute bottom-2 right-2 w-4 h-4 bg-ink rounded-full"></div>
+                    <div class="absolute bottom-2 left-2 w-4 h-4 bg-ink rounded-full"></div>
+
+                    <div class="w-16 h-16 bg-white border-2 border-ink flex items-center justify-center mb-6 shadow-hard-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    </div>
+                    
+                    <h3 class="font-display font-bold text-xl leading-tight mb-2">"LinkedIn: 10 ways to pretend you are working"</h3>
+                    
+                    <div class="mt-auto w-full border-t-2 border-ink pt-3">
+                         <span class="font-mono text-xs bg-white border border-ink px-2 py-1">linkedin.com</span>
+                    </div>
+                </button>
+
+                <button class="relative bg-white border-2 border-ink shadow-hard h-80 p-6 flex flex-col items-center text-center opacity-60">
+                    <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                        <div class="border-4 border-alert-red text-alert-red font-display font-black text-4xl uppercase px-4 py-2 -rotate-12 opacity-90 mix-blend-multiply" style="border-radius: 4px;">
+                            OBJECTION
+                        </div>
+                    </div>
+
+                    <div class="w-16 h-16 bg-slate-50 border-2 border-slate-300 text-slate-400 flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    </div>
+                    
+                    <h3 class="font-display font-bold text-slate-800 text-xl leading-tight mb-2">"Zillow: Castles for sale in Scotland"</h3>
+                    
+                    <div class="mt-auto w-full border-t-2 border-dashed border-slate-300 pt-3">
+                         <span class="font-mono text-xs bg-slate-100 px-2 py-1">zillow.com</span>
+                    </div>
+                </button>
+
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            
+            <div>
+                <h2 class="font-display font-bold text-xl uppercase mb-6">Interaction Controls</h2>
+                <div class="flex flex-col gap-4 items-start">
+                    <button class="w-full bg-neon-green border-2 border-ink px-8 py-4 font-display font-bold uppercase tracking-wider shadow-hard transition-transform hover:-translate-y-1 active:translate-y-0 active:shadow-none">
+                        Confirm Verdict
+                    </button>
+                    
+                    <div class="flex gap-4 w-full">
+                        <button class="flex-1 bg-white border-2 border-ink px-6 py-3 font-mono font-bold text-sm shadow-hard hover:bg-slate-50">
+                            Skip
+                        </button>
+                        <button class="flex-1 bg-ink text-white border-2 border-ink px-6 py-3 font-mono font-bold text-sm shadow-hard hover:bg-gray-800">
+                            Next Round →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="font-display font-bold text-xl uppercase mb-6">System Status</h2>
+                <div class="bg-white border-2 border-ink p-6 shadow-hard space-y-4">
+                    <div class="flex justify-between font-mono text-xs font-bold uppercase">
+                        <span>Compiling Lies...</span>
+                        <span>82%</span>
+                    </div>
+                    
+                    <div class="w-full h-6 border-2 border-ink p-1">
+                        <div class="h-full bg-neon-pink w-[82%] shadow-sm relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-20" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, #000 10px, #000 20px);"></div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-slate-100 border-l-4 border-ink font-mono text-xs text-slate-600">
+                        > filtering_boring_sites.exe<br>
+                        > finding_weird_stuff...<br>
+                        > <span class="text-alert-red font-bold">ERROR: Too much anime found.</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

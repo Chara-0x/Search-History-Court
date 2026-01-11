@@ -6,11 +6,57 @@
   color-scheme: light;
 }
 
-body {
-  @apply bg-slate-50 text-slate-800 antialiased;
-  margin: 0;
+@layer base {
+  html {
+    font-family: theme("fontFamily.body"), sans-serif;
+    background-color: theme("colors.paper");
+    background-image: radial-gradient(#18181b40 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: theme("colors.ink");
+  }
+
+  body {
+    @apply antialiased m-0;
+  }
+
+  ::selection {
+    background: theme("colors.neon-pink");
+    color: white;
+  }
 }
 
 #root {
   min-height: 100vh;
+}
+
+.shell-card {
+  @apply bg-white border-2 border-ink shadow-hard-sm rounded-none;
+}
+
+.shell-tape {
+  background-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(2px);
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-ink {
+  @apply bg-ink text-white border-2 border-ink shadow-hard-sm font-mono font-bold uppercase tracking-wider transition-transform duration-150 rounded-none;
+}
+
+.btn-ink:hover {
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  @apply bg-white border-2 border-ink text-ink shadow-hard-sm font-mono font-bold uppercase tracking-wide transition-transform duration-150 rounded-none;
+}
+
+.btn-outline:hover {
+  transform: translateY(-2px);
+}
+
+.text-stroke-ink {
+  text-shadow: 2px 2px 0 #18181b, -2px 2px 0 #18181b, 2px -2px 0 #18181b, -2px -2px 0 #18181b;
 }

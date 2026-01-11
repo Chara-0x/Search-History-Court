@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { createRouletteGame } from "../api/client";
+import PageFrame from "../components/PageFrame";
 
 function emptyPlayer(idx) {
   return { id: `p-${idx}-${Date.now()}`, name: `Player ${idx + 1}`, historyText: "" };
@@ -82,23 +83,23 @@ export default function RouletteCreatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
-      <main className="max-w-5xl mx-auto px-6 py-12 space-y-8">
+    <PageFrame badge="Roulette Mode" tag="Multiplayer">
+      <main className="space-y-8">
         <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.28em] text-indigo-500 font-semibold">Multiplayer</p>
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
+          <p className="text-xs uppercase tracking-[0.28em] font-mono text-slate-600">Multiplayer</p>
+          <h1 className="text-4xl font-display font-black tracking-tight">
             Browsing History Court: Roulette
           </h1>
-          <p className="text-slate-600 max-w-3xl">
+          <p className="text-slate-700 max-w-3xl">
             Invite friends to upload their browsing history snapshots. We&apos;ll auto-pick three bizarre pages per
             person. Show the trio and guess whose history it belongs to — like Photo Roulette, but for tabs.
           </p>
           <div className="flex gap-3">
-            <Link to="/" className="text-sm text-indigo-600 hover:underline">
+            <Link to="/" className="text-sm text-ink underline decoration-2 decoration-ink/40 hover:decoration-ink">
               ← Back home
             </Link>
             <a
-              className="text-sm text-slate-500 hover:text-slate-700"
+              className="text-sm text-slate-700 hover:text-ink"
               href="https://github.com"
               target="_blank"
               rel="noreferrer"
@@ -108,11 +109,11 @@ export default function RouletteCreatePage() {
           </div>
         </header>
 
-        <section className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+        <section className="shell-card rounded-3xl bg-white p-6 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-slate-900">Players &amp; uploads</p>
-              <p className="text-xs text-slate-500">Paste JSON from the extension export or drop a file per player.</p>
+              <p className="text-sm font-semibold text-ink">Players &amp; uploads</p>
+              <p className="text-xs text-slate-600">Paste JSON from the extension export or drop a file per player.</p>
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -124,12 +125,12 @@ export default function RouletteCreatePage() {
             {players.map((p, idx) => (
               <div
                 key={p.id}
-                className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3 shadow-sm relative"
+                className="rounded-xl border-2 border-ink bg-white p-4 space-y-3 shadow-hard-sm relative"
               >
                 {players.length > 2 && (
                   <button
                     onClick={() => removePlayer(idx)}
-                    className="absolute top-3 right-3 text-xs text-slate-400 hover:text-rose-500"
+                    className="absolute top-3 right-3 text-xs text-slate-500 hover:text-alert-red"
                     aria-label="Remove player"
                   >
                     ✕
@@ -140,7 +141,7 @@ export default function RouletteCreatePage() {
                   <input
                     value={p.name}
                     onChange={(e) => updatePlayer(idx, { name: e.target.value })}
-                    className="flex-1 min-w-[160px] rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                    className="flex-1 min-w-[160px] rounded-lg border-2 border-ink px-3 py-2 text-sm bg-white focus:outline-none"
                     placeholder={`Player ${idx + 1}`}
                   />
                   <input
@@ -153,7 +154,7 @@ export default function RouletteCreatePage() {
                 <textarea
                   value={p.historyText}
                   onChange={(e) => updatePlayer(idx, { historyText: e.target.value })}
-                  className="w-full min-h-[140px] rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="w-full min-h-[140px] rounded-lg border-2 border-ink px-3 py-2 text-sm font-mono bg-white focus:outline-none"
                   placeholder='Paste an array of history items: [{"host":"example.com","title":"..."}]'
                 />
                 <div className="text-xs text-slate-500">
@@ -168,19 +169,19 @@ export default function RouletteCreatePage() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={addPlayer}
-              className="text-sm px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100"
+              className="btn-outline text-sm px-4 py-2 rounded-lg bg-white"
             >
               + Add player
             </button>
             <div className="flex items-center gap-2 text-sm">
-              <label className="font-semibold text-slate-800">Cards per player</label>
+              <label className="font-semibold text-ink">Cards per player</label>
               <input
                 type="number"
                 min="3"
                 max="6"
                 value={picks}
                 onChange={(e) => setPicks(Math.max(3, Math.min(6, Number(e.target.value) || 3)))}
-                className="w-16 text-center rounded-lg border border-slate-200 px-2 py-1 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-16 text-center rounded-lg border-2 border-ink px-2 py-1 font-semibold bg-white focus:outline-none"
               />
             </div>
           </div>
@@ -189,7 +190,7 @@ export default function RouletteCreatePage() {
             <button
               onClick={handleCreate}
               disabled={creating}
-              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-3 rounded-xl shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              className="btn-ink inline-flex items-center gap-2 px-5 py-3 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {creating ? "Building game..." : "Create roulette game"}
             </button>
@@ -197,21 +198,21 @@ export default function RouletteCreatePage() {
           </div>
 
           {gameLink && (
-            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 space-y-2">
-              <p className="text-sm font-semibold text-indigo-800">Game link</p>
-              <div className="font-mono text-sm text-indigo-700 break-all bg-white border border-indigo-100 rounded-lg px-3 py-2">
+            <div className="border-2 border-ink rounded-xl p-4 space-y-2 bg-neon-green/20 shadow-hard-sm">
+              <p className="text-sm font-semibold text-ink">Game link</p>
+              <div className="font-mono text-sm text-ink break-all bg-white border-2 border-ink rounded-lg px-3 py-2">
                 {gameLink}
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => navigator.clipboard.writeText(gameLink)}
-                  className="text-xs px-3 py-2 rounded-lg border border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50"
+                  className="btn-outline text-xs px-3 py-2 rounded-lg bg-white"
                 >
                   Copy
                 </button>
                 <Link
                   to={gameLink.replace(window.location.origin, "") || "/roulette"}
-                  className="text-xs px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                  className="btn-ink text-xs px-3 py-2 rounded-lg"
                 >
                   Open game
                 </Link>
@@ -220,15 +221,15 @@ export default function RouletteCreatePage() {
           )}
         </section>
 
-        <section className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-3">
-          <p className="text-sm font-semibold text-slate-900">How to get your history JSON</p>
-          <ol className="list-decimal list-inside text-sm text-slate-600 space-y-1">
+        <section className="shell-card rounded-3xl bg-white p-6 space-y-3">
+          <p className="text-sm font-semibold text-ink">How to get your history JSON</p>
+          <ol className="list-decimal list-inside text-sm text-slate-700 space-y-1">
             <li>Install the extension, click the banner on this site, and save the snapshot.</li>
             <li>Copy the JSON array (host + title only) and paste it into your player box above.</li>
             <li>Repeat for each friend, then create the game and share the link.</li>
           </ol>
         </section>
       </main>
-    </div>
+    </PageFrame>
   );
 }
