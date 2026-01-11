@@ -1,5 +1,12 @@
 chrome.action.onClicked.addListener(() => {
-  chrome.tabs.create({ url: "http://historycourt.lol" });
+  (async () => {
+    try {
+      await chrome.storage.local.set({ hc_show_banner: true });
+    } catch {
+      /* ignore */
+    }
+    chrome.tabs.create({ url: "http://historycourt.lol" });
+  })();
 });
 
 const COOLDOWN_MS = 60 * 60 * 1000; // 1 hour cooldown

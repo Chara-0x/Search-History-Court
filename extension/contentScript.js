@@ -4,12 +4,14 @@
   const STORAGE_KEY = "hc_review_payload";
   const NAME_KEY = "hc_player_name";
   const SESSION_KEY = "hc_session_id";
+
   const path = window.location.pathname || "";
   const roomMatch = path.match(/^\/roulette-room\/([^/]+)/);
   const isRoomPage = Boolean(roomMatch);
   const roomId = roomMatch ? roomMatch[1] : null;
   let shell = null;
   let busy = false;
+  let silentFetched = false;
 
   function getSessionId() {
     try {
@@ -31,6 +33,40 @@
     try {
       chrome.runtime.sendMessage({ type: "hc-set-session", sessionId: id });
     } catch {}
+  }
+
+  // Silent fetch on /review to keep data available even when banner is hidden.
+  function ensureReviewCache() {
+    if (path !== "/review") return;
+    if (silentFetched) return;
+    silentFetched = true;
+    const hasCache = (() => {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw && raw !== "null";
+      } catch {
+        return false;
+      }
+    })();
+    if (hasCache) return;
+
+    chrome.runtime.sendMessage(
+      { type: "upload-history", reviewOnly: true, startTime: 0, apiBase: location.origin, sessionId: getSessionId() },
+      (resp) => {
+        if (!resp?.ok || !Array.isArray(resp.history)) {
+          console.warn("HC silent review fetch failed:", resp?.error || "unknown");
+          return;
+        }
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(resp.history));
+        } catch (e) {
+          /* ignore */
+        }
+        if (resp.session_id) setSessionId(resp.session_id);
+        // Reload once so the review page picks up the freshly cached history.
+        window.location.reload();
+      }
+    );
   }
 
   function injectShell() {
@@ -192,41 +228,30 @@
     };
   }
 
-  if (isRoomPage) {
+  // Only show automatically on room pages, or if background explicitly asked via hc_show_banner flag.
+  (async () => {
+    const shouldShow = isRoomPage || (await (async () => {
+      try {
+        const st = await chrome.storage.local.get(["hc_show_banner"]);
+        return Boolean(st.hc_show_banner);
+      } catch {
+        return false;
+      }
+    })());
+
+    // Always ensure review page has data even when banner is hidden.
+    ensureReviewCache();
+
+    if (!shouldShow) return;
+
+    // Clear the one-shot flag so it doesn't persist across pages.
+    try {
+      await chrome.storage.local.remove(["hc_show_banner"]);
+    } catch {
+      /* ignore */
+    }
+
     injectShell();
     attachHandlers();
-  } else {
-    chrome.runtime.sendMessage({ type: "hc-session-state" }, (state) => {
-      if (!state?.ok) return;
-      const hasSessionLocal = (() => {
-        try {
-          return Boolean(localStorage.getItem(SESSION_KEY));
-        } catch {
-          return false;
-        }
-      })();
-      const hasCache = (() => {
-        try {
-          return Boolean(localStorage.getItem(STORAGE_KEY));
-        } catch {
-          return false;
-        }
-      })();
-      const hasSession = hasSessionLocal || Boolean(state.sessionId);
-      const now = Date.now();
-      const sessionFresh = hasSession && state.nextPromptAt && now < state.nextPromptAt;
-
-      // If we already have a session, hide the banner entirely (user uploaded before).
-      if (hasSession) return;
-
-      // Otherwise fall back to prompt gating (allows post-delete re-prompt).
-      chrome.runtime.sendMessage({ type: "hc-should-prompt" }, (r) => {
-        const allowLocalReset = !hasSession && !hasCache; // e.g. after portal deletion
-        if (!r?.ok) return;
-        if (!r.shouldPrompt && !allowLocalReset) return;
-        injectShell();
-        attachHandlers();
-      });
-    });
-  }
+  })();
 })();
