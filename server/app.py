@@ -1,8 +1,9 @@
 import json
 import os
 import sqlite3
+from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, Response
 from flask_cors import CORS
 
 from rounds import (
@@ -29,7 +30,26 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.config["JSON_SORT_KEYS"] = False
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+def load_dotenv_if_present():
+    env_path = PROJECT_ROOT / ".env"
+    if not env_path.exists():
+        return
+    try:
+        for line in env_path.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, val = line.split("=", 1)
+            os.environ.setdefault(key, val)
+    except Exception:
+        pass
+
+load_dotenv_if_present()
+
 DB_PATH = os.environ.get("HISTORYCOURT_DB", "historycourt.db")
+SESSION_KEY = os.environ.get("SESSION_KEY", "session_id")
 REACT_DIST = os.path.join(os.path.dirname(__file__), "static", "react")
 REACT_INDEX = os.path.join(REACT_DIST, "index.html")
 
@@ -40,6 +60,10 @@ def db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def error_response(code: str, status: int = 400):
+    return jsonify({"ok": False, "error": code}), status
 
 
 def init_db():
@@ -107,7 +131,7 @@ def set_session_cookie(resp, session_id):
     """
     try:
         resp.set_cookie(
-            "hc_session_id",
+            SESSION_KEY,
             session_id,
             max_age=30 * 24 * 60 * 60,  # 30 days
             secure=False,  # allow localhost/http; use env var later if needed
@@ -146,7 +170,8 @@ def get_case_with_history(case_id):
 def serve_react():
     if os.path.exists(REACT_INDEX):
         return send_from_directory(REACT_DIST, "index.html")
-    return render_template("landing.html")
+    fallback = "<!doctype html><html><body><p>React build missing. Run `npm run build` in frontend/ and copy dist/ to server/static/react/.</p></body></html>"
+    return Response(fallback, mimetype="text/html", status=503)
 
 
 @app.get("/")
@@ -205,7 +230,7 @@ def upload_history():
     session_id = (data.get("session_id") or "").strip() if isinstance(data, dict) else ""
 
     if not history or not isinstance(history, list):
-        return jsonify({"ok": False}), 400
+        return error_response("history_required", 400)
 
     # Basic sanitize + tag inference before persisting
     cleaned = tag_history_items(history, max_history=5000)
@@ -272,7 +297,7 @@ def review_summary():
     data = request.get_json(silent=True) or {}
     history = data.get("history") if isinstance(data, dict) else None
     if not history or not isinstance(history, list):
-        return jsonify({"ok": False, "error": "Invalid history"}), 400
+        return error_response("invalid_history", 400)
     items = tag_history_items(history, max_history=5000)
     summary = summarize_items_by_tag(items)
     return jsonify({
@@ -288,7 +313,7 @@ def delete_user():
     data = request.get_json(silent=True) or {}
     session_id = (data.get("session_id") or "").strip()
     if not session_id:
-        return jsonify({"ok": False, "error": "session_id required"}), 400
+        return error_response("session_id_required", 400)
 
     conn = db()
     conn.execute("DELETE FROM cases WHERE session_id = ?", (session_id,))
@@ -297,7 +322,7 @@ def delete_user():
     conn.close()
     resp = jsonify({"ok": True})
     try:
-        resp.delete_cookie("hc_session_id", path="/")
+        resp.delete_cookie(SESSION_KEY, path="/")
     except Exception:
         pass
     return resp
@@ -329,7 +354,7 @@ def roulette_room_create():
 def roulette_room_status(room_id):
     conn, room, players = _get_room(room_id)
     if not room:
-        return jsonify({"ok": False, "error": "Room not found"}), 404
+        return error_response("room_not_found", 404)
 
     players_out = []
     for p in players or []:
@@ -366,19 +391,19 @@ def roulette_room_join(room_id):
     history = data.get("history") if isinstance(data, dict) else None
 
     if not history or not isinstance(history, list):
-        return jsonify({"ok": False, "error": "history array required"}), 400
+        return error_response("history_required", 400)
 
     conn, room, _players = _get_room(room_id)
     if not room:
-        return jsonify({"ok": False, "error": "Room not found"}), 404
+        return error_response("room_not_found", 404)
     if room["status"] != "open":
         conn.close()
-        return jsonify({"ok": False, "error": "Room already started"}), 400
+        return error_response("room_closed", 400)
 
     cleaned = tag_history_items(history, max_history=4000)
     if not cleaned:
         conn.close()
-        return jsonify({"ok": False, "error": "No usable history items"}), 400
+        return error_response("no_usable_history", 400)
 
     player_id = gen_id(6)
     conn.execute(
@@ -394,7 +419,7 @@ def roulette_room_join(room_id):
 def roulette_room_start(room_id):
     conn, room, players = _get_room(room_id)
     if not room:
-        return jsonify({"ok": False, "error": "Room not found"}), 404
+        return error_response("room_not_found", 404)
 
     # If already started, return existing link
     if room["game_id"]:
@@ -404,11 +429,11 @@ def roulette_room_start(room_id):
 
     if room["status"] != "open":
         conn.close()
-        return jsonify({"ok": False, "error": "Room closed"}), 400
+        return error_response("room_closed", 400)
 
     if not players or len(players) < 2:
         conn.close()
-        return jsonify({"ok": False, "error": "Need at least 2 players"}), 400
+        return error_response("need_two_players", 400)
 
     players_payload = []
     players_public = []
@@ -446,7 +471,7 @@ def roulette_create():
     picks = max(3, min(picks, 6))
 
     if not players_in or not isinstance(players_in, list):
-        return jsonify({"ok": False, "error": "players list required"}), 400
+        return error_response("players_required", 400)
 
     cleaned_players = []
     for idx, p in enumerate(players_in):
@@ -467,7 +492,7 @@ def roulette_create():
         })
 
     if len(cleaned_players) < 2:
-        return jsonify({"ok": False, "error": "Need at least 2 players with history"}), 400
+        return error_response("need_two_players", 400)
 
     game_id = gen_id(10)
     rounds = make_roulette_rounds(cleaned_players, picks_per_player=picks, seed=game_id)
@@ -496,11 +521,11 @@ def roulette_create():
 def roulette_round(game_id, r_idx):
     conn, rounds, players = _get_roulette_game(game_id)
     if rounds is None:
-        return jsonify({"ok": False, "error": "Game not found"}), 404
+        return error_response("game_not_found", 404)
 
     if r_idx < 0 or r_idx >= len(rounds):
         conn.close()
-        return jsonify({"ok": False, "error": "Round out of range"}), 404
+        return error_response("round_out_of_range", 404)
 
     r = rounds[r_idx]
     cards = [{"host": c["host"], "title": c["title"]} for c in r.get("cards", [])]
@@ -522,11 +547,11 @@ def roulette_guess(game_id):
 
     conn, rounds, players = _get_roulette_game(game_id)
     if rounds is None:
-        return jsonify({"ok": False, "error": "Game not found"}), 404
+        return error_response("game_not_found", 404)
 
     if r_idx < 0 or r_idx >= len(rounds):
         conn.close()
-        return jsonify({"ok": False, "error": "Round out of range"}), 400
+        return error_response("round_out_of_range", 400)
     r = rounds[r_idx]
     correct_id = r.get("player_id")
     correct_name = r.get("player_name") or correct_id
@@ -560,7 +585,7 @@ def session_tags(session_id):
     row = conn.execute("SELECT history_json FROM sessions WHERE id = ?", (session_id,)).fetchone()
     conn.close()
     if not row:
-        return jsonify({"ok": False, "error": "Session not found"}), 404
+        return error_response("session_not_found", 404)
 
     history = json.loads(row["history_json"] or "[]")
     tags_summary = summarize_items_by_tag(history)
@@ -588,7 +613,7 @@ def create_case():
     row = conn.execute("SELECT history_json FROM sessions WHERE id = ?", (session_id,)).fetchone()
     if not row:
         conn.close()
-        return jsonify({"ok": False, "error": "Session not found"}), 404
+        return error_response("session_not_found", 404)
 
     history = json.loads(row["history_json"] or "[]")
     filtered_history = filter_history_by_tags(history, selected_tags) if selected_tags else history
@@ -638,7 +663,7 @@ def create_case():
 def case_rounds(case_id):
     conn, case_row, _history = get_case_with_history(case_id)
     if not case_row:
-        return jsonify({"ok": False, "error": "Case not found"}), 404
+        return error_response("case_not_found", 404)
     rounds = json.loads(case_row["rounds_json"] or "[]")
     conn.close()
     return jsonify({"ok": True, "rounds": rounds, "total": len(rounds)})
@@ -658,7 +683,7 @@ def edit_case(case_id):
 
     conn, case_row, history = get_case_with_history(case_id)
     if not case_row:
-        return jsonify({"ok": False, "error": "Case not found"}), 404
+        return error_response("case_not_found", 404)
 
     rounds = json.loads(case_row["rounds_json"] or "[]")
     filtered_history = filter_history_by_tags(history, selected_tags) if selected_tags else history
@@ -691,14 +716,14 @@ def edit_case(case_id):
         idx = int(target_round) if target_round is not None else -1
         if idx < 0 or idx >= len(rounds):
             conn.close()
-            return jsonify({"ok": False, "error": "Round not found"}), 400
+            return error_response("round_not_found", 400)
         rounds.pop(idx)
 
     elif action == "regenerate_round":
         idx = int(target_round) if target_round is not None else -1
         if idx < 0 or idx >= len(rounds):
             conn.close()
-            return jsonify({"ok": False, "error": "Round not found"}), 400
+            return error_response("round_not_found", 400)
         new_round = generate(1)[0]
         rounds[idx] = new_round
 
@@ -708,7 +733,7 @@ def edit_case(case_id):
 
     else:
         conn.close()
-        return jsonify({"ok": False, "error": "Unknown action"}), 400
+        return error_response("unknown_action", 400)
 
     conn.execute(
         "UPDATE cases SET rounds_json = ? WHERE id = ?",
@@ -725,11 +750,11 @@ def get_round(case_id, r_idx):
     conn.close()
 
     if not row:
-        return jsonify({"ok": False}), 404
+        return error_response("case_not_found", 404)
 
     rounds = json.loads(row["rounds_json"])
     if r_idx >= len(rounds):
-        return jsonify({"ok": False, "msg": "Game over"}), 404
+        return error_response("round_out_of_range", 404)
 
     r = rounds[r_idx]
     public_cards = [{"host": c["host"], "title": c["title"]} for c in r["cards"]]
@@ -752,11 +777,11 @@ def guess(case_id):
     conn.close()
 
     if not row:
-        return jsonify({"ok": False, "error": "Case not found"}), 404
+        return error_response("case_not_found", 404)
 
     rounds = json.loads(row["rounds_json"])
     if r_idx >= len(rounds):
-        return jsonify({"ok": False, "error": "Round out of range"}), 400
+        return error_response("round_out_of_range", 400)
     current_round = rounds[r_idx]
 
     lie_index = current_round["lie_index"]

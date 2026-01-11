@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteUser } from "../api/client";
 import PageFrame from "../components/PageFrame";
-
-const SESSION_KEY = "hc_session_id";
+import { SESSION_KEY, STORAGE_KEYS } from "../config";
 
 export default function PortalPage() {
   const navigate = useNavigate();
@@ -12,8 +11,11 @@ export default function PortalPage() {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(SESSION_KEY);
-      if (stored) setSessionId(stored);
+      const stored = localStorage.getItem(SESSION_KEY) || localStorage.getItem("hc_session_id");
+      if (stored) {
+        setSessionId(stored);
+        localStorage.setItem(SESSION_KEY, stored);
+      }
     } catch (e) {
       /* ignore */
     }
@@ -75,7 +77,9 @@ export default function PortalPage() {
       await deleteUser(sessionId.trim());
       try {
         localStorage.removeItem(SESSION_KEY);
-        localStorage.removeItem("hc_review_payload");
+        localStorage.removeItem("hc_session_id");
+        localStorage.removeItem(STORAGE_KEYS.reviewPayload);
+        document.cookie = `${SESSION_KEY}=; Max-Age=0; path=/`;
       } catch (e) {
         /* ignore */
       }

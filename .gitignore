@@ -7,3 +7,11 @@ __pycache__/
 historycourt.db
 ai_rounds_log.jsonl
 candidates_debug.json
+*/candidates_debug.json
+frontend/node_modules/
+frontend/build/
+server/static/react/
+
+.env
+.env.local
+.env.*.local

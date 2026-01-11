@@ -3,7 +3,7 @@
 
   const STORAGE_KEY = "hc_review_payload";
   const NAME_KEY = "hc_player_name";
-  const SESSION_KEY = "hc_session_id";
+  const SESSION_KEY = "session_id";
 
   const path = window.location.pathname || "";
   const roomMatch = path.match(/^\/roulette-room\/([^/]+)/);
@@ -15,7 +15,15 @@
 
   function getSessionId() {
     try {
-      return localStorage.getItem(SESSION_KEY) || "";
+      const current = localStorage.getItem(SESSION_KEY);
+      if (current) return current;
+      const legacy = localStorage.getItem("hc_session_id");
+      if (legacy) {
+        localStorage.setItem(SESSION_KEY, legacy);
+        localStorage.removeItem("hc_session_id");
+        return legacy;
+      }
+      return "";
     } catch {
       return "";
     }
@@ -220,7 +228,9 @@
         }
         try {
           localStorage.removeItem(SESSION_KEY);
+          localStorage.removeItem("hc_session_id");
           localStorage.removeItem(STORAGE_KEY);
+          document.cookie = `${SESSION_KEY}=; Max-Age=0; path=/`;
         } catch {}
         setStatus("Deleted. You can upload again anytime.", "good");
         if (deleteBtn) deleteBtn.style.display = "none";

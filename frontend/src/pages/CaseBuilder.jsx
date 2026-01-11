@@ -2,8 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { createCase, editCase, fetchSessionTags } from "../api/client";
 import PageFrame from "../components/PageFrame";
-
-const SESSION_KEY = "hc_session_id";
+import { SESSION_KEY } from "../config";
 const statusColor = {
   muted: "text-slate-500",
   good: "text-emerald-600",

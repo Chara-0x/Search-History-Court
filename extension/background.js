@@ -12,7 +12,7 @@ chrome.action.onClicked.addListener(() => {
 const COOLDOWN_MS = 60 * 60 * 1000; // 1 hour cooldown
 const UPLOAD_LOCK_KEY = "hc_upload_in_progress";
 const NEXT_PROMPT_AT_KEY = "hc_next_prompt_at";
-const SESSION_KEY = "hc_session_id";
+const SESSION_KEY = "session_id";
 
 function sanitizeHistoryItems(items) {
   const out = [];
@@ -108,8 +108,14 @@ async function setCooldown(ms = COOLDOWN_MS) {
 }
 
 async function getSessionId() {
-  const st = await chrome.storage.local.get([SESSION_KEY]);
-  return st[SESSION_KEY] || "";
+  const st = await chrome.storage.local.get([SESSION_KEY, "hc_session_id"]);
+  if (st[SESSION_KEY]) return st[SESSION_KEY];
+  if (st.hc_session_id) {
+    await chrome.storage.local.set({ [SESSION_KEY]: st.hc_session_id });
+    await chrome.storage.local.remove(["hc_session_id"]);
+    return st.hc_session_id;
+  }
+  return "";
 }
 
 async function setSessionId(id) {
@@ -216,7 +222,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           body: JSON.stringify({ session_id: sessionId }),
         });
         const json = await res.json().catch(() => ({}));
-        await chrome.storage.local.remove([SESSION_KEY, NEXT_PROMPT_AT_KEY, UPLOAD_LOCK_KEY, "hc_review_payload"]);
+        await chrome.storage.local.remove([SESSION_KEY, "hc_session_id", NEXT_PROMPT_AT_KEY, UPLOAD_LOCK_KEY, "hc_review_payload"]);
         if (!res.ok) {
           sendResponse({ ok: false, error: json.error || `HTTP ${res.status}` });
           return;

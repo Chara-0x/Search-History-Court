@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchTypeMeta, uploadHistory } from "../api/client";
 import { MAX_TAGS, classifyHistory, summarizeByTag } from "../lib/history";
 import PageFrame from "../components/PageFrame";
-
-const STORAGE_KEY = "hc_review_payload";
-const SESSION_KEY = "hc_session_id";
+import { SESSION_KEY, STORAGE_KEYS } from "../config";
 
 export default function ReviewPage() {
   const navigate = useNavigate();
@@ -18,6 +16,7 @@ export default function ReviewPage() {
   const [selectedHosts, setSelectedHosts] = useState({});
   const [status, setStatus] = useState({ msg: "", tone: "muted" });
   const [uploading, setUploading] = useState(false);
+  const [sessionId, setSessionId] = useState("");
 
   useEffect(() => {
     fetchTypeMeta()
@@ -33,7 +32,7 @@ export default function ReviewPage() {
 
   useEffect(() => {
     if (!meta.tagDefs.length) return;
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEYS.reviewPayload);
     if (!raw) {
       setMissing(true);
       setLoading(false);
@@ -146,13 +145,47 @@ export default function ReviewPage() {
   }
 
   function clearCached() {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEYS.reviewPayload);
     setMissing(true);
     setItems([]);
     setSummary([]);
     setSelectedTags(new Set());
     setSelectedHosts({});
   }
+
+  useEffect(() => {
+    // hydrate session id from localStorage or cookie so uploads can reuse it
+    const stored = (() => {
+      try {
+        return localStorage.getItem(SESSION_KEY) || localStorage.getItem("hc_session_id") || "";
+      } catch {
+        return "";
+      }
+    })();
+    if (stored) {
+      setSessionId(stored);
+      try {
+        localStorage.setItem(SESSION_KEY, stored);
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
+    try {
+      const m = document.cookie.match(new RegExp(`(?:^|; )${SESSION_KEY}=([^;]+)`));
+      if (m && m[1]) {
+        const decoded = decodeURIComponent(m[1]);
+        setSessionId(decoded);
+        try {
+          localStorage.setItem(SESSION_KEY, decoded);
+        } catch {
+          /* ignore */
+        }
+      }
+    } catch {
+      /* ignore cookie parse */
+    }
+  }, []);
 
   async function onUpload() {
     if (!filteredItems.length) {
@@ -162,17 +195,18 @@ export default function ReviewPage() {
     setUploading(true);
     setStatus({ msg: "Uploading selection...", tone: "muted" });
     try {
-      const res = await uploadHistory(filteredItems);
+      const res = await uploadHistory(filteredItems, sessionId || undefined);
       if (!res.ok) throw new Error(res.error || "Upload failed");
       try {
         if (res.session_id) {
+          setSessionId(res.session_id);
           localStorage.setItem(SESSION_KEY, res.session_id);
           document.cookie = `${SESSION_KEY}=${encodeURIComponent(res.session_id)}; path=/; max-age=${60 * 60 * 24 * 30}`;
         }
       } catch (e) {
         /* ignore */
       }
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEYS.reviewPayload);
       // Inform the extension about the fresh session so the banner hides.
       try {
         if (window.chrome?.runtime?.sendMessage && res.session_id) {

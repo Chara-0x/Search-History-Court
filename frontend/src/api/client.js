@@ -1,7 +1,9 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "";
+import { API_BASE } from "../config";
+
+const API_ROOT = API_BASE || "";
 
 async function request(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${API_ROOT}${path}`, {
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
@@ -54,10 +56,12 @@ export function submitGuess(caseId, round, selection) {
   });
 }
 
-export function uploadHistory(history) {
+export function uploadHistory(history, sessionId) {
+  const payload = { history };
+  if (sessionId) payload.session_id = sessionId;
   return request("/api/upload-history", {
     method: "POST",
-    body: JSON.stringify({ history }),
+    body: JSON.stringify(payload),
   });
 }
 
