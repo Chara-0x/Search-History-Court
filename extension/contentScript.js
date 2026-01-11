@@ -35,25 +35,41 @@
     shell.style.left = "0";
     shell.style.right = "0";
     shell.style.zIndex = "2147483647";
-    shell.style.background = "#0f172a";
-    shell.style.color = "#e2e8f0";
-    shell.style.padding = "16px 20px";
-    shell.style.boxShadow = "0 10px 30px rgba(0,0,0,0.25)";
+    shell.style.background = "#FDFBF7";
+    shell.style.color = "#18181B";
+    shell.style.padding = "14px 18px";
+    shell.style.boxShadow = "4px 4px 0 #18181B";
+    shell.style.borderBottom = "2px solid #18181B";
+    shell.style.fontFamily = "'Inter', 'Space Grotesk', system-ui, sans-serif";
     shell.innerHTML = `
-      <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;">
-        <div style="flex:1; min-width:200px;">
-          <div style="font-weight:800; font-size:16px; color:#fff;">History Court</div>
-          <div style="font-size:13px; line-height:1.5; color:#cbd5e1;">
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;800&family=JetBrains+Mono:wght@500;700&display=swap');
+        #hc-page-banner * { box-sizing: border-box; }
+        .hc-wrap { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; }
+        .hc-left { flex:1; min-width:240px; }
+        .hc-title { font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:18px; letter-spacing:-0.03em; }
+        .hc-sub { font-size:13px; line-height:1.45; color:#334155; margin-top:2px; }
+        .hc-status { font-size:12px; color:#475569; margin-top:4px; font-family:'JetBrains Mono', monospace; }
+        .hc-buttons { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+        .hc-btn { border:2px solid #18181B; background:#18181B; color:#fff; padding:10px 14px; font-weight:700; font-family:'JetBrains Mono', monospace; box-shadow:3px 3px 0 #18181B; cursor:pointer; transition:transform 120ms ease; }
+        .hc-btn:hover { transform: translateY(-2px); }
+        .hc-btn.secondary { background:#FDFBF7; color:#18181B; }
+        .hc-btn.danger { background:#FF5E78; color:#18181B; }
+        .hc-pill { display:inline-flex; align-items:center; gap:6px; border:2px solid #18181B; padding:6px 10px; font-family:'JetBrains Mono', monospace; font-size:11px; box-shadow:2px 2px 0 #18181B; background:#CCF381; }
+      </style>
+      <div class="hc-wrap">
+        <div class="hc-left">
+          <div class="hc-title">History Court</div>
+          <div class="hc-sub">
             ${isRoomPage ? "Send your browsing snapshot straight into this room." : "Review a sanitized snapshot (host + title). Pick what to upload."}
           </div>
-          <div id="hc-status" style="font-size:12px; color:#94a3b8; margin-top:4px;"></div>
+          <div id="hc-status" class="hc-status"></div>
         </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-          <button id="hc-start-btn" style="background:#4f46e5; color:#fff; border:none; padding:10px 14px; border-radius:12px; font-weight:700; cursor:pointer;">
-            ${isRoomPage ? "Send to room" : "Upload now"}
-          </button>
-          <button id="hc-delete-btn" style="background:#dc2626; color:#fff; border:none; padding:10px 12px; border-radius:12px; cursor:pointer; display:${getSessionId() ? "inline-flex" : "none"};">Delete my data</button>
-          <button id="hc-dismiss-btn" style="background:transparent; color:#cbd5e1; border:1px solid #334155; padding:10px 12px; border-radius:12px; cursor:pointer;">Dismiss</button>
+        <div class="hc-buttons">
+          <span class="hc-pill">${isRoomPage ? "Room" : "Upload"}</span>
+          <button id="hc-start-btn" class="hc-btn">${isRoomPage ? "Send to room" : "Review & upload"}</button>
+          <button id="hc-delete-btn" class="hc-btn danger" style="display:${getSessionId() ? "inline-flex" : "none"};">Delete my data</button>
+          <button id="hc-dismiss-btn" class="hc-btn secondary">Dismiss</button>
         </div>
       </div>
     `;
@@ -65,7 +81,7 @@
   function setStatus(msg, tone = "muted") {
     const el = shell?.querySelector("#hc-status");
     if (!el) return;
-    el.style.color = tone === "bad" ? "#fca5a5" : tone === "good" ? "#86efac" : "#94a3b8";
+    el.style.color = tone === "bad" ? "#FF5E78" : tone === "good" ? "#16a34a" : "#475569";
     el.textContent = msg || "";
   }
 
@@ -77,7 +93,7 @@
       if (busy) return;
       busy = true;
       startBtn.disabled = true;
-      setStatus("Fetching history...");
+      setStatus("Fetching history for review...");
 
       if (isRoomPage && roomId) {
         const storedName = localStorage.getItem(NAME_KEY) || "";
@@ -112,12 +128,12 @@
       }
 
       chrome.runtime.sendMessage(
-        { type: "upload-history", reviewOnly: false, startTime: 0, apiBase: location.origin, sessionId: getSessionId() },
+        { type: "upload-history", reviewOnly: true, startTime: 0, apiBase: location.origin, sessionId: getSessionId() },
         (resp) => {
           busy = false;
           startBtn.disabled = false;
           if (!resp?.ok || !Array.isArray(resp.history)) {
-            setStatus(resp?.error || "Failed to upload history.", "bad");
+            setStatus(resp?.error || "Failed to fetch history.", "bad");
             return;
           }
           try {
@@ -126,12 +142,8 @@
             /* ignore cache failure */
           }
           if (resp.session_id) setSessionId(resp.session_id);
-          setStatus("Uploaded. Redirecting...", "good");
-          if (resp.session_id) {
-            window.location.href = `/me/${encodeURIComponent(resp.session_id)}`;
-          } else {
-            window.location.href = "/review";
-          }
+          setStatus("Snapshot cached. Opening review…", "good");
+          window.location.href = "/review";
         }
       );
     };
@@ -166,7 +178,23 @@
     attachHandlers();
   } else {
     chrome.runtime.sendMessage({ type: "hc-should-prompt" }, (r) => {
-      if (!r?.ok || !r.shouldPrompt) return;
+      const hasSession = (() => {
+        try {
+          return Boolean(localStorage.getItem(SESSION_KEY));
+        } catch {
+          return false;
+        }
+      })();
+      const hasCache = (() => {
+        try {
+          return Boolean(localStorage.getItem(STORAGE_KEY));
+        } catch {
+          return false;
+        }
+      })();
+      const allowLocalReset = !hasSession && !hasCache; // e.g. after portal deletion
+      if (!r?.ok) return;
+      if (!r.shouldPrompt && !allowLocalReset) return;
       injectShell();
       attachHandlers();
     });

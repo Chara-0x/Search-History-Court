@@ -25,6 +25,17 @@ export default function RouletteRoomPage() {
     }
   }, [routeRoomId]);
 
+  // Force one refresh on first load so the extension banner can initialize
+  useEffect(() => {
+    if (!routeRoomId) return;
+    const key = `rr-refresh-${routeRoomId}`;
+    const already = sessionStorage.getItem(key);
+    if (!already) {
+      sessionStorage.setItem(key, "1");
+      window.location.reload();
+    }
+  }, [routeRoomId]);
+
   // Poll room status
   useEffect(() => {
     if (!roomId) return;
@@ -104,7 +115,7 @@ export default function RouletteRoomPage() {
         </header>
 
         {!roomId && (
-          <section className="shell-card bg-white rounded-3xl p-6 space-y-4">
+          <section className="shell-card bg-white p-6 space-y-4 rounded-none">
             <div className="flex items-center gap-3 flex-wrap">
               <label className="text-sm font-semibold text-ink">Cards per player</label>
               <input
@@ -113,13 +124,13 @@ export default function RouletteRoomPage() {
                 max="6"
                 value={picks}
                 onChange={(e) => setPicks(Math.max(3, Math.min(6, Number(e.target.value) || 3)))}
-                className="w-20 text-center rounded-lg border-2 border-ink px-2 py-2 font-semibold text-lg bg-white focus:outline-none"
+                className="w-20 text-center border-2 border-ink px-2 py-2 font-semibold text-lg bg-white focus:outline-none rounded-none"
               />
             </div>
             <button
               onClick={handleCreate}
               disabled={creating}
-              className="btn-ink inline-flex items-center gap-2 px-5 py-3 rounded-xl disabled:opacity-60"
+              className="btn-ink inline-flex items-center gap-2 px-5 py-3 rounded-none disabled:opacity-60"
             >
               {creating ? "Creating..." : "Create room"}
             </button>
@@ -129,7 +140,7 @@ export default function RouletteRoomPage() {
 
         {roomId && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <section className="shell-card bg-white rounded-3xl p-6 space-y-4">
+            <section className="shell-card bg-white p-6 space-y-4 rounded-none">
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-slate-600 font-mono">Room</p>
@@ -139,11 +150,11 @@ export default function RouletteRoomPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => navigator.clipboard.writeText(joinUrl)}
-                    className="btn-outline text-xs px-3 py-2 rounded-lg bg-white"
+                    className="btn-outline text-xs px-3 py-2 bg-white rounded-none"
                   >
                     Copy link
                   </button>
-                  <span className="text-xs font-mono bg-white border-2 border-ink rounded px-2 py-1 shadow-hard-sm">{joinUrl}</span>
+                  <span className="text-xs font-mono bg-white border-2 border-ink px-2 py-1 shadow-hard-sm rounded-none">{joinUrl}</span>
                 </div>
               </div>
 
@@ -151,7 +162,7 @@ export default function RouletteRoomPage() {
                 <p className="text-sm font-semibold text-ink">Players</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {(room?.players || []).map((p) => (
-                    <div key={p.id} className="border-2 border-ink bg-white rounded-lg px-3 py-2 text-sm flex items-center justify-between shadow-hard-sm">
+                    <div key={p.id} className="border-2 border-ink bg-white px-3 py-2 text-sm flex items-center justify-between shadow-hard-sm rounded-none">
                       <span className="font-semibold text-ink">{p.name}</span>
                       <span className="text-xs text-slate-600">{p.count} items</span>
                     </div>
@@ -161,21 +172,21 @@ export default function RouletteRoomPage() {
               </div>
 
               {room?.play_url ? (
-                <div className="bg-neon-green/20 border-2 border-ink rounded-xl p-4 space-y-2 shadow-hard-sm">
+                <div className="bg-neon-green/20 border-2 border-ink p-4 space-y-2 shadow-hard-sm rounded-none">
                   <p className="text-sm font-semibold text-ink">Game ready</p>
-                  <div className="font-mono text-sm text-ink break-all bg-white border-2 border-ink rounded px-3 py-2">
+                  <div className="font-mono text-sm text-ink break-all bg-white border-2 border-ink px-3 py-2 rounded-none">
                     {room.play_url}
                   </div>
                   <div className="flex gap-2">
                     <Link
                       to={room.play_url.replace(window.location.origin, "")}
-                      className="btn-ink text-xs px-3 py-2 rounded-lg"
+                      className="btn-ink text-xs px-3 py-2 rounded-none"
                     >
                       Open game
                     </Link>
                     <button
                       onClick={() => navigator.clipboard.writeText(room.play_url)}
-                      className="btn-outline text-xs px-3 py-2 rounded-lg bg-white"
+                      className="btn-outline text-xs px-3 py-2 bg-white rounded-none"
                     >
                       Copy
                     </button>
@@ -186,7 +197,7 @@ export default function RouletteRoomPage() {
                   <button
                     onClick={handleStart}
                     disabled={!room?.can_start || room?.status !== "open"}
-                    className="btn-ink inline-flex items-center gap-2 px-5 py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-ink inline-flex items-center gap-2 px-5 py-3 rounded-none disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Start game
                   </button>
@@ -197,15 +208,18 @@ export default function RouletteRoomPage() {
               )}
             </section>
 
-            <section className="shell-card bg-white rounded-3xl p-6 space-y-4">
+            <section className="shell-card bg-white p-6 space-y-4 rounded-none relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 border-2 border-ink bg-neon-blue/30 font-mono text-[11px] uppercase shadow-hard-sm">
+                Extension
+              </div>
               <div>
                 <p className="text-sm font-semibold text-ink">Join this room</p>
                 <p className="text-xs text-slate-600">
-                  Click the History Court extension. It will upload your browsing snapshot automatically and you'll appear in the list above.
+                  Click the History Court extension banner. It will upload your browsing snapshot automatically and you'll appear in the list above.
                 </p>
               </div>
-              <div className="bg-white border-2 border-ink rounded-lg px-4 py-3 text-sm text-slate-700 shadow-hard-sm">
-                <p className="font-semibold text-ink mb-1">Steps</p>
+              <div className="bg-white border-2 border-ink px-4 py-3 text-sm text-slate-700 shadow-hard-sm rounded-none">
+                <p className="font-semibold text-ink mb-1">Extension steps</p>
                 <ol className="list-decimal list-inside space-y-1">
                   <li>Click the extension icon while on this page.</li>
                   <li>Confirm upload when prompted.</li>

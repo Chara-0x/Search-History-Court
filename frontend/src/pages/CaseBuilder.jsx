@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { createCase, editCase, fetchCaseRounds, fetchSessionTags } from "../api/client";
+import { createCase, editCase, fetchSessionTags } from "../api/client";
 import PageFrame from "../components/PageFrame";
 
 const statusColor = {
@@ -19,6 +19,7 @@ export default function CaseBuilderPage() {
   const [previewStatus, setPreviewStatus] = useState({ msg: "", tone: "muted" });
   const [roundsInput, setRoundsInput] = useState(8);
   const [caseState, setCaseState] = useState({ id: null, playUrl: null, rounds: [] });
+  const [aiAlert, setAiAlert] = useState(null);
   const [overlay, setOverlay] = useState({
     active: false,
     progress: 0,
@@ -43,6 +44,12 @@ export default function CaseBuilderPage() {
     }, 400);
     return () => timerRef.current && clearInterval(timerRef.current);
   }, [overlay.active]);
+
+  useEffect(() => {
+    if (!aiAlert) return;
+    const t = setTimeout(() => setAiAlert(null), 12000);
+    return () => clearTimeout(t);
+  }, [aiAlert]);
 
   const readyCount = useMemo(() => tags.filter((t) => t.count >= minTagCount).length, [tags, minTagCount]);
 
@@ -79,21 +86,31 @@ export default function CaseBuilderPage() {
     setOverlay((prev) => ({ ...prev, progress: Math.min(99, prev.progress + 5) }));
   }
 
+  function showAiAlert(message, onRetry) {
+    setAiAlert({ message, onRetry });
+  }
+
+  function makeGeneratePayload() {
+    return {
+      session_id: sessionId,
+      rounds: Math.max(3, Math.min(15, Number(roundsInput) || 8)),
+      tags: Array.from(selectedTags),
+    };
+  }
+
   async function handleGenerate() {
     setGenStatus({ msg: "Generating rounds...", tone: "muted" });
     startOverlay();
     try {
-      const payload = {
-        session_id: sessionId,
-        rounds: Math.max(3, Math.min(15, Number(roundsInput) || 8)),
-        tags: Array.from(selectedTags),
-      };
+      const payload = makeGeneratePayload();
       const res = await createCase(payload);
       if (!res.ok) throw new Error(res.error || "Failed to generate");
       setCaseState({ id: res.case_id, playUrl: res.play_url, rounds: res.rounds || [] });
       setGenStatus({ msg: "New rounds ready. Share after you finish edits.", tone: "good" });
     } catch (err) {
-      setGenStatus({ msg: err.message, tone: "bad" });
+      const msg = err.message || "AI generation failed.";
+      setGenStatus({ msg, tone: "bad" });
+      showAiAlert(msg, () => handleGenerate());
     } finally {
       finishOverlay();
     }
@@ -111,20 +128,34 @@ export default function CaseBuilderPage() {
       setCaseState((prev) => ({ ...prev, rounds: res.rounds || [] }));
       setPreviewStatus({ msg: "Updated.", tone: "good" });
     } catch (err) {
-      setPreviewStatus({ msg: err.message, tone: "bad" });
+      const msg = err.message || "AI update failed.";
+      setPreviewStatus({ msg, tone: "bad" });
+      if (action !== "delete_round") {
+        showAiAlert(msg, () => handleEdit(action, roundIndex));
+      }
     }
   }
 
-  async function handleRefresh() {
-    if (!caseState.id) return;
-    setPreviewStatus({ msg: "Refreshing...", tone: "muted" });
+  async function handleRegenerateAll(skipConfirm = false) {
+    if (!skipConfirm) {
+      const ok = window.confirm("Replace all preview rounds with a fresh AI run? This removes the current set.");
+      if (!ok) return;
+    }
+    setPreviewStatus({ msg: "Regenerating everything...", tone: "muted" });
+    startOverlay();
     try {
-      const res = await fetchCaseRounds(caseState.id);
-      if (!res.ok) throw new Error(res.error || "Failed to refresh");
-      setCaseState((prev) => ({ ...prev, rounds: res.rounds || [] }));
-      setPreviewStatus({ msg: "Preview synced.", tone: "good" });
+      const payload = makeGeneratePayload();
+      const res = await createCase(payload);
+      if (!res.ok) throw new Error(res.error || "Failed to regenerate");
+      setCaseState({ id: res.case_id, playUrl: res.play_url, rounds: res.rounds || [] });
+      setPreviewStatus({ msg: "All rounds regenerated.", tone: "good" });
+      setGenStatus({ msg: "Fresh case ready.", tone: "good" });
     } catch (err) {
-      setPreviewStatus({ msg: err.message, tone: "bad" });
+      const msg = err.message || "AI regeneration failed.";
+      setPreviewStatus({ msg, tone: "bad" });
+      showAiAlert(msg, () => handleRegenerateAll(true));
+    } finally {
+      finishOverlay();
     }
   }
 
@@ -213,12 +244,16 @@ export default function CaseBuilderPage() {
                       <p className="text-xs uppercase tracking-[0.18em] text-slate-600 font-mono">{tag.id}</p>
                       <p className="text-lg font-display font-bold text-ink">{tag.label}</p>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full border ${isReady ? "bg-emerald-100 text-emerald-700 border-emerald-400" : "bg-amber-100 text-amber-800 border-amber-400"}`}>
-                      {isReady ? "Ready" : `Needs ${Math.max(0, minTagCount - tag.count)}`}
-                    </span>
                   </div>
                   <p className={`mt-2 text-sm ${active ? "text-slate-700" : "text-slate-500"}`}>{tag.count} items</p>
                   <p className="mt-1 text-xs text-slate-500">eg. {samples.join(", ") || "..."}</p>
+                  <span
+                    className={`absolute bottom-2 right-2 text-[11px] font-mono uppercase px-2 py-1 border-2 shadow-hard-sm ${
+                      isReady ? "border-emerald-500 bg-neon-green/60 text-ink" : "border-alert-red bg-neon-pink/30 text-ink"
+                    }`}
+                  >
+                    {isReady ? "Ready" : `Needs ${Math.max(0, minTagCount - tag.count)} More`}
+                  </span>
                 </button>
               );
             })}
@@ -271,12 +306,15 @@ export default function CaseBuilderPage() {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => handleEdit("append_round")}
-                className="btn-outline text-sm px-3 py-2 rounded-lg bg-white"
+                className="btn-outline text-sm px-3 py-2 bg-white rounded-none"
               >
                 Add round
               </button>
-              <button onClick={handleRefresh} className="text-sm px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100">
-                Refresh preview
+              <button
+                onClick={() => handleRegenerateAll()}
+                className="text-sm px-3 py-2 border-2 border-alert-red text-alert-red bg-white hover:-translate-y-0.5 transition-transform rounded-none"
+              >
+                Regenerate all rounds
               </button>
             </div>
           </div>
@@ -288,9 +326,9 @@ export default function CaseBuilderPage() {
                 {caseState.playUrl || "Awaiting generation..."}
               </div>
             </div>
-            <button onClick={copyLink} className="btn-outline text-sm px-3 py-2 rounded-lg bg-white">
-              Copy
-            </button>
+              <button onClick={copyLink} className="btn-outline text-sm px-3 py-2 bg-white rounded-none">
+                Copy
+              </button>
           </div>
 
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -307,13 +345,13 @@ export default function CaseBuilderPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEdit("regenerate_round", idx)}
-                      className="btn-outline text-xs px-3 py-1.5 rounded-lg bg-white"
+                      className="btn-outline text-xs px-3 py-1.5 bg-white rounded-none"
                     >
                       Swap
                     </button>
                     <button
                       onClick={() => handleEdit("delete_round", idx)}
-                      className="text-xs px-3 py-1.5 rounded-lg border-2 border-alert-red text-alert-red bg-white hover:-translate-y-0.5 transition-transform"
+                      className="text-xs px-3 py-1.5 border-2 border-alert-red text-alert-red bg-white hover:-translate-y-0.5 transition-transform rounded-none"
                     >
                       Delete
                     </button>
@@ -353,8 +391,43 @@ export default function CaseBuilderPage() {
         </section>
       </main>
 
+      {aiAlert && (
+        <div className="fixed top-4 right-4 z-40 max-w-sm drop-shadow-xl">
+          <div className="bg-white border-2 border-ink shadow-hard-lg rounded-none p-4 space-y-3">
+            <div className="flex items-start gap-2">
+              <span className="mt-1 w-2 h-2 rounded-full bg-alert-red inline-block"></span>
+              <div className="flex-1">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-slate-600 font-mono">AI hiccup</p>
+                <p className="text-sm text-ink leading-snug">{aiAlert.message || "Generation failed. Try again?"}</p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setAiAlert(null)}
+                className="btn-outline text-xs px-3 py-2 bg-white rounded-none"
+              >
+                Keep current
+              </button>
+              <button
+                onClick={() => {
+                  const retry = aiAlert.onRetry;
+                  setAiAlert(null);
+                  retry && retry();
+                }}
+                className="btn-ink text-xs px-3 py-2 rounded-none"
+              >
+                Regenerate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {overlay.active && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+        <div
+          className="fixed inset-0 left-0 top-0 w-full h-full bg-ink/90 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+          style={{ marginTop: 0 }}
+        >
           <div className="w-full max-w-2xl bg-white shadow-hard-lg border-2 border-ink overflow-hidden rounded-none">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <div>

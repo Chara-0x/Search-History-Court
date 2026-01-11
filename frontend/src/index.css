@@ -25,6 +25,14 @@
   }
 }
 
+/* Slightly larger small text for readability */
+.text-sm {
+  font-size: 0.95rem;
+}
+.text-xs {
+  font-size: 0.82rem;
+}
+
 #root {
   min-height: 100vh;
 }

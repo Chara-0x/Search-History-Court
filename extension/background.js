@@ -92,7 +92,8 @@ async function shouldPromptNow() {
   const st = await chrome.storage.local.get([NEXT_PROMPT_AT_KEY, UPLOAD_LOCK_KEY]);
   const nextAt = Number(st[NEXT_PROMPT_AT_KEY] || 0);
   const inProgress = Boolean(st[UPLOAD_LOCK_KEY]);
-  return !inProgress && now >= nextAt;
+  if (inProgress) return false;
+  return now >= nextAt;
 }
 
 async function setCooldown(ms = COOLDOWN_MS) {

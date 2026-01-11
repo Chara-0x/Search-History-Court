@@ -216,23 +216,18 @@ export default function ReviewPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {summary.map((tag) => {
-                const active = selectedTags.has(tag.id);
-                const hostNames = (tag.hosts || []).slice(0, 3).map((h) => h.host).join(", ");
-                return (
-                  <button
-                    key={tag.id}
-                    className={[
-                      "relative w-full text-left shell-card p-4 transition-transform rounded-none",
-                      active ? "bg-neon-green/30 border-ink border-4 shadow-hard-sm" : "bg-white hover:-translate-y-1",
-                    ].join(" ")}
-                    onClick={() => toggleTag(tag.id)}
-                  >
-                    {active && (
-                      <span className="absolute top-2 right-2 text-[10px] font-mono bg-white border-2 border-ink px-2 py-0.5 uppercase shadow-hard-sm">
-                        Selected
-                      </span>
-                    )}
+            {summary.map((tag) => {
+              const active = selectedTags.has(tag.id);
+              const hostNames = (tag.hosts || []).slice(0, 3).map((h) => h.host).join(", ");
+              return (
+                <button
+                  key={tag.id}
+                  className={[
+                    "relative w-full text-left shell-card p-4 pb-12 transition-transform rounded-none",
+                    active ? "bg-neon-green/30 border-ink border-4 shadow-hard-sm" : "bg-white hover:-translate-y-1",
+                  ].join(" ")}
+                  onClick={() => toggleTag(tag.id)}
+                >
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-xs uppercase tracking-[0.18em] text-slate-600 font-mono">{tag.id}</p>
@@ -248,6 +243,13 @@ export default function ReviewPage() {
                       </span>
                     </div>
                     <p className="mt-2 text-xs text-slate-600">Top domains: {hostNames || "..."}</p>
+                    <span
+                      className={`absolute bottom-2 right-2 text-[11px] font-mono uppercase px-2 py-1 border-2 shadow-hard-sm ${
+                        active ? "border-emerald-500 bg-neon-green/60 text-ink" : "border-alert-red bg-neon-pink/30 text-ink"
+                      }`}
+                    >
+                      {active ? "Included" : "Not picked"}
+                    </span>
                   </button>
                 );
               })}
@@ -293,8 +295,14 @@ export default function ReviewPage() {
                         })}
                       </div>
                     </div>
-                  ))}
+                ))}
               </div>
+            </div>
+
+            <div className="shell-card bg-white border-2 border-ink px-4 py-3 rounded-none max-w-xl">
+              <p className="text-sm text-ink">
+                <span className="font-semibold">Privacy notice:</span> Your browser data never leaves your device until you press Upload selected. We only send the hosts and titles you keep; no raw browsing data or credentials are collected or stored.
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3 mt-1">

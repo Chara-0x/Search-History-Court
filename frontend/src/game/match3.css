@@ -1,19 +1,17 @@
 .match3 {
-  --cell: 54px;
+  --cell: 56px;
   --gap: 6px;
-  --radius: 0px;
+  --radius: 10px;
   --step: calc(var(--cell) + var(--gap));
   --board-size: calc(8 * var(--step) - var(--gap) + 28px);
   min-height: 100vh;
   margin: 0;
-  font-family: 'Inter', 'Space Grotesk', sans-serif;
-  background: #FDFBF7;
-  color: #18181B;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #0b1b33;
+  color: #eaf2ff;
   overflow: hidden;
   user-select: none;
   touch-action: none;
-  background-image: radial-gradient(#18181b33 1px, transparent 1px);
-  background-size: 22px 22px;
 }
 
 .match3 .wrap {
@@ -28,61 +26,54 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 520px;
+  max-width: 500px;
   margin-bottom: 15px;
-  border: 2px solid #18181B;
-  background: white;
-  padding: 10px 14px;
-  box-shadow: 2px 2px 0 #18181B;
 }
 
-.match3 .title { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
-.match3 .stats { display: flex; align-items: center; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.match3 .title { font-size: 20px; font-weight: 700; }
+.match3 .stats { display: flex; align-items: center; gap: 12px; }
 
 .match3 button {
-  border: 2px solid #18181B;
-  border-radius: 0;
-  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 16px;
   cursor: pointer;
-  background: #18181B;
-  color: #FDFBF7;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  box-shadow: 2px 2px 0 #18181B;
-  transition: transform 0.15s ease, background 0.15s ease;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 600;
+  transition: background 0.2s;
 }
-.match3 button:hover { transform: translateY(-2px); background: #111; }
+.match3 button:hover { background: rgba(255, 255, 255, 0.25); }
 
 /* --- PROGRESS BAR --- */
 .match3 .progress-container {
   width: 100%;
-  max-width: 520px;
+  max-width: 500px;
   margin-bottom: 20px;
 }
 .match3 .progress-label {
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   margin-bottom: 5px;
-  color: #18181B;
-  font-weight: 800;
+  color: #c084fc;
+  font-weight: 700;
   display: flex;
   justify-content: space-between;
-  font-family: 'JetBrains Mono', monospace;
 }
 .match3 .progress-track {
-  height: 10px;
-  background: #ffffff;
+  height: 8px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 4px;
   overflow: hidden;
-  border: 2px solid #18181B;
-  box-shadow: 2px 2px 0 #18181B inset;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
 }
 .match3 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #FF5E78, #4D96FF);
+  background: linear-gradient(90deg, #9b5de5, #d6bcfa);
   width: 0%;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px rgba(77, 150, 255, 0.5);
+  box-shadow: 0 0 10px rgba(155, 93, 229, 0.5);
 }
 
 /* --- BOARD LAYOUT --- */
@@ -92,9 +83,9 @@
   position: relative;
   width: var(--board-size);
   height: var(--board-size);
-  background: #ffffff;
-  border-radius: 0;
-  box-shadow: inset 0 0 0 2px #18181B, 3px 3px 0 #18181B;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .match3 .cell {
@@ -102,7 +93,7 @@
   width: var(--cell);
   height: var(--cell);
   border-radius: var(--radius);
-  box-shadow: inset 0 0 0 2px #18181B;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15);
   top: 14px;
   left: 14px;
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.1s, opacity 0.2s;
@@ -114,14 +105,14 @@
 .match3 .cell.dragging {
   z-index: 100;
   transition: none !important;
-  box-shadow: 6px 6px 0 rgba(24,24,27,0.7);
-  filter: brightness(1.15);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+  filter: brightness(1.2);
 }
 
 .match3 .cell.selected {
   z-index: 20;
-  filter: brightness(1.15);
-  box-shadow: 0 0 0 3px #FF5E78;
+  filter: brightness(1.4);
+  box-shadow: 0 0 0 3px #fff;
 }
 
 .match3 .cell.pop-anim {
@@ -129,8 +120,8 @@
 }
 
 .match3 .cell.bomb {
-  background: radial-gradient(circle at 30% 30%, #18181B, #0f0f12) !important;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.45);
+  background: radial-gradient(circle at 30% 30%, #444, #111) !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 .match3 .cell.bomb::after {
   content: "💣";
@@ -179,9 +170,9 @@
   100% { opacity: 0; transform: translate(-50%, -120px) scale(1.0); }
 }
 
-.match3 .txt-std { color: #18181B; font-size: 24px; text-shadow: 2px 2px 0 #FF5E78; }
-.match3 .txt-nice { color: #18181B; font-size: 32px; text-shadow: 2px 2px 0 #CCF381; }
-.match3 .txt-huge { color: #18181B; font-size: 40px; text-shadow: 2px 2px 0 #4D96FF; text-transform: uppercase; }
-.match3 .txt-bomb { color: #FF5E78; font-size: 44px; text-shadow: 2px 2px 0 #18181B; font-family: 'JetBrains Mono', monospace; }
+.match3 .txt-std { color: #fff; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+.match3 .txt-nice { color: #facc15; font-size: 32px; text-shadow: 0 3px 0 #854d0e, 0 4px 10px rgba(0,0,0,0.4); }
+.match3 .txt-huge { color: #34d399; font-size: 40px; text-shadow: 0 3px 0 #064e3b, 0 4px 10px rgba(0,0,0,0.4); text-transform: uppercase; }
+.match3 .txt-bomb { color: #f87171; font-size: 44px; text-shadow: 0 4px 0 #7f1d1d, 0 4px 20px rgba(0,0,0,0.6); font-family: 'Courier New', monospace; }
 
 .match3 .hint { margin-top: 16px; opacity: 0.6; font-size: 13px; max-width: 400px; text-align: center; line-height: 1.5; }
