@@ -48,7 +48,7 @@ One flow, one UI: React frontend + Flask API + Chrome extension.
 - **Chrome extension**
   1) Build frontend/serve API so routes work.
   2) In Chrome: `chrome://extensions` → Enable Developer mode → Load unpacked → choose the `extension` folder.
-  3) Hosts allowed: `http://127.0.0.1:5000` and `http://historycourt.lol` (update manifest if you change hosts).
+  3) Hosts allowed: `http://127.0.0.1:5000` and `https://historycourt.lol` (update manifest if you change hosts).
 
 ## Docs
 - Flow: `docs/flow.md`

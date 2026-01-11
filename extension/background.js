@@ -5,7 +5,7 @@ chrome.action.onClicked.addListener(() => {
     } catch {
       /* ignore */
     }
-    chrome.tabs.create({ url: "http://historycourt.lol" });
+    chrome.tabs.create({ url: "https://historycourt.lol" });
   })();
 });
 
@@ -182,7 +182,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           shuffled = shuffleInPlace(deduped);
         }
 
-        const apiBase = message.apiBase || "http://historycourt.lol";
+        const apiBase = message.apiBase || "https://historycourt.lol";
         url = `${apiBase.replace(/\/$/, "")}/api/roulette/room/${encodeURIComponent(roomId)}/join`;
 
         const res = await fetch(url, {
@@ -215,7 +215,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return;
       }
       try {
-        const apiBase = message.apiBase || "http://historycourt.lol";
+        const apiBase = message.apiBase || "https://historycourt.lol";
         const res = await fetch(`${apiBase.replace(/\/$/, "")}/api/delete-user`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -265,7 +265,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return;
       }
 
-      const apiBase = message.apiBase || "http://historycourt.lol";
+      const apiBase = message.apiBase || "https://historycourt.lol";
       url = `${apiBase.replace(/\/$/, "")}/api/upload-history`;
 
       const res = await fetch(url, {
