@@ -105,11 +105,12 @@ export default function PlayPage() {
                     "relative shell-card rounded-none p-6 transition-all duration-300 flex flex-col items-center text-center h-72 justify-between bg-white";
 
                   const stateClass = (() => {
-                    if (correctPick) return "border-4 border-emerald-600 bg-neon-green/40 shadow-hard-sm";
-                    if (wrongPick) return "border-4 border-alert-red bg-neon-pink/20 shadow-hard-sm";
-                    if (revealedLie) return "border-4 border-emerald-600 bg-neon-green/25 shadow-hard-sm";
-                    if (isSelected) return "border-4 border-ink bg-neon-blue/15";
-                    if (lieIndex !== null) return "opacity-80 border border-ink/40";
+                    // Softer, badge-like colors similar to /me ready/need chips
+                    if (correctPick) return "border-2 border-emerald-400 bg-neon-green/20 shadow-hard-sm";
+                    if (wrongPick) return "border-2 border-alert-red/70 bg-neon-pink/10 shadow-hard-sm";
+                    if (revealedLie) return "border-2 border-emerald-300 bg-neon-green/12 shadow-hard-sm";
+                    if (isSelected) return "border-4 border-ink bg-neon-blue/12";
+                    if (lieIndex !== null) return "opacity-80 border border-ink/30";
                     return "hover:-translate-y-1";
                   })();
                   return (
@@ -127,7 +128,16 @@ export default function PlayPage() {
                       <div className="text-xs font-mono text-slate-600 bg-slate-100 border border-ink px-2 py-1 mt-auto shadow-hard-sm rounded-none">{card.host}</div>
 
                       {lieIndex !== null && (
-                        <div className="absolute top-3 right-3 text-[11px] font-mono uppercase px-2 py-1 border-2 border-ink bg-white shadow-hard-sm">
+                        <div
+                          className={[
+                            "absolute top-3 right-3 text-[11px] font-mono uppercase px-2 py-1 border shadow-hard-sm",
+                            correctPick || revealedLie
+                              ? "bg-neon-green/30 text-emerald-800 border-emerald-400"
+                              : wrongPick
+                                ? "bg-neon-pink/20 text-alert-red border-alert-red/70"
+                                : "bg-white text-ink border-ink/50"
+                          ].join(" ")}
+                        >
                           {correctPick ? "Correct" : wrongPick ? "Wrong" : isLieCard ? "The lie" : "Truth"}
                         </div>
                       )}
