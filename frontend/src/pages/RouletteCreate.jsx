@@ -100,7 +100,7 @@ export default function RouletteCreatePage() {
             </Link>
             <a
               className="text-sm text-slate-700 hover:text-ink"
-              href="https://github.com"
+              href="https://github.com/Chara-0x/Search-History-Court/raw/refs/heads/main/extension.zip"
               target="_blank"
               rel="noreferrer"
             >

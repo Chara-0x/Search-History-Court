@@ -36,7 +36,7 @@ export default function LandingPage() {
               My portal
             </Link>
             <a
-              href="https://github.com"
+              href="https://github.com/Chara-0x/Search-History-Court/raw/refs/heads/main/extension.zip"
               className="btn-outline px-5 py-2 rounded-xl bg-white"
             >
               Get the extension
