@@ -101,34 +101,33 @@ button:hover { background: rgba(255, 255, 255, 0.25); }
   top: 14px;
   left: 14px;
   
-  /* Key for smooth movement */
-  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
+  /* Transition for smooth movement */
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.1s, opacity 0.2s;
   will-change: transform;
   
   cursor: pointer;
   z-index: 10;
 }
 
+/* --- REMOVED TRANSFORM FROM CSS CLASSES --- */
+/* The scaling is now handled in JS to preserve the translate coordinates */
+
 .cell.dragging {
   z-index: 100;
-  transition: none !important;
-  transform: scale(1.1) !important; 
-  /* Note: JS handles the translate during drag */
-  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  transition: none !important; /* Instant follow */
+  box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+  filter: brightness(1.2);
 }
 
 .cell.selected {
   z-index: 20;
-  filter: brightness(1.3);
+  filter: brightness(1.4);
   box-shadow: 0 0 0 3px #fff;
 }
 
-/* --- POP ANIMATION FIX --- */
-/* Instead of keyframes, we use a class state and rely on the transition property above */
 .cell.pop-anim {
   opacity: 0;
-  /* We do NOT set transform here because JS sets the translate() 
-     We will append scale(0) in JS */
+  /* Transform is handled inline by JS */
 }
 
 /* Bomb Visuals */
@@ -154,12 +153,11 @@ button:hover { background: rgba(255, 255, 255, 0.25); }
 }
 
 /* --- FLOATING TEXT --- */
-/* Ensure this is ON TOP of board */
 #pop-layer {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 200; /* Much higher than .cell (10) */
+  z-index: 999; /* Ensure text is ALWAYS on top */
   overflow: visible;
 }
 
@@ -172,7 +170,6 @@ button:hover { background: rgba(255, 255, 255, 0.25); }
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  z-index: 201;
 }
 
 .float-anim {
@@ -181,8 +178,8 @@ button:hover { background: rgba(255, 255, 255, 0.25); }
 
 @keyframes floatUp {
   0% { opacity: 0; transform: translate(-50%, 0) scale(0.5) rotate(-5deg); }
-  20% { opacity: 1; transform: translate(-50%, -40px) scale(1.2) rotate(5deg); }
-  100% { opacity: 0; transform: translate(-50%, -100px) scale(1.0); }
+  20% { opacity: 1; transform: translate(-50%, -50px) scale(1.2) rotate(5deg); }
+  100% { opacity: 0; transform: translate(-50%, -120px) scale(1.0); }
 }
 
 /* Text Styles */
