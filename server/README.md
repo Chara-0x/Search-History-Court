@@ -16,7 +16,7 @@ The server listens on `http://localhost:5000`.
 
 ## Key API routes
 - `POST /api/upload-history` body `{ history: [...] }` -> `{ ok, session_id }`
-- `GET /api/session/<session_id>/tags` bucket history into 7 perspectives; each tag reports count, needs (target 30+ items), and sample items.
+- `GET /api/session/<session_id>/tags` bucket history into 6 perspectives; each tag reports count, needs (target 30+ items), and sample items.
 - `POST /api/create-case` body `{ session_id, rounds, tags }` -> generates rounds using the selected tags. Response includes `{ case_id, play_url, rounds }`.
 - `GET /api/case/<case_id>/rounds` full rounds (for preview/edit UI)
 - `POST /api/case/<case_id>/edit` body `{ action, round?, count?, tags? }` where action is one of `delete_round`, `regenerate_round`, `append_round`.

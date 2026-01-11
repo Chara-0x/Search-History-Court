@@ -55,6 +55,12 @@ def gen_id(n=10):
 def utc_now_iso():
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
+def canonical_host(host: str) -> str:
+    h = (host or "").strip().lower()
+    if h.startswith("www."):
+        h = h[4:]
+    return h
+
 def get_case_with_history(case_id):
     """
     Returns (conn, case_row, history_list). Caller must close conn.
@@ -100,7 +106,7 @@ FAKE_TITLES = [
 ]
 
 # -----------------------------
-# Tagging (7 perspectives)
+# Tagging (6 perspectives)
 # -----------------------------
 TAG_MIN_COUNT = 30
 TAG_DEFS = [
@@ -130,16 +136,6 @@ TAG_DEFS = [
             "udemy.com", "khanacademy.org", "canvas", "classroom.google.com"
         ],
         "keywords": ["assignment", "lecture", "slides", "syllabus", "project brief", "jira"]
-    },
-    {
-        "id": "tech",
-        "label": "Tech / Coding",
-        "hosts": [
-            "github.com", "gitlab.com", "npmjs.com", "pypi.org", "developer.mozilla.org",
-            "stackoverflow.com", "stackexchange.com", "w3schools.com", "vercel.com",
-            "aws.amazon.com", "cloudflare.com"
-        ],
-        "keywords": ["api", "cli", "docker", "kubernetes", "react", "python", "javascript"]
     },
     {
         "id": "news",
@@ -174,10 +170,10 @@ TAG_LOOKUP = {t["id"]: t for t in TAG_DEFS}
 
 def detect_tag(host: str, title: str) -> str:
     """
-    Assign an item to one of the 7 perspectives based on host/keywords.
+    Assign an item to one of the defined perspectives based on host/keywords.
     Falls back to shopping_misc (wildcards) so nothing is lost.
     """
-    h = (host or "").lower()
+    h = canonical_host(host)
     t = (title or "").lower()
 
     for tag in TAG_DEFS:
@@ -294,13 +290,13 @@ def select_candidates(history, max_history=2000, max_candidates=700, allowed_tag
     history: list of {host,title,lastVisitTime,visitCount}
     Returns a curated pool for AI.
     """
-    allowed_set = set(allowed_tags or [])
+    allowed_set = set(allowed_tags or [t["id"] for t in TAG_DEFS])
     # Clean & cap
     items = []
     for h in (history or [])[:max_history]:
         if not isinstance(h, dict):
             continue
-        host = (h.get("host") or "").strip().lower()
+        host = canonical_host(h.get("host"))
         title = clean_title_v2(h.get("title") or "")
         if not host or not title:
             continue
@@ -372,7 +368,7 @@ def summarize_tags(history, min_count=TAG_MIN_COUNT, max_per_tag=60, max_history
     for h in (history or [])[:max_history]:
         if not isinstance(h, dict):
             continue
-        host = (h.get("host") or "").strip().lower()
+        host = canonical_host(h.get("host"))
         title = clean_title_v2(h.get("title") or "")
         if not host or not title:
             continue
@@ -422,7 +418,7 @@ def filter_history_by_tags(history, selected_tags):
     for h in history or []:
         if not isinstance(h, dict):
             continue
-        host = (h.get("host") or "").strip().lower()
+        host = canonical_host(h.get("host"))
         title = clean_title_v2(h.get("title") or "")
         if not host or not title:
             continue
@@ -435,10 +431,11 @@ def filter_history_by_tags(history, selected_tags):
             "visitCount": int(h.get("visitCount") or 1),
         })
     return filtered
-def normalize_ai_rounds(data, compact_real_set):
+def normalize_ai_rounds(data, compact_real_set, real_lookup, allowed_tags=None):
     """
     Accepts AI output in multiple shapes and normalizes to:
-      [{"topic": "...", "cards":[{"host","title","is_lie"}*3], "lie_index": int}, ...]
+      [{"topic": "tag_id", "cards":[{"host","title","is_lie"}*3], "lie_index": int}, ...]
+    Enforces per-round single tag: all cards must match the round tag.
     """
     # 1) Extract rounds list
     rounds = None
@@ -449,14 +446,15 @@ def normalize_ai_rounds(data, compact_real_set):
     else:
         raise ValueError("AI output must be dict with rounds[] or a list of rounds")
 
+    allowed_set = set(allowed_tags or [])
     def norm_one_round(r, idx):
         # r can be dict with cards, or directly a list of 3 cards
-        topic = "misc"
+        round_tag = None
         cards = None
         lie_index = None
 
         if isinstance(r, dict):
-            topic = r.get("topic", "misc")
+            round_tag = r.get("tag") or r.get("topic")
             cards = r.get("cards")
             lie_index = r.get("lie_index", None)
         elif isinstance(r, list):
@@ -482,7 +480,7 @@ def normalize_ai_rounds(data, compact_real_set):
                 # (fallback: choose card whose (host,title) is NOT in real_set, if exactly one)
                 in_real = []
                 for c in cards:
-                    host = (c.get("host") or "").strip().lower() if isinstance(c, dict) else ""
+                    host = canonical_host(c.get("host")) if isinstance(c, dict) else ""
                     title = clean_title_v2(c.get("title") or "") if isinstance(c, dict) else ""
                     in_real.append((host, title) in compact_real_set)
                 if in_real.count(False) == 1:
@@ -498,11 +496,16 @@ def normalize_ai_rounds(data, compact_real_set):
         for i, c in enumerate(cards):
             if not isinstance(c, dict):
                 raise ValueError(f"Round {idx}: card {i} must be object")
-            host = (c.get("host") or "").strip().lower()
+            host = canonical_host(c.get("host"))
             title = clean_title_v2(c.get("title") or "")
             if not host or not title:
                 raise ValueError(f"Round {idx}: card {i} missing host/title")
-            norm_cards.append({"host": host, "title": title, "is_lie": (i == lie_index)})
+            pair = (host, title)
+            expected_tag = real_lookup.get(pair)
+            card_tag = expected_tag or detect_tag(host, title)
+            norm_cards.append({"host": host, "title": title, "is_lie": (i == lie_index), "tag": card_tag})
+            if round_tag is None:
+                round_tag = card_tag
 
         # validation: truths from pool, lie not in pool
         for i, c in enumerate(norm_cards):
@@ -513,8 +516,25 @@ def normalize_ai_rounds(data, compact_real_set):
             else:
                 if pair not in compact_real_set:
                     raise ValueError(f"Round {idx}: truth not in real pool: {pair}")
+                expected_tag = real_lookup.get(pair)
+                card_tag = c.get("tag") or expected_tag or detect_tag(c["host"], c["title"])
+                if expected_tag and card_tag != expected_tag:
+                    raise ValueError(f"Round {idx}: truth tag mismatch {card_tag} vs expected {expected_tag}")
+                if card_tag != round_tag:
+                    raise ValueError(f"Round {idx}: card tag {card_tag} != round tag {round_tag}")
 
-        return {"topic": topic, "cards": norm_cards, "lie_index": lie_index}
+        for c in norm_cards:
+            if c["tag"] != round_tag:
+                raise ValueError(f"Round {idx}: card tag {c['tag']} != round tag {round_tag}")
+
+        if round_tag and allowed_set and round_tag not in allowed_set:
+            raise ValueError(f"Round {idx}: tag {round_tag} not in allowed set")
+        if not round_tag:
+            raise ValueError(f"Round {idx}: missing tag")
+        if round_tag not in TAG_LOOKUP:
+            raise ValueError(f"Round {idx}: unknown tag {round_tag}")
+
+        return {"topic": round_tag, "tag": round_tag, "cards": norm_cards, "lie_index": lie_index}
 
     normalized = []
     for idx, r in enumerate(rounds):
@@ -523,13 +543,29 @@ def normalize_ai_rounds(data, compact_real_set):
     return normalized
 
 
-def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None):
+def log_ai_run(meta, request_payload, raw_response, normalized, error=None):
+    entry = {
+        "ts": utc_now_iso(),
+        "meta": meta or {},
+        "request": request_payload,
+        "response_raw": raw_response,
+        "normalized": normalized,
+        "error": str(error) if error else None,
+    }
+    try:
+        with open("ai_rounds_log.jsonl", "a") as f:
+            f.write(json.dumps(entry) + "\n")
+    except Exception:
+        pass
+
+def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None, meta=None):
     """
     AI-generated 2-truth-1-lie rounds:
     - 2 truths MUST come from candidate pool
     - lie MUST NOT match any truth (host+title pair)
     - avoid repeating hosts across rounds as much as possible
     """
+    allowed_tags = allowed_tags or [t["id"] for t in TAG_DEFS]
     candidates = select_candidates(
         history,
         max_history=1000,
@@ -546,7 +582,14 @@ def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None):
 
     # Build a compact view for the model
     # (don't send lastVisitTime unless you want recency behavior)
-    compact = [{"host": c["host"], "title": c["title"]} for c in candidates]
+    compact = []
+    real_lookup = {}
+    for c in candidates:
+        host = canonical_host(c["host"])
+        title = clean_title_v2(c["title"])
+        tag = c.get("tag") or detect_tag(host, title)
+        compact.append({"host": host, "title": title, "tag": tag})
+        real_lookup[(host, title)] = tag
 
     # Structured Outputs schema (model MUST return this JSON)
     schema = {
@@ -563,9 +606,10 @@ def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None):
                     "items": {
                         "type": "object",
                         "additionalProperties": False,
-                        "required": ["cards", "lie_index", "topic"],
+                        "required": ["cards", "lie_index", "topic", "tag"],
                         "properties": {
                             "topic": {"type": "string"},
+                            "tag": {"type": "string", "enum": allowed_tags},
                             "cards": {
                                 "type": "array",
                                 "minItems": 3,
@@ -607,6 +651,9 @@ def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None):
         "but still not present in REAL_ITEMS.\n"
         "7) Avoid repetitive lie patterns (not always 'how to delete history').\n"
         "8) Spread rounds across the tag set provided by the user; look for the weirdest or most specific truths within those tags.\n"
+        "9) Each round MUST declare a tag from the allowed list, and all 3 cards (including the lie) must belong to that same tag.\n"
+        "10) Both truth cards must come from REAL_ITEMS with that same tag.\n"
+        "11) Use canonical hosts without leading www.\n"
     )
 
     user = {
@@ -614,6 +661,7 @@ def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None):
         "seed": seed or "",
         "REAL_ITEMS": compact,
         "selected_tags": allowed_tags or [],
+        "tag_definitions": TAG_DEFS,
     }
 
     resp = client.chat.completions.create(
@@ -623,15 +671,24 @@ def make_rounds_ai(history, n_rounds=10, seed=None, allowed_tags=None):
             {"role": "user", "content": json.dumps(user)},
             {"role": "user", "content": "Return ONLY valid JSON of the form {\"rounds\": [...]}."}
         ],
-        temperature=0.7,
+        temperature=0.35,
         response_format={"type": "json_object"},
     )
-    # print data
-    print(resp.choices[0].message.content)
-    data = json.loads(resp.choices[0].message.content)
+    raw_content = resp.choices[0].message.content
+    print(raw_content)
+    try:
+        data = json.loads(raw_content)
+    except Exception as e:
+        log_ai_run(meta or {}, {"REAL_ITEMS": compact, "allowed_tags": allowed_tags, "n_rounds": n_rounds, "seed": seed}, raw_content, None, e)
+        raise
     real_set = {(x["host"], x["title"]) for x in compact}
-    normalized_rounds = normalize_ai_rounds(data, real_set)
-    return normalized_rounds
+    try:
+        normalized_rounds = normalize_ai_rounds(data, real_set, real_lookup, allowed_tags=allowed_tags)
+        log_ai_run(meta or {}, {"REAL_ITEMS": compact, "allowed_tags": allowed_tags, "n_rounds": n_rounds, "seed": seed}, data, normalized_rounds, None)
+        return normalized_rounds
+    except Exception as e:
+        log_ai_run(meta or {}, {"REAL_ITEMS": compact, "allowed_tags": allowed_tags, "n_rounds": n_rounds, "seed": seed}, data, None, e)
+        raise
 
 def clean_title(title):
     if not title: return "Untitled Page"
@@ -643,53 +700,64 @@ def make_rounds(history, n_rounds=10, seed=None, allowed_tags=None):
     if seed:
         random.seed(seed)
 
+    allowed_tags = allowed_tags or [t["id"] for t in TAG_DEFS]
     source_history = filter_history_by_tags(history, allowed_tags) if allowed_tags else history
-    # Filter valid history items
-    valid_items = [
-        {"host": h.get("host"), "title": clean_title(h.get("title"))}
-        for h in source_history
-        if h.get("host") and h.get("title")
-    ]
+    valid_items = []
+    for h in source_history:
+        if not h.get("host") or not h.get("title"):
+            continue
+        host = canonical_host(h.get("host"))
+        title = clean_title(h.get("title"))
+        tag = detect_tag(host, title)
+        if tag not in allowed_tags:
+            continue
+        valid_items.append({"host": host, "title": title, "tag": tag})
+
+    if len(valid_items) < (n_rounds * 2):
+        valid_items = [{"host": "example.com", "title": "User has no history", "tag": "shopping_misc"}] * max(30, n_rounds * 3)
+
+    tag_buckets = {}
+    for item in valid_items:
+        tag_buckets.setdefault(item["tag"], []).append(item)
+    for bucket in tag_buckets.values():
+        random.shuffle(bucket)
 
     rounds = []
-    
-    # If not enough history, we can't play
-    if len(valid_items) < (n_rounds * 2):
-        # Fallback for empty history
-        valid_items = [{"host": "example.com", "title": "User has no history"}] * 30
-
-    random.shuffle(valid_items)
+    tag_keys = [t for t, items in tag_buckets.items() if len(items) >= 2]
+    if not tag_keys:
+        tag_keys = list(tag_buckets.keys()) or ["shopping_misc"]
 
     for i in range(n_rounds):
-        # 1. Pick 2 Truths
-        truth1 = valid_items.pop() if valid_items else {"host":"?", "title":"?"}
-        truth2 = valid_items.pop() if valid_items else {"host":"?", "title":"?"}
-        
-        # 2. Pick 1 Lie (Fabricated)
+        tag = random.choice(tag_keys)
+        bucket = tag_buckets.get(tag, [])
+        if len(bucket) < 2:
+            pool = [it for it in valid_items if it["tag"] == tag] or valid_items
+            while len(bucket) < 2:
+                bucket.append(random.choice(pool))
+        truth1 = bucket.pop() if bucket else {"host": "?", "title": "?", "tag": tag}
+        truth2 = bucket.pop() if bucket else {"host": "?", "title": "?", "tag": tag}
+
         fake_text, fake_host = random.choice(FAKE_TITLES)
-        # Randomize lie occasionally to be a realistic domain but fake title
-        if random.random() > 0.5 and valid_items:
-            random_real_host = random.choice(valid_items)["host"]
+        if random.random() > 0.5 and bucket:
+            random_real_host = random.choice(bucket)["host"]
             fake_host = random_real_host
             fake_text = "How to erase " + random_real_host + " logs"
 
-        lie = {"host": fake_host, "title": fake_text, "is_lie": True}
-        
-        # 3. Combine and Shuffle
+        lie = {"host": fake_host, "title": fake_text, "is_lie": True, "tag": tag}
+
         cards = [
-            {"host": truth1["host"], "title": truth1["title"], "is_lie": False},
-            {"host": truth2["host"], "title": truth2["title"], "is_lie": False},
+            {"host": truth1["host"], "title": truth1["title"], "is_lie": False, "tag": tag},
+            {"host": truth2["host"], "title": truth2["title"], "is_lie": False, "tag": tag},
             lie
         ]
         random.shuffle(cards)
 
-        # Find which index is the lie
         lie_index = next(i for i, card in enumerate(cards) if card["is_lie"])
 
         rounds.append({
             "cards": cards,
             "lie_index": lie_index,
-            "topic": "mixed"
+            "topic": tag
         })
 
     return rounds
@@ -753,6 +821,7 @@ def create_case():
     session_id = data.get("session_id")
     rounds_n = int(data.get("rounds") or 5)
     selected_tags = data.get("tags") or data.get("selected_tags") or []
+    selected_tags = [t for t in selected_tags if t in TAG_LOOKUP]
     rounds_n = max(3, min(rounds_n, 15))
 
     conn = db()
@@ -772,6 +841,7 @@ def create_case():
             n_rounds=rounds_n,
             seed=session_id,
             allowed_tags=selected_tags,
+            meta={"session_id": session_id, "request": "create_case"},
         )
     except Exception as e:
         app.logger.warning("AI generation failed, falling back: %s", e)
@@ -814,6 +884,7 @@ def edit_case(case_id):
     action = data.get("action")
     target_round = data.get("round")
     selected_tags = data.get("tags") or data.get("selected_tags") or []
+    selected_tags = [t for t in selected_tags if t in TAG_LOOKUP]
 
     conn, case_row, history = get_case_with_history(case_id)
     if not case_row:
@@ -831,6 +902,7 @@ def edit_case(case_id):
                 n_rounds=count,
                 seed=f"{case_id}-{utc_now_iso()}",
                 allowed_tags=selected_tags,
+                meta={"case_id": case_id, "action": action},
             )
         except Exception as e:
             app.logger.warning("AI regen failed, falling back: %s", e)
