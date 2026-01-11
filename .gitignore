@@ -10,7 +10,8 @@ candidates_debug.json
 */candidates_debug.json
 frontend/node_modules/
 frontend/build/
-server/static/react/
+server/static/react/*
+
 
 .env
 .env.local

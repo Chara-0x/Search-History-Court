@@ -31,20 +31,32 @@ from utils import utc_now_iso
 # -----------------------------
 # AI Generation data (fallback lie ideas)
 # -----------------------------
-FAKE_TITLES: List[Tuple[str, str]] = [
-    ("how to get away with murder", "wikihow.com"),
-    ("is it illegal to keep a squirrel", "reddit.com"),
-    ("download more ram free", "softonic.com"),
-    ("why do my feet smell like cheese", "webmd.com"),
-    ("nickelback fan club", "geocities.com"),
-    ("flat earth society membership", "flatearth.org"),
-    ("how to bribe a judge", "legalzoom.com"),
-    ("am I a robot test", "captcha.net"),
-    ("DIY surgery kits", "amazon.com"),
-    ("hot singles in your area", "dating.com"),
-    ("how to delete browser history permanently", "google.com"),
-    ("pretend to work screen", "github.com"),
-]
+FAKE_TITLES: List[Tuple[str, str]] = []
+try:
+    with open("server/fake_results.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+        for item in data:
+            host = canonical_host(item.get("host") or "")
+            title = item.get("title") or ""
+            if host and title:
+                FAKE_TITLES.append((host, title))
+except Exception:
+    # log it out
+    print("Could not load fake_results.json for lie titles fallback.")
+    FAKE_TITLES: List[Tuple[str, str]] = [
+        ("how to get away with murder", "wikihow.com"),
+        ("is it illegal to keep a squirrel", "reddit.com"),
+        ("download more ram free", "softonic.com"),
+        ("why do my feet smell like cheese", "webmd.com"),
+        ("nickelback fan club", "geocities.com"),
+        ("flat earth society membership", "flatearth.org"),
+        ("how to bribe a judge", "legalzoom.com"),
+        ("am I a robot test", "captcha.net"),
+        ("DIY surgery kits", "amazon.com"),
+        ("hot singles in your area", "dating.com"),
+        ("how to delete browser history permanently", "google.com"),
+        ("pretend to work screen", "github.com"),
+    ]
 
 GENERIC_TITLE_PATTERNS: List[str] = [
     r"^new tab$",
@@ -458,9 +470,9 @@ def normalize_ai_rounds(data, compact_real_set, real_lookup, allowed_tags=None, 
         if round_tag not in TAG_LOOKUP:
             raise ValueError(f"Round {idx}: unknown tag {round_tag}")
 
-        for c in norm_cards:
-            if c["tag"] != round_tag:
-                raise ValueError(f"Round {idx}: card tag {c['tag']} != round tag {round_tag}")
+        # for c in norm_cards:
+            # if c["tag"] != round_tag:
+            #     raise ValueError(f"Round {idx}: card tag {c['tag']} != round tag {round_tag}")
 
         return {"topic": round_tag, "tag": round_tag, "cards": norm_cards, "lie_index": lie_index}
 

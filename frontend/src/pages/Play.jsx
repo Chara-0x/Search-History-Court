@@ -102,7 +102,7 @@ export default function PlayPage() {
                   const revealedLie = !isSelected && isLieCard && lieIndex !== null;
 
                   const base =
-                    "relative shell-card rounded-none p-6 transition-all duration-300 flex flex-col items-center text-center h-72 justify-between bg-white";
+                    "relative shell-card rounded-none p-6 transition-all duration-300 flex flex-col items-center text-center h-72 justify-between bg-white w-full min-w-0";
 
                   const stateClass = (() => {
                     // Softer, badge-like colors similar to /me ready/need chips
@@ -124,8 +124,8 @@ export default function PlayPage() {
                       <div className="w-14 h-14 rounded-full bg-slate-100 border-2 border-ink flex items-center justify-center mb-4 overflow-hidden">
                         <img src={favUrl} alt="icon" className="w-8 h-8 opacity-80" />
                       </div>
-                      <h3 className="font-display font-bold text-xl leading-snug mb-2 line-clamp-3">"{card.title}"</h3>
-                      <div className="text-xs font-mono text-slate-600 bg-slate-100 border border-ink px-2 py-1 mt-auto shadow-hard-sm rounded-none">{card.host}</div>
+                      <h3 className="font-display font-bold text-xl leading-snug mb-2 line-clamp-3 break-words w-full">"{card.title}"</h3>
+                      <div className="text-xs font-mono text-slate-600 bg-slate-100 border border-ink px-2 py-1 mt-auto shadow-hard-sm rounded-none break-words text-center w-full">{card.host}</div>
 
                       {lieIndex !== null && (
                         <div
