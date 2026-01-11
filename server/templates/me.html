@@ -84,6 +84,42 @@
     </section>
   </main>
 
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.2em] text-indigo-500 font-semibold">Loading game</p>
+          <h3 class="text-xl font-bold text-slate-900">Brewing spicy lies…</h3>
+        </div>
+        <span id="loadingPct" class="text-sm font-mono text-slate-500">0%</span>
+      </div>
+      <div class="px-6 py-5 space-y-4">
+        <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+          <div id="loadingBar" class="h-3 bg-indigo-600 rounded-full" style="width: 0%"></div>
+        </div>
+        <p id="loadingMsg" class="text-sm text-slate-600">Selecting the weirdest tabs…</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-700">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+            <p class="font-semibold mb-1">Mini-game</p>
+            <p class="text-xs text-slate-500">Click to nudge the progress bar or open the mini-game while you wait.</p>
+            <button id="nudgeBtn" class="w-full bg-slate-900 text-white rounded-lg py-2 font-semibold hover:bg-slate-800">Nudge progress</button>
+            <a id="playGameBtn" href="/loading-game" target="_blank" rel="noopener" class="w-full text-center bg-indigo-600 text-white rounded-lg py-2 font-semibold hover:bg-indigo-700 block">Open mini-game</a>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <p class="font-semibold mb-1">What’s happening</p>
+            <ul class="text-xs text-slate-500 space-y-1">
+              <li>- Filtering boring logins</li>
+              <li>- Picking spicy titles per tag</li>
+              <li>- Asking AI for the strangest lies</li>
+              <li>- Packaging a share link</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const sessionId = "{{ session_id }}";
     const minPerTag = {{ min_tag_count }};
@@ -95,6 +131,12 @@
     const tagStatus = document.getElementById("tagStatus");
     const genStatus = document.getElementById("genStatus");
     const loadingDot = document.getElementById("loadingDot");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const loadingBar = document.getElementById("loadingBar");
+    const loadingMsg = document.getElementById("loadingMsg");
+    const loadingPct = document.getElementById("loadingPct");
+    const nudgeBtn = document.getElementById("nudgeBtn");
+    const playGameBtn = document.getElementById("playGameBtn");
     const previewSection = document.getElementById("previewSection");
     const roundList = document.getElementById("roundList");
     const playUrlBox = document.getElementById("playUrlBox");
@@ -110,11 +152,76 @@
       genStatus.textContent = msg || "";
     }
 
+    let loadingTimer = null;
+    let loadingProgress = 0;
+
     function setPreviewStatus(msg, tone = "muted") {
       const colors = { muted: "text-slate-500", good: "text-emerald-600", bad: "text-rose-600" };
       previewStatus.className = "px-6 pb-5 text-sm " + (colors[tone] || colors.muted);
       previewStatus.textContent = msg || "";
     }
+
+    function startLoading() {
+      if (!loadingOverlay || !loadingBar || !loadingPct || !loadingMsg) return;
+      loadingProgress = 0;
+      loadingBar.style.width = "0%";
+      loadingPct.textContent = "0%";
+      loadingMsg.textContent = "Selecting the weirdest tabs...";
+      loadingOverlay.classList.remove("hidden");
+      if (loadingTimer) clearInterval(loadingTimer);
+      loadingTimer = setInterval(() => {
+        loadingProgress = Math.min(99, loadingProgress + Math.random() * 6);
+        loadingBar.style.width = `${loadingProgress}%`;
+        loadingPct.textContent = `${Math.floor(loadingProgress)}%`;
+        if (loadingProgress > 70) loadingMsg.textContent = "Convincing AI to fabricate believable lies...";
+        if (loadingProgress > 90) loadingMsg.textContent = "Sealing your case file...";
+      }, 400);
+    }
+
+    function finishLoading() {
+      if (!loadingOverlay || !loadingBar || !loadingPct || !loadingMsg) return;
+      if (loadingTimer) clearInterval(loadingTimer);
+      loadingProgress = 100;
+      loadingBar.style.width = "100%";
+      loadingPct.textContent = "100%";
+      loadingMsg.textContent = "Done!";
+      setTimeout(() => loadingOverlay.classList.add("hidden"), 350);
+    }
+
+    nudgeBtn?.addEventListener("click", () => {
+      if (!loadingBar || !loadingPct) return;
+      loadingProgress = Math.min(99, loadingProgress + 5);
+      loadingBar.style.width = `${loadingProgress}%`;
+      loadingPct.textContent = `${Math.floor(loadingProgress)}%`;
+    });
+
+const gameModal = document.getElementById("gameModal");
+const closeGameBtn = document.getElementById("closeGameBtn");
+const gameFrame = document.getElementById("gameFrame");
+
+playGameBtn?.addEventListener("click", (e) => {
+  e.preventDefault();
+  // // Set source only when opening to refresh/load
+  // if(gameFrame.src === "about:blank" || !gameFrame.src.endsWith("/loading-game")) {
+  //     gameFrame.src = "/loading-game";
+  // }
+  // gameModal.classList.remove("hidden");
+  // open a popup window instead
+  window.open("/loading-game", "MiniGame", "width=600,height=800");
+});
+
+closeGameBtn?.addEventListener("click", () => {
+  gameModal.classList.add("hidden");
+  // Optional: reset iframe source to stop game logic/sounds if any
+  // gameFrame.src = ""; 
+});
+
+// Close if clicked outside
+gameModal?.addEventListener("click", (e) => {
+  if (e.target === gameModal) {
+    gameModal.classList.add("hidden");
+  }
+});
 
     function renderTags() {
       tagGrid.innerHTML = "";
@@ -176,6 +283,7 @@
     async function generateCase() {
       loadingDot.classList.remove("hidden");
       setGenStatus("Generating rounds...");
+      startLoading();
       const rounds = parseInt(document.getElementById("roundInput").value || "8", 10);
       const body = {
         session_id: sessionId,
@@ -189,6 +297,7 @@
       });
       const json = await res.json().catch(() => ({}));
       loadingDot.classList.add("hidden");
+      finishLoading();
       if (!json.ok) {
         setGenStatus(json.error || "Failed to generate.", "bad");
         return;
@@ -299,5 +408,20 @@
 
     fetchTags();
   </script>
+<div id="gameModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md">
+  <div class="relative w-full max-w-4xl h-[85vh] bg-[#0b1b33] rounded-2xl shadow-2xl overflow-hidden border border-slate-700 flex flex-col">
+    <div class="flex items-center justify-between px-6 py-4 bg-[#061224] border-b border-slate-700">
+      <h3 class="text-white font-bold text-lg">Match-3 Evidence</h3>
+      <button id="closeGameBtn" class="text-slate-400 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="flex-1 w-full relative bg-[#0b1b33]">
+        <iframe id="gameFrame" src="" class="absolute inset-0 w-full h-full border-0" title="Mini Game"></iframe>
+    </div>
+  </div>
+</div>
 </body>
 </html>

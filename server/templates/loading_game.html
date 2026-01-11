@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loading Game</title>
+  <link rel="stylesheet" href="/static/loading_game/game.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">Match-3 Evidence</div>
+      <div class="stats">
+        <div>Score: <span id="score">0</span></div>
+        <button id="reset">Reset</button>
+      </div>
+    </div>
+    
+    <div class="progress-container">
+      <div class="progress-label">Bomb Charge (Purple)</div>
+      <div class="progress-track">
+        <div id="bomb-bar" class="progress-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <div class="board-wrap">
+      <div id="board" class="board" aria-label="game board"></div>
+      </div>
+    <div class="hint">Match 3 to clear. Match Purple (7x) to spawn a Bomb 💣.</div>
+  </div>
+  <script src="/static/loading_game/game.js"></script>
+</body>
+</html>
