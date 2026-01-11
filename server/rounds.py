@@ -574,13 +574,13 @@ def make_rounds_ai(
         "HARD RULES:\n"
         "1) Two truth cards MUST be chosen from REAL_ITEMS using ONLY {\"real_idx\": <int>}.\n"
         "2) The lie card MUST be provided as ONLY {\"host\": <string>, \"title\": <string>} and MUST NOT include real_idx.\n"
-        "3) The lie MUST NOT match any (host,title) pair in REAL_ITEMS.\n"
+        # "3) The lie MUST NOT match any (host,title) pair in REAL_ITEMS.\n"
         "4) Avoid generic titles (login/home/new tab) and avoid repeating the same host too much.\n"
         "5) Every round MUST declare a tag from selected_tags, and all 3 cards must belong to that same tag.\n"
         "6) Both truth cards must come from REAL_ITEMS with that same tag.\n"
         "7) Use canonical hosts (no leading www).\n"
         "8) Output ONLY JSON matching the schema.\n"
-        "9) Make it spicy and tease-able: quirky/absurd/specific.\n"
+        "9) Make it spicy and tease-able: quirky/absurd/specific/embarrassing/incriminating.\n"
     )
 
     user = {
@@ -983,7 +983,7 @@ def curate_history_ai(
         "RULES:\n"
         "- Return ONLY JSON matching the schema.\n"
         "- Select up to pick_n items by their index in RAW_HISTORY_ITEMS.\n"
-        "- Prioritize weird/specific/quirky titles over generic pages.\n"
+        "- Prioritize weird/specific/quirky/embarrassing/incriminating titles over generic pages.\n"
         "- Prefer diversity across hosts (don’t pick 100 twitter pages).\n"
         "- Avoid generic titles: login, home, index, new tab, security checks.\n"
         "- If selected_tags is provided, prefer items that fit those tags.\n"
@@ -1175,6 +1175,7 @@ def make_rounds_ai_from_real_items(
         "5) Each round MUST declare a tag from selected_tags and all 3 cards must share that tag.\n"
         "6) Both truth cards must come from REAL_ITEMS with that same tag.\n"
         "7) Output ONLY JSON matching the schema.\n"
+        "8) Make it spicy and tease-able: quirky/absurd/specific/embarrassing/incriminating.\n"
     )
 
     user = {

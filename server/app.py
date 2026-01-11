@@ -2,7 +2,7 @@ import json
 import os
 import sqlite3
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_cors import CORS
 
 from rounds import make_rounds, make_rounds_ai_two_stage
@@ -26,6 +26,8 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.config["JSON_SORT_KEYS"] = False
 
 DB_PATH = os.environ.get("HISTORYCOURT_DB", "historycourt.db")
+REACT_DIST = os.path.join(os.path.dirname(__file__), "static", "react")
+REACT_INDEX = os.path.join(REACT_DIST, "index.html")
 
 # ============================================================
 # DB helpers
@@ -82,32 +84,34 @@ def get_case_with_history(case_id):
 # ============================================================
 # Routes
 # ============================================================
+def serve_react():
+    if os.path.exists(REACT_INDEX):
+        return send_from_directory(REACT_DIST, "index.html")
+    return render_template("landing.html")
+
+
 @app.get("/")
 def index():
-    return render_template("landing.html")
+    return serve_react()
 
 
 @app.get("/review")
 def review():
-    return render_template(
-        "review.html",
-        tag_defs=TAG_DEFS,
-        type_to_tag=TYPE_TO_TAG,
-    )
+    return serve_react()
 
 
 @app.get("/me/<session_id>")
 def me(session_id):
-    return render_template("me.html", session_id=session_id, min_tag_count=TAG_MIN_COUNT)
+    return serve_react()
 
 @app.get("/loading-game")
 def loading_game():
-    return render_template("loading_game.html")
+    return serve_react()
 
 
 @app.get("/play/<case_id>")
 def play(case_id):
-    return render_template("play.html", case_id=case_id)
+    return serve_react()
 
 
 @app.post("/api/upload-history")
@@ -155,7 +159,13 @@ def type_map():
     """
     Expose host->type mapping so clients can classify locally.
     """
-    return jsonify({"ok": True, "type_map": TYPE_MAP, "type_to_tag": TYPE_TO_TAG})
+    return jsonify({
+        "ok": True,
+        "type_map": TYPE_MAP,
+        "type_to_tag": TYPE_TO_TAG,
+        "tag_defs": TAG_DEFS,
+        "tag_min_count": TAG_MIN_COUNT,
+    })
 
 
 @app.get("/api/session/<session_id>/tags")
